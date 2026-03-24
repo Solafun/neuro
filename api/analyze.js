@@ -331,7 +331,10 @@ export default async function handler(req, res) {
 
     // Block empty profiles — return debug info so frontend can show it
     if (data.posts.length === 0) {
-      return res.status(200).json();
+      return res.status(200).json({
+        error: 'no_posts',
+        message: 'В этом профиле нет публикаций для анализа. Либо профиль закрыт / пуст.'
+      });
     }
 
     const usedPosts = data.posts.slice(0, 60);
