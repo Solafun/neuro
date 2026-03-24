@@ -24,10 +24,13 @@ async function checkChannelMembership(userId) {
 }
 
 export default async function handler(req, res) {
-    console.log("Bot webhook received method:", req.method);
-
     if (req.method !== 'POST') {
         return res.status(405).send('Method Not Allowed');
+    }
+
+    if (!TELEGRAM_TOKEN) {
+        console.error("CRITICAL: TELEGRAM_BOT_TOKEN is missing from environment variables");
+        return res.status(500).send('Bot token missing');
     }
 
     try {
