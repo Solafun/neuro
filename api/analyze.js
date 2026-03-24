@@ -2,11 +2,14 @@ import Groq from 'groq-sdk';
 import axios from 'axios';
 import { trackCheck, checkUserStatus } from './lib/supabase.js';
 
-// Собираем все доступные ключи GROQ из переменных окружения
-const groqKeys = Object.keys(process.env)
-  .filter(key => key === 'GROQ_API_KEY' || key.startsWith('GROQ_API_KEY'))
-  .map(key => process.env[key])
-  .filter(Boolean);
+const groqKeys = [
+  process.env.GROQ_API_KEY,
+  process.env.GROQ_API_KEY_1,
+  process.env.GROQ_API_KEY_2,
+  process.env.GROQ_API_KEY_3,
+  process.env.GROQ_API_KEY_4,
+
+].filter(Boolean);
 
 console.log(`Initialized with ${groqKeys.length} Groq API keys.`);
 
