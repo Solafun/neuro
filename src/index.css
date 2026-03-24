@@ -44,23 +44,14 @@
 
 /* Запрет зума и горизонтального скролла */
 html {
-  touch-action: manipulation;
-  -ms-touch-action: manipulation;
   -webkit-text-size-adjust: 100%;
   -moz-text-size-adjust: 100%;
   -ms-text-size-adjust: 100%;
   text-size-adjust: 100%;
   overflow-x: hidden;
   max-width: 100vw;
-  overscroll-behavior: none;
-  /* Запрет rubber-banding на уровне HTML */
 }
 
-
-/* Запрет двойного тапа для зума */
-* {
-  touch-action: manipulation;
-}
 
 /* Запрет выделения текста (опционально, если нужно) */
 body {
@@ -126,8 +117,6 @@ body {
   overflow-y: auto;
   max-width: 100vw;
   position: relative;
-  overscroll-behavior-y: none;
-  /* Отключаем отскок сверху/снизу */
 }
 
 

@@ -27,8 +27,9 @@ function App() {
         }
       }
 
-      // Отключаем свайп вниз для закрытия (Telegram 7.7+)
-      if (tg.isVersionAtLeast('7.7') && tg.disableVerticalSwipe) {
+      // Отключаем свайп вниз для закрытия (Только для iOS, на Android это часто ломает скролл)
+      const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
+      if (isIOS && tg.isVersionAtLeast('7.7') && tg.disableVerticalSwipe) {
         try {
           tg.disableVerticalSwipe();
         } catch (e) {
