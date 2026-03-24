@@ -4,7 +4,7 @@ import { trackUser, getStats, setChannelSubscription, setUserPaidStatusByUsernam
 const TELEGRAM_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const ADMIN_ID = process.env.ADMIN_TELEGRAM_ID;
 const PAID_CHANNEL_ID = process.env.PAID_CHANNEL_ID; // ID канала/группы
-const WEBAPP_URL = "https://threadsneuro.netlify.app";
+const WEBAPP_URL = "https://threadsneuro.vercel.app/";
 
 /**
  * Проверка членства в канале
