@@ -603,21 +603,15 @@ ${postsText || 'Посты не найдены.'}`;
       return res.status(200).json();
     }
 
-    return {
-      statusCode: 200,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        nickname: data.nickname,
-        avatar: data.avatar,
-        posts_found: usedPosts.length,
-        posts: usedPosts,
-        bio: data.bio || null,
-        isPaid: isPaid, // Передаем статус оплаты на фронтенд
-        ...analysisResult
-      }),
-    };
+    return res.status(200).json({
+      nickname: data.nickname,
+      avatar: data.avatar,
+      posts_found: usedPosts.length,
+      posts: usedPosts,
+      bio: data.bio || null,
+      isPaid: isPaid, // Передаем статус оплаты на фронтенд
+      ...analysisResult
+    });
 
   } catch (error) {
     console.error('Final handler error:', error);
