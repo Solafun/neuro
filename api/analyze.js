@@ -330,7 +330,7 @@ export default async function handler(req, res) {
     if (data.posts.length === 0) {
       return res.status(200).json({
         error: 'no_posts',
-        message: 'В этом профиле нет публикаций для анализа. Либо профиль закрыт / пуст.'
+        message: 'В этом профиле нет публикаций для анализа. Возможно, ваш профиль не виден для нашего бота из-за ограничений Threads, либо он закрыт / пуст.'
       });
     }
 
