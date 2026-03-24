@@ -9,5 +9,8 @@ export default defineConfig({
     watch: {
       ignored: ['**/.agents/**']
     }
+  },
+  build: {
+    chunkSizeWarningLimit: 1000,
   }
 })
