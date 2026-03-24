@@ -2,19 +2,16 @@ import Groq from 'groq-sdk';
 import axios from 'axios';
 import { trackCheck, checkUserStatus } from './lib/supabase.js';
 
-const groqKeys = [
-  process.env.GROQ_API_KEY,
-  process.env.GROQ_API_KEY_1,
-  process.env.GROQ_API_KEY_2,
-  process.env.GROQ_API_KEY_3,
-  process.env.GROQ_API_KEY_4,
-  process.env.GROQ_API_KEY_5,
-  process.env.GROQ_API_KEY_6,
-  process.env.GROQ_API_KEY_7,
-  process.env.GROQ_API_KEY_8,
-  process.env.GROQ_API_KEY_9,
-  process.env.GROQ_API_KEY_10,
-].filter(Boolean);
+// Discovery for many Groq keys (supports up to 500 keys)
+const groqKeys = [];
+// Main key
+if (process.env.GROQ_API_KEY) groqKeys.push(process.env.GROQ_API_KEY);
+// Numbered keys: GROQ_API_KEY_1, GROQ_API_KEY_2 ... GROQ_API_KEY_100
+for (let i = 1; i <= 500; i++) {
+  const keyName = `GROQ_API_KEY_${i}`;
+  const val = process.env[keyName];
+  if (val) groqKeys.push(val);
+}
 
 console.log(`Initialized with ${groqKeys.length} Groq API keys.`);
 
