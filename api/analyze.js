@@ -8,7 +8,12 @@ const groqKeys = [
   process.env.GROQ_API_KEY_2,
   process.env.GROQ_API_KEY_3,
   process.env.GROQ_API_KEY_4,
-
+  process.env.GROQ_API_KEY_5,
+  process.env.GROQ_API_KEY_6,
+  process.env.GROQ_API_KEY_7,
+  process.env.GROQ_API_KEY_8,
+  process.env.GROQ_API_KEY_9,
+  process.env.GROQ_API_KEY_10,
 ].filter(Boolean);
 
 console.log(`Initialized with ${groqKeys.length} Groq API keys.`);
@@ -557,8 +562,7 @@ ${postsText || 'Посты не найдены.'}`;
     // --- ТРЕКИНГ СТАТИСТИКИ ---
     let isPaid = false;
     try {
-      const bodyParams = JSON.parse(event.body);
-      const telegramId = bodyParams.telegramId;
+      const telegramId = req.body.telegramId;
       console.log(`Debug stats: nickname=${nickname}, telegramId=${telegramId}`);
       await trackCheck(telegramId, nickname);
 
