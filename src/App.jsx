@@ -11,7 +11,7 @@ import { AnimatePresence } from 'framer-motion';
 
 function App() {
   const [nickname, setNickname] = useState('');
-  const [appState, setAppState] = useState('loading'); // Начинаем с загрузки для проверки настроек
+  const [appState, setAppState] = useState('init'); // Новый статус - инициализация
   const [result, setResult] = useState(null);
   const [isMaintenance, setIsMaintenance] = useState(false);
   const [maintenanceMessage, setMaintenanceMessage] = useState('');
@@ -142,6 +142,18 @@ function App() {
       <SpatialBackground />
       <div className="app-container">
         <AnimatePresence mode="wait">
+          {appState === 'init' && (
+            <motion.div
+              key="init"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="flex items-center justify-center h-full w-full"
+            >
+              <div className="simple-spinner"></div>
+            </motion.div>
+          )}
+
           {appState === 'idle' && (
             <MainScreen
               key="main"
