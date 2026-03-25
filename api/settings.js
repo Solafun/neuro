@@ -6,10 +6,13 @@ export default async function handler(req, res) {
     }
 
     try {
-        console.log('API Settings: fetching maintenance mode...');
-        const isMaintenance = await getMaintenanceMode();
-        console.log('API Settings: result:', isMaintenance);
-        return res.status(200).json({ isMaintenance });
+        console.log('API Settings: fetching app status...');
+        const status = await getAppStatus();
+        console.log('API Settings result:', status);
+        return res.status(200).json({
+            isMaintenance: status?.is_maintenance || false,
+            maintenanceMessage: status?.maintenance_message || 'Технические работы'
+        });
     } catch (error) {
         console.error('API Settings error:', error);
         return res.status(500).json({ error: error.message || 'Internal Server Error' });

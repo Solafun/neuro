@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-const MaintenanceScreen = () => {
+const MaintenanceScreen = ({ message }) => {
     return (
         <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -20,7 +20,7 @@ const MaintenanceScreen = () => {
 
                 <h1 className="maintenance-title">Технические работы</h1>
                 <p className="maintenance-description">
-                    Мы обновляем систему, чтобы стать лучше. Приложение временно недоступно.
+                    {message || "Мы обновляем систему, чтобы стать лучше. Приложение временно недоступно."}
                 </p>
 
                 <div className="status-badge">

@@ -264,27 +264,27 @@ export async function setUserPaidStatusByUsername(username, isPaid = true) {
 }
 
 /**
- * Получает значение настройки из таблицы settings
- * @param {string} key - Ключ настройки
- * @returns {Promise<any>} - Значение настройки
+ * Получает текущий статус приложения из таблицы app_status (как в threads-valentines)
+ * @returns {Promise<Object>}
  */
-export async function getSetting(key) {
-    if (!supabase) return null;
+export async function getAppStatus() {
+    if (!supabase) return { is_maintenance: false };
     try {
         const { data, error } = await supabase
-            .from('settings')
-            .select('value')
-            .eq('key', key)
+            .from('app_status')
+            .select('*')
+            .eq('id', 1)
             .maybeSingle();
 
         if (error) {
-            console.error(`Error fetching setting ${key}:`, error);
-            return null;
+            console.error('Error fetching app status:', error);
+            return { is_maintenance: false };
         }
-        return data?.value;
+
+        return data || { is_maintenance: false };
     } catch (e) {
-        console.error(`Catch error fetching setting ${key}:`, e);
-        return null;
+        console.error('Catch error fetching app status:', e);
+        return { is_maintenance: false };
     }
 }
 
@@ -293,14 +293,7 @@ export async function getSetting(key) {
  * @returns {Promise<boolean>}
  */
 export async function getMaintenanceMode() {
-    try {
-        const value = await getSetting('maintenance_mode');
-        console.log(`Maintenance mode raw value from DB:`, value);
-        // Обрабатываем boolean, строку или отсутствие значения
-        return value === true || value === 'true' || value === 1 || value === '1';
-    } catch (e) {
-        console.error("Error in getMaintenanceMode:", e);
-        return false;
-    }
+    const status = await getAppStatus();
+    return status?.is_maintenance === true;
 }
 

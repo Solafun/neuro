@@ -14,6 +14,7 @@ function App() {
   const [appState, setAppState] = useState('loading'); // Начинаем с загрузки для проверки настроек
   const [result, setResult] = useState(null);
   const [isMaintenance, setIsMaintenance] = useState(false);
+  const [maintenanceMessage, setMaintenanceMessage] = useState('');
 
   useEffect(() => {
     const tg = window.Telegram?.WebApp;
@@ -61,11 +62,12 @@ function App() {
     const fetchMaintenanceStatus = async () => {
       console.log("Checking maintenance status...");
       try {
-        const maintenance = await checkMaintenance();
-        console.log("Maintenance status result:", maintenance);
+        const data = await checkMaintenance();
+        console.log("Maintenance status result:", data);
 
-        if (maintenance) {
+        if (data.isMaintenance) {
           setIsMaintenance(true);
+          setMaintenanceMessage(data.maintenanceMessage || "");
           setAppState('maintenance');
         } else {
           setAppState('idle');
@@ -170,7 +172,10 @@ function App() {
           )}
 
           {appState === 'maintenance' && (
-            <MaintenanceScreen key="maintenance" />
+            <MaintenanceScreen
+              key="maintenance"
+              message={maintenanceMessage}
+            />
           )}
         </AnimatePresence>
       </div>
