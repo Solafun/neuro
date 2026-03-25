@@ -57,6 +57,12 @@ export async function trackCheck(telegramId, targetNickname) {
     if (!supabase) return;
     console.log(`Logging check: ${targetNickname} by user ${telegramId}`);
 
+    // ОПЦИОНАЛЬНО: Пытаемся создать "скелет" пользователя, если его нет в базе, 
+    // чтобы не нарушать констреинт Foreign Key
+    if (telegramId) {
+        await supabase.from('users').upsert({ id: telegramId }, { onConflict: 'id', ignoreDuplicates: true });
+    }
+
     const { error } = await supabase.from('checks').insert({
         user_id: telegramId || null,
         target_nickname: targetNickname,

@@ -74,20 +74,22 @@ export default async function handler(req, res) {
                     await setChannelSubscription(user.id, true);
                 }
 
-                const userName = user.first_name || "друг";
-                const messageText = `👋 Привет, ${userName}!\n\n` +
-                    `🤖 Я — **Threads Neuro**. Я использую нейросети для проведения глубокого психологического анализа личности на основе твоего профиля и публикаций.\n\n` +
-                    `🔍 **Что я могу:**\n` +
+                // Экранируем спецсимволы в имени для HTML
+                const safeName = (user.first_name || "друг").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+                const messageText = `👋 Привет, <b>${safeName}</b>!\n\n` +
+                    `🤖 Я — <b>Threads Neuro</b>. Я использую нейросети для проведения глубокого психологического анализа личности на основе твоего профиля и публикаций.\n\n` +
+                    `🔍 <b>Что я могу:</b>\n` +
                     `• Составить твой психологический портрет\n` +
                     `• Определить твой стиль общения и поведения\n` +
                     `• Найти скрытые конфликты и «слепые зоны»\n` +
                     `• Оценить уровень токсичности и манипулятивности\n\n` +
-                    `${isMember ? '💎 Тебе доступен **Premium** статус!' : 'Жми кнопку ниже, чтобы начать! 👇'}`;
+                    `${isMember ? '💎 Тебе доступен <b>Premium</b> статус!' : 'Жми кнопку ниже, чтобы начать! 👇'}`;
 
                 await axios.post(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
                     chat_id: chatId,
                     text: messageText,
-                    parse_mode: 'Markdown',
+                    parse_mode: 'HTML',
                     reply_markup: {
                         inline_keyboard: [
                             [
