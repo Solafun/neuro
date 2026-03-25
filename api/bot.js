@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { trackUser, getStats, setChannelSubscription, setUserPaidStatusByUsername, getAppStatus } from './lib/supabase.js';
+import { trackUser, getStats, setChannelSubscription, setUserPaidStatusByUsername, getAppStatus, checkUserStatus } from './lib/supabase.js';
 
 const TELEGRAM_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const ADMIN_ID = process.env.ADMIN_TELEGRAM_ID;
@@ -67,8 +67,15 @@ export default async function handler(req, res) {
 
             console.log(`Message from ${user.id}: "${text}"`);
 
-            // Если техработы включены — блокируем всё, кроме админа
-            const isAdmin = ADMIN_ID && String(user.id) === String(ADMIN_ID);
+            // Проверяем статус админа (ENV + DB)
+            let isAdmin = ADMIN_ID && String(user.id) === String(ADMIN_ID);
+
+            // Если не админ по ENV, проверяем базу
+            if (!isAdmin) {
+                const userStatus = await checkUserStatus(user.id);
+                if (userStatus.isAdmin) isAdmin = true;
+            }
+
             if (isMaintenance && !isAdmin) {
                 await axios.post(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
                     chat_id: chatId,
