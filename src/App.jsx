@@ -59,11 +59,18 @@ function App() {
     }
 
     // Проверка режима тех. работ при загрузке
-    const fetchMaintenanceStatus = async () => {
-      console.log("Checking maintenance status...");
+    const fetchMaintenanceStatus = async (retryCount = 0) => {
+      console.log(`Checking maintenance status (attempt ${retryCount + 1})...`);
       try {
         const tg = window.Telegram?.WebApp;
         const telegramId = tg?.initDataUnsafe?.user?.id;
+
+        // Если ID еще нет, но мы в телеграме - пробуем подождать (до 3 раз)
+        if (!telegramId && tg && tg.initData && retryCount < 3) {
+          setTimeout(() => fetchMaintenanceStatus(retryCount + 1), 500);
+          return;
+        }
+
         const data = await checkMaintenance(telegramId);
         console.log("Maintenance status result:", data);
 

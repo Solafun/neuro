@@ -552,6 +552,7 @@ Bio: ${data.bio}
 Posts:
 ${postsText || 'Посты не найдены.'}`;
 
+    let analysisResult;
     let lastError;
 
     const startTimeBaseten = Date.now();
@@ -566,15 +567,11 @@ ${postsText || 'Посты не найдены.'}`;
           messages: [
             {
               role: "system",
-              content: megaPrompt.split('==================================================\n📊 ВЕРНИ JSON:')[0] + "\nВерни СТРОГО чистый JSON."
+              content: "Ты — профессиональный психолог-профайлер. Твоя задача — провести глубокий анализ личности по текстам постов. СТРОГО соблюдай заданную структуру JSON и пиши только на РУССКОМ языке. Не используй markdown разметку, возвращай только чистый объект JSON."
             },
             {
               role: "user",
-              content: "Проанализируй профиль и верни JSON согласно схеме:\n\n" +
-                "ДАННЫЕ ПРОФИЛЯ:\n" +
-                `Nickname: @${nickname}\n` +
-                `Bio: ${data.bio}\n` +
-                `Posts:\n${postsText || 'Посты не найдены.'}`
+              content: megaPrompt
             }
           ],
           response_format: { type: "json_object" }
