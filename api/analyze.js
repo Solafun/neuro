@@ -344,13 +344,35 @@ export default async function handler(req, res) {
       console.log("API Settings result:", appStatus);
     }
 
-    if (appStatus?.is_maintenance === true) {
+    const telegramId = req.body.telegramId;
+    let isPaid = false;
+    let isAdmin = false;
+
+    // Check if user is explicit admin via ENV
+    if (telegramId && process.env.ADMIN_TELEGRAM_ID && String(telegramId) === String(process.env.ADMIN_TELEGRAM_ID)) {
+      isAdmin = true;
+    }
+
+    // 1. Fetch user status first to check for Admin bypass
+    if (telegramId && !isAdmin) {
+      try {
+        const status = await checkUserStatus(telegramId);
+        isPaid = status.isPaid;
+        isAdmin = status.isAdmin;
+      } catch (e) {
+        console.warn("Failed to check optional user status for bypass:", e.message);
+      }
+    }
+
+    // 2. ENFORCE MAINTENANCE (Bypass for admins)
+    if (appStatus?.is_maintenance === true && !isAdmin) {
       return res.status(200).json({
         error: 'maintenance',
         message: appStatus.maintenance_message || 'В данный момент ведутся технические работы. Пожалуйста, попробуйте позже.'
       });
     }
 
+    // 3. AI PHASE STARTED - Timing matches Scraping Phase start implicitly
     const startTimeFull = Date.now();
     const startTimeScrape = Date.now();
     const data = await scrapeThreadsProfile(nickname);
@@ -596,16 +618,16 @@ ${postsText || 'Посты не найдены.'}`;
     }
 
     // --- ТРЕКИНГ СТАТИСТИКИ ---
-    let isPaid = false;
     try {
-      const telegramId = req.body.telegramId;
       console.log(`Debug stats: nickname=${nickname}, telegramId=${telegramId}`);
       // Возвращаем await, так как в serverless-среде без него соединение разрывается (SocketError)
       await trackCheck(telegramId, nickname).catch(e => console.error("trackCheck error:", e));
 
-      // Проверяем статус оплаты пользователя
-      const status = await checkUserStatus(telegramId);
-      isPaid = status.isPaid;
+      // Если статус оплаты еще не был получен в блоке техработ, получаем его сейчас
+      if (telegramId && !isPaid) {
+        const checkStatus = await checkUserStatus(telegramId);
+        isPaid = checkStatus.isPaid;
+      }
     } catch (e) {
       console.warn("Failed to log check stats or check status:", e);
     }

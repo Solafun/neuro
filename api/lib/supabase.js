@@ -102,11 +102,11 @@ export async function checkUserStatus(telegramId) {
     try {
         const { data, error } = await supabase
             .from('users')
-            .select('is_paid, subscription_expires_at')
+            .select('is_paid, subscription_expires_at, is_admin')
             .eq('id', telegramId)
             .single();
 
-        if (error || !data) return { isPaid: false };
+        if (error || !data) return { isPaid: false, isAdmin: false };
 
         // Если оплачено, проверяем дату окончания
         if (data.is_paid && data.subscription_expires_at) {
@@ -115,11 +115,11 @@ export async function checkUserStatus(telegramId) {
             if (expires < now) {
                 console.log(`Subscription expired for user ${telegramId}, auto-revoking.`);
                 await setUserPaidStatus(telegramId, false, null);
-                return { isPaid: false };
+                return { isPaid: false, isAdmin: !!data.is_admin };
             }
         }
 
-        return { isPaid: data?.is_paid || false };
+        return { isPaid: !!data.is_paid, isAdmin: !!data.is_admin };
     } catch (e) {
         console.error('Error in checkUserStatus:', e);
         return { isPaid: false };
