@@ -4,13 +4,16 @@ import ResultScreen from './components/ResultScreen';
 import MainScreen from './components/MainScreen';
 import LoadingScreen from './components/LoadingScreen';
 import ErrorScreen from './components/ErrorScreen';
+import MaintenanceScreen from './components/MaintenanceScreen';
 import SpatialBackground from './components/SpatialBackground';
+import { checkMaintenance } from './services/api';
 import { AnimatePresence } from 'framer-motion';
 
 function App() {
   const [nickname, setNickname] = useState('');
-  const [appState, setAppState] = useState('idle'); // idle, loading, result, error
+  const [appState, setAppState] = useState('idle'); // idle, loading, result, error, maintenance
   const [result, setResult] = useState(null);
+  const [isMaintenance, setIsMaintenance] = useState(false);
 
   useEffect(() => {
     const tg = window.Telegram?.WebApp;
@@ -53,6 +56,16 @@ function App() {
         }
       }
     }
+
+    // Проверка режима тех. работ при загрузке
+    const fetchMaintenanceStatus = async () => {
+      const maintenance = await checkMaintenance();
+      if (maintenance) {
+        setIsMaintenance(true);
+        setAppState('maintenance');
+      }
+    };
+    fetchMaintenanceStatus();
   }, []);
 
   // Telegram Back Button logic
@@ -144,6 +157,10 @@ function App() {
               message={result?.message}
               onReset={handleReset}
             />
+          )}
+
+          {appState === 'maintenance' && (
+            <MaintenanceScreen key="maintenance" />
           )}
         </AnimatePresence>
       </div>

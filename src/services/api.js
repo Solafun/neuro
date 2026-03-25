@@ -14,3 +14,13 @@ export const analyzeProfile = async (nickname, telegramId = null) => {
         throw new Error(error.response?.data?.message || error.message || 'Failed to analyze profile');
     }
 };
+
+export const checkMaintenance = async () => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/settings`);
+        return response.data.isMaintenance;
+    } catch (error) {
+        console.error('Error checking maintenance status:', error);
+        return false;
+    }
+};

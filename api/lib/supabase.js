@@ -262,3 +262,39 @@ export async function setUserPaidStatusByUsername(username, isPaid = true) {
         return { success: false, error: e.message };
     }
 }
+
+/**
+ * Получает значение настройки из таблицы settings
+ * @param {string} key - Ключ настройки
+ * @returns {Promise<any>} - Значение настройки
+ */
+export async function getSetting(key) {
+    if (!supabase) return null;
+    try {
+        const { data, error } = await supabase
+            .from('settings')
+            .select('value')
+            .eq('key', key)
+            .maybeSingle();
+
+        if (error) {
+            console.error(`Error fetching setting ${key}:`, error);
+            return null;
+        }
+        return data?.value;
+    } catch (e) {
+        console.error(`Catch error fetching setting ${key}:`, e);
+        return null;
+    }
+}
+
+/**
+ * Проверяет, включен ли режим технических работ
+ * @returns {Promise<boolean>}
+ */
+export async function getMaintenanceMode() {
+    const value = await getSetting('maintenance_mode');
+    // Если значения нет, считаем что техработы выключены (false)
+    return value === true || value === 'true';
+}
+

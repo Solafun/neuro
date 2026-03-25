@@ -2005,3 +2005,88 @@ p,
   border-radius: 100px;
   transition: width 1.5s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
+/* --- MAINTENANCE SCREEN --- */
+.maintenance-screen {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 1000;
+}
+
+.maintenance-card {
+  max-width: 400px;
+  width: 100%;
+  text-align: center;
+  padding: 40px 30px;
+  border-radius: 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+}
+
+.maintenance-title {
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: -1px;
+  margin: 0;
+  background: linear-gradient(135deg, var(--text) 0%, var(--text-muted) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.maintenance-description {
+  font-size: 16px;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.glass-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--primary-light);
+  color: var(--primary);
+  margin-bottom: 8px;
+}
+
+.status-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(0, 122, 255, 0.1);
+  color: var(--primary);
+  padding: 8px 16px;
+  border-radius: 100px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.pulse {
+  width: 8px;
+  height: 8px;
+  background: var(--primary);
+  border-radius: 50%;
+  animation: badge-pulse 2s infinite;
+}
+
+@keyframes badge-pulse {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.5); opacity: 0.5; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.maintenance-footer {
+  font-size: 13px;
+  color: var(--text-muted);
+  opacity: 0.6;
+  font-weight: 500;
+}
