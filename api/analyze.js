@@ -1,6 +1,6 @@
 import Groq from 'groq-sdk';
 import axios from 'axios';
-import { trackCheck, checkUserStatus } from './lib/supabase.js';
+import { trackCheck, checkUserStatus, getAppStatus } from './lib/supabase.js';
 
 // Discovery for many Groq keys (supports up to 500 keys)
 const groqKeys = [];
@@ -322,6 +322,15 @@ export default async function handler(req, res) {
 
     if (!nickname) {
       return res.status(400).json();
+    }
+
+    // 0. ПРОВЕРКА РЕЖИМА ТЕХРАБОТ
+    const appStatus = await getAppStatus();
+    if (appStatus?.is_maintenance === true) {
+      return res.status(200).json({
+        error: 'maintenance',
+        message: appStatus.maintenance_message || 'В данный момент ведутся технические работы. Пожалуйста, попробуйте позже.'
+      });
     }
 
     const data = await scrapeThreadsProfile(nickname);

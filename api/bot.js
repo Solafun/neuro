@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { trackUser, getStats, setChannelSubscription, setUserPaidStatusByUsername } from './lib/supabase.js';
+import { trackUser, getStats, setChannelSubscription, setUserPaidStatusByUsername, getAppStatus } from './lib/supabase.js';
 
 const TELEGRAM_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const ADMIN_ID = process.env.ADMIN_TELEGRAM_ID;
@@ -42,6 +42,11 @@ export default async function handler(req, res) {
 
         console.log("Telegram update:", JSON.stringify(body));
 
+        // 0. ПРОВЕРКА РЕЖИМА ТЕХРАБОТ
+        const appStatus = await getAppStatus();
+        const isMaintenance = appStatus?.is_maintenance === true;
+        const maintenanceMsg = appStatus?.maintenance_message || "В данный момент ведутся технические работы. Пожалуйста, попробуйте позже.";
+
         // 1. ОБРАБОТКА ВСТУПЛЕНИЯ/ВЫХОДА (chat_member)
         if (body.chat_member) {
             const update = body.chat_member;
@@ -61,6 +66,17 @@ export default async function handler(req, res) {
             const user = body.message.from;
 
             console.log(`Message from ${user.id}: "${text}"`);
+
+            // Если техработы включены — блокируем всё, кроме админа
+            const isAdmin = ADMIN_ID && String(user.id) === String(ADMIN_ID);
+            if (isMaintenance && !isAdmin) {
+                await axios.post(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
+                    chat_id: chatId,
+                    text: `🛠 **${maintenanceMsg}**`,
+                    parse_mode: 'Markdown'
+                });
+                return res.status(200).send('OK');
+            }
 
             // Всегда трекаем пользователя (если есть база)
             await trackUser(user);
