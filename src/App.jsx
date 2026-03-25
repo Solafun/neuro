@@ -7,7 +7,7 @@ import ErrorScreen from './components/ErrorScreen';
 import MaintenanceScreen from './components/MaintenanceScreen';
 import SpatialBackground from './components/SpatialBackground';
 import { checkMaintenance } from './services/api';
-import { AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 
 function App() {
   const [nickname, setNickname] = useState('');
