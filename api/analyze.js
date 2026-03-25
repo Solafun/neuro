@@ -348,9 +348,12 @@ export default async function handler(req, res) {
     let isPaid = false;
     let isAdmin = false;
 
+    console.log(`Maintenance Check: user=${telegramId}, maintenance=${appStatus?.is_maintenance}, envAdmin=${process.env.ADMIN_TELEGRAM_ID}`);
+
     // Check if user is explicit admin via ENV
     if (telegramId && process.env.ADMIN_TELEGRAM_ID && String(telegramId) === String(process.env.ADMIN_TELEGRAM_ID)) {
       isAdmin = true;
+      console.log("Bypass: User recognized as ENV Admin");
     }
 
     // 1. Fetch user status first to check for Admin bypass
@@ -359,6 +362,7 @@ export default async function handler(req, res) {
         const status = await checkUserStatus(telegramId);
         isPaid = status.isPaid;
         isAdmin = status.isAdmin;
+        console.log(`Bypass: DB Status - isPaid=${isPaid}, isAdmin=${isAdmin}`);
       } catch (e) {
         console.warn("Failed to check optional user status for bypass:", e.message);
       }
@@ -366,10 +370,13 @@ export default async function handler(req, res) {
 
     // 2. ENFORCE MAINTENANCE (Bypass for admins)
     if (appStatus?.is_maintenance === true && !isAdmin) {
+      console.log("Maintenance: BLOCKED (User is not admin)");
       return res.status(200).json({
         error: 'maintenance',
         message: appStatus.maintenance_message || 'В данный момент ведутся технические работы. Пожалуйста, попробуйте позже.'
       });
+    } else if (appStatus?.is_maintenance === true && isAdmin) {
+      console.log("Maintenance: BYPASSED (User is admin)");
     }
 
     // 3. AI PHASE STARTED - Timing matches Scraping Phase start implicitly
