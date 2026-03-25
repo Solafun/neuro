@@ -2,16 +2,36 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import axios from 'axios';
 import { trackCheck, checkUserStatus, getAppStatus } from './lib/supabase.js';
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "AIzaSyC9ofJf2iBZMfdqAB3nRCxjTd5hFSMsj54");
-const modelName = "gemini-2.5-flash-lite";
-const model = genAI.getGenerativeModel({
-  model: modelName,
-  generationConfig: {
-    responseMimeType: "application/json",
-  }
+// Discovery for many Gemini keys
+const geminiKeys = [];
+// Main key
+if (process.env.GEMINI_API_KEY) geminiKeys.push(process.env.GEMINI_API_KEY);
+// Numbered keys: GEMINI_API_KEY_1, GEMINI_API_KEY_2 ...
+for (let i = 1; i <= 500; i++) {
+  const keyName = `GEMINI_API_KEY_${i}`;
+  const val = process.env[keyName];
+  if (val) geminiKeys.push(val);
+}
+
+// Error log if no keys found
+if (geminiKeys.length === 0) {
+  console.error("FATAL: No Gemini API keys found in environment variables!");
+}
+
+const modelName = "gemini-2.5-flash";
+
+// Create model instances for each key
+const geminiModels = geminiKeys.map(key => {
+  const genAI = new GoogleGenerativeAI(key);
+  return genAI.getGenerativeModel({
+    model: modelName,
+    generationConfig: {
+      responseMimeType: "application/json",
+    }
+  });
 });
 
-console.log(`Initialized with Gemini model: ${modelName}`);
+console.log(`Initialized with ${geminiModels.length} Gemini API keys.`);
 
 async function scrapeThreadsProfile(nickname) {
   const url = `https://www.threads.net/@${nickname}`;
@@ -498,26 +518,51 @@ ${postsText || 'Посты не найдены.'}`;
 
     let analysisResult;
     let successfulModel = modelName;
+    let lastError;
 
-    try {
-      console.log(`Attempting Gemini analysis with model: ${modelName}...`);
-
-      const result = await model.generateContent(megaPrompt);
-      const response = await result.response;
-      const text = response.text();
-
-      console.log("Gemini call successful.");
-
+    // --- GEMINI CALL WITH KEY ROTATION ---
+    for (let i = 0; i < geminiModels.length; i++) {
+      const currentModel = geminiModels[i];
       try {
-        analysisResult = JSON.parse(text);
-      } catch (parseError) {
-        console.error("Failed to parse Gemini JSON output:", parseError);
-        console.log("Raw text was:", text);
-        throw new Error("Invalid JSON format from Gemini");
+        console.log(`Attempting Gemini analysis with Key ${i + 1} (model: ${modelName})...`);
+
+        const result = await currentModel.generateContent(megaPrompt);
+        const response = await result.response;
+        const text = response.text();
+
+        console.log(`Gemini call successful (Key ${i + 1}).`);
+
+        try {
+          analysisResult = JSON.parse(text);
+          break; // Success! Exit the key loop.
+        } catch (parseError) {
+          console.error(`Failed to parse Gemini JSON output from Key ${i + 1}:`, parseError);
+          console.log("Raw text was:", text);
+          lastError = new Error("Invalid JSON format from Gemini");
+          // If JSON is invalid, maybe try another key? or just fail. 
+          // Usually JSON issues are model-related, not key-related, but we'll try next key anyway.
+          continue;
+        }
+      } catch (error) {
+        lastError = error;
+        const status = error.status || error.response?.status;
+        console.warn(`Gemini Key ${i + 1} failed: ${error.message} (Status: ${status})`);
+
+        // If it's a rate limit or server error, try the next key
+        if (status === 429 || [500, 502, 503, 504].includes(status)) {
+          console.log(`Trying next Gemini key...`);
+          continue;
+        }
+
+        // For other errors, we might want to continue or stop. 
+        // For now, let's keep rotating until we run out of keys.
+        continue;
       }
-    } catch (error) {
-      console.error("Gemini analysis failed:", error);
-      throw error;
+    }
+
+    if (!analysisResult) {
+      console.error("All Gemini keys failed");
+      throw lastError || new Error("All AI models are unavailable");
     }
 
     // --- ТРЕКИНГ СТАТИСТИКИ ---
