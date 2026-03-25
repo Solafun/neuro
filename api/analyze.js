@@ -1,25 +1,25 @@
 import axios from 'axios';
 import { trackCheck, checkUserStatus, getAppStatus } from './lib/supabase.js';
 
-// Discovery for many OpenRouter keys
-const openRouterKeys = [];
+// Discovery for many Baseten keys
+const basetenKeys = [];
 // Main key
-if (process.env.OPENROUTER_API_KEY) openRouterKeys.push(process.env.OPENROUTER_API_KEY);
-// Numbered keys: OPENROUTER_API_KEY_1, OPENROUTER_API_KEY_2 ...
+if (process.env.BASETEN_API_KEY) basetenKeys.push(process.env.BASETEN_API_KEY);
+// Numbered keys: BASETEN_API_KEY_1, BASETEN_API_KEY_2 ...
 for (let i = 1; i <= 500; i++) {
-  const keyName = `OPENROUTER_API_KEY_${i}`;
+  const keyName = `BASETEN_API_KEY_${i}`;
   const val = process.env[keyName];
-  if (val) openRouterKeys.push(val);
+  if (val) basetenKeys.push(val);
 }
 
 // Error log if no keys found
-if (openRouterKeys.length === 0) {
-  console.error("FATAL: No OpenRouter API keys found in environment variables!");
+if (basetenKeys.length === 0) {
+  console.error("FATAL: No Baseten API keys found in environment variables!");
 }
 
-const modelName = "meta-llama/llama-3.2-3b-instruct";
+const modelName = "openai/gpt-oss-120b";
 
-console.log(`Initialized with ${openRouterKeys.length} OpenRouter API keys.`);
+console.log(`Initialized with ${basetenKeys.length} Baseten API keys.`);
 
 // Simple in-memory cache for maintenance status
 let cachedAppStatus = null;
@@ -552,18 +552,16 @@ Bio: ${data.bio}
 Posts:
 ${postsText || 'Посты не найдены.'}`;
 
-    let analysisResult;
-    let successfulModel = modelName;
     let lastError;
 
-    const startTimeOpenRouter = Date.now();
-    // --- OPENROUTER CALL WITH KEY ROTATION ---
-    for (let i = 0; i < openRouterKeys.length; i++) {
-      const apiKey = openRouterKeys[i];
+    const startTimeBaseten = Date.now();
+    // --- BASETEN CALL WITH KEY ROTATION ---
+    for (let i = 0; i < basetenKeys.length; i++) {
+      const apiKey = basetenKeys[i];
       try {
-        console.log(`Attempting OpenRouter analysis with Key ${i + 1} (model: ${modelName})...`);
+        console.log(`Attempting Baseten analysis with Key ${i + 1} (model: ${modelName})...`);
 
-        const response = await axios.post('https://openrouter.ai/api/v1/chat/completions', {
+        const response = await axios.post('https://inference.baseten.co/v1/chat/completions', {
           model: modelName,
           messages: [
             {
@@ -583,15 +581,13 @@ ${postsText || 'Посты не найдены.'}`;
         }, {
           headers: {
             'Authorization': `Bearer ${apiKey}`,
-            'HTTP-Referer': 'https://threads-love-bot.vercel.app', // Required by OpenRouter for some models
-            'X-Title': 'Threads Love Analysis',
             'Content-Type': 'application/json'
           },
           timeout: 45000
         });
 
         const text = response.data.choices[0].message.content;
-        console.log(`OpenRouter call successful (Key ${i + 1}).`);
+        console.log(`Baseten call successful (Key ${i + 1}).`);
 
         try {
           // Robust JSON extraction (if LLM wrapped in backticks)
@@ -599,7 +595,7 @@ ${postsText || 'Посты не найдены.'}`;
           analysisResult = JSON.parse(jsonMatch ? jsonMatch[0] : text);
           break; // Success!
         } catch (parseError) {
-          console.error(`Failed to parse OpenRouter JSON output from Key ${i + 1}:`, parseError);
+          console.error(`Failed to parse Baseten JSON output from Key ${i + 1}:`, parseError);
           console.log("Raw text was:", text);
           lastError = new Error("Invalid JSON format from AI");
           continue;
@@ -607,20 +603,20 @@ ${postsText || 'Посты не найдены.'}`;
       } catch (error) {
         lastError = error;
         const status = error.response?.status || error.status;
-        console.warn(`OpenRouter Key ${i + 1} failed: ${error.message} (Status: ${status})`);
+        console.warn(`Baseten Key ${i + 1} failed: ${error.message} (Status: ${status})`);
 
         if (status === 429 || [500, 502, 503, 504].includes(status)) {
-          console.log(`Trying next OpenRouter key...`);
+          console.log(`Trying next Baseten key...`);
           continue;
         }
         continue;
       }
     }
 
-    console.log(`AI Phase: ${Date.now() - startTimeOpenRouter}ms`);
+    console.log(`AI Phase: ${Date.now() - startTimeBaseten}ms`);
 
     if (!analysisResult) {
-      console.error("All OpenRouter keys failed");
+      console.error("All Baseten keys failed");
       throw lastError || new Error("All AI models are unavailable");
     }
 
