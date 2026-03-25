@@ -62,7 +62,9 @@ function App() {
     const fetchMaintenanceStatus = async () => {
       console.log("Checking maintenance status...");
       try {
-        const data = await checkMaintenance();
+        const tg = window.Telegram?.WebApp;
+        const telegramId = tg?.initDataUnsafe?.user?.id;
+        const data = await checkMaintenance(telegramId);
         console.log("Maintenance status result:", data);
 
         if (data.isMaintenance) {

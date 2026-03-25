@@ -1,4 +1,4 @@
-import { getAppStatus } from './lib/supabase.js';
+import { getAppStatus, checkUserStatus } from './lib/supabase.js';
 
 export default async function handler(req, res) {
     if (req.method !== 'GET') {
@@ -6,11 +6,36 @@ export default async function handler(req, res) {
     }
 
     try {
-        console.log('API Settings: fetching app status...');
+        const { telegramId } = req.query;
+        let isAdmin = false;
+
+        // 1. ПРОВЕРКА АДМИНА
+        if (telegramId) {
+            // Check ENV Admin
+            if (process.env.ADMIN_TELEGRAM_ID && String(telegramId) === String(process.env.ADMIN_TELEGRAM_ID)) {
+                isAdmin = true;
+            }
+
+            // Check DB Admin if not ENV admin
+            if (!isAdmin) {
+                try {
+                    const status = await checkUserStatus(telegramId);
+                    if (status.isAdmin) isAdmin = true;
+                } catch (e) {
+                    console.warn('Settings: DB admin check failed:', e.message);
+                }
+            }
+        }
+
+        console.log(`API Settings: fetching app status (user=${telegramId}, isAdmin=${isAdmin})...`);
         const status = await getAppStatus();
         console.log('API Settings result:', status);
+
+        // Если админ — принудительно отключаем флаг техработ для этого запроса
+        const isMaintenance = isAdmin ? false : (status?.is_maintenance || false);
+
         return res.status(200).json({
-            isMaintenance: status?.is_maintenance || false,
+            isMaintenance: isMaintenance,
             maintenanceMessage: status?.maintenance_message || 'Технические работы'
         });
     } catch (error) {

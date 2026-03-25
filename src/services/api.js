@@ -15,9 +15,11 @@ export const analyzeProfile = async (nickname, telegramId = null) => {
     }
 };
 
-export const checkMaintenance = async () => {
+export const checkMaintenance = async (telegramId = null) => {
     try {
-        const response = await axios.get(`${API_BASE_URL}/settings`);
+        const response = await axios.get(`${API_BASE_URL}/settings`, {
+            params: { telegramId }
+        });
         return response.data; // { isMaintenance, maintenanceMessage }
     } catch (error) {
         console.error('Error checking maintenance status:', error);
