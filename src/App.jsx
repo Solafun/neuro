@@ -11,7 +11,7 @@ import { AnimatePresence } from 'framer-motion';
 
 function App() {
   const [nickname, setNickname] = useState('');
-  const [appState, setAppState] = useState('idle'); // idle, loading, result, error, maintenance
+  const [appState, setAppState] = useState('loading'); // Начинаем с загрузки для проверки настроек
   const [result, setResult] = useState(null);
   const [isMaintenance, setIsMaintenance] = useState(false);
 
@@ -59,10 +59,20 @@ function App() {
 
     // Проверка режима тех. работ при загрузке
     const fetchMaintenanceStatus = async () => {
-      const maintenance = await checkMaintenance();
-      if (maintenance) {
-        setIsMaintenance(true);
-        setAppState('maintenance');
+      console.log("Checking maintenance status...");
+      try {
+        const maintenance = await checkMaintenance();
+        console.log("Maintenance status result:", maintenance);
+
+        if (maintenance) {
+          setIsMaintenance(true);
+          setAppState('maintenance');
+        } else {
+          setAppState('idle');
+        }
+      } catch (err) {
+        console.error("Failed to fetch maintenance status:", err);
+        setAppState('idle'); // В случае ошибки пускаем в приложение
       }
     };
     fetchMaintenanceStatus();

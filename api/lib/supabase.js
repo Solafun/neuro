@@ -293,8 +293,14 @@ export async function getSetting(key) {
  * @returns {Promise<boolean>}
  */
 export async function getMaintenanceMode() {
-    const value = await getSetting('maintenance_mode');
-    // Если значения нет, считаем что техработы выключены (false)
-    return value === true || value === 'true';
+    try {
+        const value = await getSetting('maintenance_mode');
+        console.log(`Maintenance mode raw value from DB:`, value);
+        // Обрабатываем boolean, строку или отсутствие значения
+        return value === true || value === 'true' || value === 1 || value === '1';
+    } catch (e) {
+        console.error("Error in getMaintenanceMode:", e);
+        return false;
+    }
 }
 

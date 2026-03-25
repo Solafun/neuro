@@ -6,7 +6,9 @@ export default async function handler(req, res) {
     }
 
     try {
+        console.log('API Settings: fetching maintenance mode...');
         const isMaintenance = await getMaintenanceMode();
+        console.log('API Settings: result:', isMaintenance);
         return res.status(200).json({ isMaintenance });
     } catch (error) {
         console.error('API Settings error:', error);
