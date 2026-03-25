@@ -436,7 +436,7 @@ export default function ResultScreen({ result, onReset }) {
                 <div className="card-success">
                     <h4>Силы</h4>
                     <ul>
-                        {(result.strengths || []).slice(0, 4).map((s, i) => (
+                        {(result.positive_core?.strengths || []).slice(0, 4).map((s, i) => (
                             <li key={i}>
                                 <span className="material-symbols-outlined">star</span>
                                 <span>{s}</span>
@@ -447,7 +447,7 @@ export default function ResultScreen({ result, onReset }) {
                 <div className="card-danger-light">
                     <h4>Риски</h4>
                     <ul>
-                        {(result.weak_zones?.risks || []).slice(0, 4).map((r, i) => (
+                        {(result.weak_zones?.risks || []).slice(0, 3).map((r, i) => (
                             <li key={i}>
                                 <span className="material-symbols-outlined">warning</span>
                                 <span>{formatCamelCase(r)}</span>

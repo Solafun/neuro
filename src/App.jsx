@@ -60,19 +60,23 @@ function App() {
 
     // Проверка режима тех. работ при загрузке
     const fetchMaintenanceStatus = async (retryCount = 0) => {
-      console.log(`Checking maintenance status (attempt ${retryCount + 1})...`);
-      try {
-        const tg = window.Telegram?.WebApp;
-        const telegramId = tg?.initDataUnsafe?.user?.id;
+      const tg = window.Telegram?.WebApp;
+      const user = tg?.initDataUnsafe?.user;
+      const telegramId = user?.id;
 
-        // Если ID еще нет, но мы в телеграме - пробуем подождать (до 3 раз)
-        if (!telegramId && tg && tg.initData && retryCount < 3) {
-          setTimeout(() => fetchMaintenanceStatus(retryCount + 1), 500);
+      console.log(`[MaintenanceCheck] Attempt ${retryCount + 1}: user=${user ? JSON.stringify(user) : 'null'}, id=${telegramId}`);
+
+      try {
+        // Если ID еще нет, но мы в телеграме - пробуем подождать (до 5 раз по 1 сек)
+        if (!telegramId && tg && (tg.initData || tg.initDataUnsafe) && retryCount < 5) {
+          console.log(`[MaintenanceCheck] Telegram ID not ready, retrying in 1000ms...`);
+          setTimeout(() => fetchMaintenanceStatus(retryCount + 1), 1000);
           return;
         }
 
+        console.log(`[MaintenanceCheck] Proceeding with ID: ${telegramId || 'guest'}`);
         const data = await checkMaintenance(telegramId);
-        console.log("Maintenance status result:", data);
+        console.log("[MaintenanceCheck] API Result:", data);
 
         if (data.isMaintenance) {
           setIsMaintenance(true);
@@ -82,7 +86,7 @@ function App() {
           setAppState('idle');
         }
       } catch (err) {
-        console.error("Failed to fetch maintenance status:", err);
+        console.error("[MaintenanceCheck] Error:", err);
         setAppState('idle'); // В случае ошибки пускаем в приложение
       }
     };

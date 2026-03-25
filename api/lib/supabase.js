@@ -124,15 +124,29 @@ export async function setChannelSubscription(userId, isActive) {
  * Получение статуса пользователя (оплачено или нет)
  */
 export async function checkUserStatus(telegramId) {
-    if (!supabase || !telegramId) return { isPaid: false };
+    if (!supabase || !telegramId) {
+        console.warn(`checkUserStatus: Missing supabase or telegramId (${telegramId})`);
+        return { isPaid: false };
+    }
     try {
+        console.log(`checkUserStatus: querying DB for user ${telegramId}...`);
         const { data, error } = await supabase
             .from('users')
             .select('is_paid, subscription_expires_at, is_admin')
             .eq('id', telegramId)
             .single();
 
-        if (error || !data) return { isPaid: false, isAdmin: false };
+        if (error) {
+            console.error(`checkUserStatus: DB error for user ${telegramId}:`, error.message);
+            return { isPaid: false, isAdmin: false };
+        }
+
+        if (!data) {
+            console.warn(`checkUserStatus: user ${telegramId} not found in DB`);
+            return { isPaid: false, isAdmin: false };
+        }
+
+        console.log(`checkUserStatus result for ${telegramId}: paid=${data.is_paid}, admin=${data.is_admin}`);
 
         // Если оплачено, проверяем дату окончания
         if (data.is_paid && data.subscription_expires_at) {
