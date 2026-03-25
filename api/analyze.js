@@ -33,6 +33,11 @@ const geminiModels = geminiKeys.map(key => {
 
 console.log(`Initialized with ${geminiModels.length} Gemini API keys.`);
 
+// Simple in-memory cache for maintenance status
+let cachedAppStatus = null;
+let lastAppStatusFetch = 0;
+const STATUS_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
 async function scrapeThreadsProfile(nickname) {
   const url = `https://www.threads.net/@${nickname}`;
   const docId = '26348014344885149';
@@ -339,8 +344,18 @@ export default async function handler(req, res) {
       return res.status(400).json();
     }
 
-    // 0. ПРОВЕРКА РЕЖИМА ТЕХРАБОТ
-    const appStatus = await getAppStatus();
+    // 0. ПРОВЕРКА РЕЖИМА ТЕХРАБОТ (с кэшированием на 5 минут)
+    const nowTs = Date.now();
+    let appStatus = cachedAppStatus;
+
+    if (!appStatus || (nowTs - lastAppStatusFetch) > STATUS_CACHE_TTL) {
+      console.log("API Settings: fetching app status (cache expired)...");
+      appStatus = await getAppStatus();
+      cachedAppStatus = appStatus;
+      lastAppStatusFetch = nowTs;
+      console.log("API Settings result:", appStatus);
+    }
+
     if (appStatus?.is_maintenance === true) {
       return res.status(200).json({
         error: 'maintenance',
@@ -348,7 +363,10 @@ export default async function handler(req, res) {
       });
     }
 
+    console.time('Full Execution');
+    console.time('Scraping Phase');
     const data = await scrapeThreadsProfile(nickname);
+    console.timeEnd('Scraping Phase');
 
     // Block empty profiles — return debug info so frontend can show it
     if (data.posts.length === 0) {
@@ -358,7 +376,7 @@ export default async function handler(req, res) {
       });
     }
 
-    const usedPosts = data.posts.slice(0, 60);
+    const usedPosts = data.posts.slice(0, 30); // Уменьшено с 60 до 30 для ускорения анализа
     const postsText = usedPosts.join('\n---\n');
 
     // ULTRA PROMPT INTEGRATION (New Comprehensive Version)
@@ -520,6 +538,7 @@ ${postsText || 'Посты не найдены.'}`;
     let successfulModel = modelName;
     let lastError;
 
+    console.time('Gemini Phase');
     // --- GEMINI CALL WITH KEY ROTATION ---
     for (let i = 0; i < geminiModels.length; i++) {
       const currentModel = geminiModels[i];
@@ -559,6 +578,8 @@ ${postsText || 'Посты не найдены.'}`;
         continue;
       }
     }
+
+    console.timeEnd('Gemini Phase');
 
     if (!analysisResult) {
       console.error("All Gemini keys failed");
@@ -601,6 +622,7 @@ ${postsText || 'Посты не найдены.'}`;
       analysisResult.development_plan = null;
     }
 
+    console.timeEnd('Full Execution');
     return res.status(200).json({
       nickname: data.nickname,
       avatar: data.avatar,
@@ -612,6 +634,7 @@ ${postsText || 'Посты не найдены.'}`;
     });
 
   } catch (error) {
+    console.timeEnd('Full Execution');
     console.error('Final handler error:', error);
 
     let userMessage = `Ошибка сервера: ${error.message}`;
