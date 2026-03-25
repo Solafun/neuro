@@ -17,7 +17,7 @@ if (openRouterKeys.length === 0) {
   console.error("FATAL: No OpenRouter API keys found in environment variables!");
 }
 
-const modelName = "meta-llama/llama-3.2-3b-instruct:free";
+const modelName = "meta-llama/llama-3.2-3b-instruct";
 
 console.log(`Initialized with ${openRouterKeys.length} OpenRouter API keys.`);
 
