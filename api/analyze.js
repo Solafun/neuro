@@ -440,12 +440,6 @@ export default async function handler(req, res) {
   "cognitive_profile": {
     "thinking_style": "СТРУКТУРА МЫСЛИ. Как мозг обрабатывает информацию (системно, ассоциативно, интуитивно).",
     "decision_logic": "АЛГОРИТМ ВЫБОРА. На что человек опирается в момент принятия решения (логика, чувства, интуиция)."
-`;
-
-    // Premium schema parts
-    const schemaPremium = `
-    ,"biases": ["КОГНИТИВНЫЕ ИСКАЖЕНИЯ. 3-4 ошибки with обоснованием. Формат: «<Название на русском>: <проявление>». СТРОГО БЕЗ ЛАТИНИЦЫ."],
-    "blind_spots": "ОШИБКИ ВОСПРИЯТИЯ. То, что человек КАТЕГОРИЧЕСКИ НЕ ВИДИТ в своем поведении."
   },
   "emotional_profile": {
     "core_emotions": ["3-4 доминирующих чувства (СТРОГО НА РУССКОМ)"],
@@ -457,6 +451,16 @@ export default async function handler(req, res) {
       "ПОВЕДЕНЧЕСКИЙ ЦИКЛ: ситуация → реакция → результат (ОДНОЙ СТРОКОЙ)"
     ],
     "life_strategy": "ГЛОБАЛЬНАЯ СТРАТЕГИЯ. Контроль / Избегание / Борьба / Адаптация."
+  },
+  "weak_zones": {
+    "risks": ["риски личности и возможные срывы"]
+  }
+`;
+
+    // Premium schema parts
+    const schemaPremium = `
+    ,"biases": ["КОГНИТИВНЫЕ ИСКАЖЕНИЯ. 3-4 ошибки with обоснованием. Формат: «<Название на русском>: <проявление>». СТРОГО БЕЗ ЛАТИНИЦЫ."],
+    "blind_spots": "ОШИБКИ ВОСПРИЯТИЯ. То, что человек КАТЕГОРИЧЕСКИ НЕ ВИДИТ в своем поведении."
   },
   "social_profile": {
     "communication_style": "СТИЛЬ ОБЩЕНИЯ. Прямота, манипулятивность, закрытость (2-3 слова).",
@@ -599,25 +603,56 @@ ${postsText || 'Посты не найдены.'}`;
       console.warn("Failed to log check stats or check status:", e);
     }
 
-    // БЕЗОПАСНОСТЬ: Удаляем конфиденциальные данные, если нет подписки
-    // Это предотвратит утечку данных через вкладку Network (разработчика)
+    // -------------------------------------------------------------------------
+    // ПОДМЕНА ДАННЫХ ДЛЯ БЕСПЛАТНЫХ ПОЛЬЗОВАТЕЛЕЙ (Безопасность/Оптимизация)
+    // -------------------------------------------------------------------------
     if (!isPaid && analysisResult) {
+      // 1. Цифровые показатели (заглушка)
       analysisResult.personality_scores = { logic: 50, emotionality: 50, control: 50, adaptability: 50, awareness: 50 };
       analysisResult.social_scores = { empathy: 50, openness: 50, trust: 50, toxicity: 50, manipulation: 50 };
 
+      // 2. Текстовые блоки (заглушка для красоты UI)
+      if (!analysisResult.positive_core) {
+        analysisResult.positive_core = {
+          psychotype: "Анализируется...",
+          summary: "Информация формируется...",
+          natural_strengths: "Доступно после обработки",
+          strength_chart: []
+        };
+      }
+
       if (analysisResult.cognitive_profile) {
-        analysisResult.cognitive_profile.blind_spots = null;
-        analysisResult.cognitive_profile.biases = [];
+        analysisResult.cognitive_profile.biases = ["Доступно в Premium версии"];
+        analysisResult.cognitive_profile.blind_spots = "Анализ 'Слепых пятен' доступен подписчикам";
       }
-      if (analysisResult.emotional_profile) {
-        analysisResult.emotional_profile.core_emotions = [];
-      }
-      if (analysisResult.social_profile) {
-        analysisResult.social_profile.communication_style = null;
-        analysisResult.social_profile.attachment = null;
-        analysisResult.social_profile.trust_issues = null;
-      }
-      analysisResult.development_plan = null;
+
+      // Эти блоки теперь считаются CORE и анализируются для всех:
+      // - emotional_profile
+      // - behavior_profile
+      // - weak_zones
+      // - positive_core
+
+      analysisResult.social_profile = {
+        communication_style: "Скрыто",
+        attachment: "Скрыто",
+        trust_issues: "Скрыто",
+        social_mask: "Скрыто"
+      };
+
+      analysisResult.dark_profile = {
+        manipulation: "Заблокировано",
+        toxicity: "Заблокировано",
+        control: "Заблокировано",
+        aggression: "Заблокировано",
+        empathy: "Заблокировано",
+        dark_traits: "Теневой профиль доступен в Premium"
+      };
+
+      analysisResult.development_plan = {
+        growth_points: ["План развития доступен в Premium"],
+        what_to_change: "Данные ограничены",
+        what_happens_if_not: "Данные ограничены"
+      };
     }
 
     console.log(`Full Execution: ${Date.now() - startTimeFull}ms`);
