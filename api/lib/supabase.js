@@ -57,8 +57,7 @@ export async function trackCheck(telegramId, targetNickname) {
     if (!supabase) return;
     console.log(`Logging check: ${targetNickname} by user ${telegramId}`);
 
-    // ОПЦИОНАЛЬНО: Пытаемся создать "скелет" пользователя, если его нет в базе, 
-    // чтобы не нарушать констреинт Foreign Key
+    // ОПЦИОНАЛЬНО: Пытаемся создать "скелет" пользователя, если его нет в базе
     if (telegramId) {
         const { error: upsertError } = await supabase.from('users').upsert(
             { id: telegramId },
@@ -77,6 +76,33 @@ export async function trackCheck(telegramId, targetNickname) {
 
     if (error) {
         console.error('Supabase trackCheck error:', error.message, error.details);
+    }
+
+    // ИНКРЕМЕНТ СЧЕТЧИКА В ТАБЛИЦЕ USERS
+    if (telegramId) {
+        await incrementChecksCount(telegramId);
+    }
+}
+
+/**
+ * Атомарное увеличение счетчика проверок
+ */
+export async function incrementChecksCount(telegramId) {
+    if (!supabase || !telegramId) return;
+
+    // Мы пробуем сделать это через RPC (самый надежный способ для инкремента)
+    const { error } = await supabase.rpc('increment_checks_count', { user_id_param: telegramId });
+
+    if (error) {
+        console.warn('RPC increment failed, falling back to manual update:', error.message);
+        // Fallback: ручное обновление (не атомарно, но лучше чем ничего)
+        try {
+            const { data: user } = await supabase.from('users').select('checks_count').eq('id', telegramId).single();
+            const currentCount = user?.checks_count || 0;
+            await supabase.from('users').update({ checks_count: currentCount + 1 }).eq('id', telegramId);
+        } catch (e) {
+            console.error('Manual increment failed:', e.message);
+        }
     }
 }
 
@@ -297,3 +323,48 @@ export async function getMaintenanceMode() {
     return status?.is_maintenance === true;
 }
 
+/**
+ * Синхронизирует количество проверок для всех пользователей из таблицы checks.
+ * Можно запустить один раз после добавления колонки checks_count.
+ */
+export async function syncAllUserChecks() {
+    if (!supabase) return { success: false, error: 'No Supabase client' };
+
+    console.log('Starting global checks synchronization...');
+    try {
+        const { data: users, error: userError } = await supabase.from('users').select('id');
+        if (userError) throw userError;
+
+        console.log(`Syncing ${users.length} users...`);
+        let updatedCount = 0;
+
+        for (const user of users) {
+            const { count, error: countError } = await supabase
+                .from('checks')
+                .select('*', { count: 'exact', head: true })
+                .eq('user_id', user.id);
+
+            if (countError) {
+                console.error(`Error counting for user ${user.id}:`, countError.message);
+                continue;
+            }
+
+            const { error: updateError } = await supabase
+                .from('users')
+                .update({ checks_count: count || 0 })
+                .eq('id', user.id);
+
+            if (updateError) {
+                console.error(`Error updating user ${user.id}:`, updateError.message);
+            } else {
+                updatedCount++;
+            }
+        }
+
+        console.log(`Sync complete. Updated ${updatedCount} users.`);
+        return { success: true, updatedCount };
+    } catch (e) {
+        console.error('Sync failed:', e.message);
+        return { success: false, error: e.message };
+    }
+}
