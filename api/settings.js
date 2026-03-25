@@ -1,4 +1,4 @@
-import { getMaintenanceMode } from './lib/supabase';
+import { getAppStatus } from './lib/supabase.js';
 
 export default async function handler(req, res) {
     if (req.method !== 'GET') {
