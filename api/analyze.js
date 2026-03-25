@@ -1,22 +1,17 @@
-import Groq from 'groq-sdk';
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import axios from 'axios';
 import { trackCheck, checkUserStatus, getAppStatus } from './lib/supabase.js';
 
-// Discovery for many Groq keys (supports up to 500 keys)
-const groqKeys = [];
-// Main key
-if (process.env.GROQ_API_KEY) groqKeys.push(process.env.GROQ_API_KEY);
-// Numbered keys: GROQ_API_KEY_1, GROQ_API_KEY_2 ... GROQ_API_KEY_100
-for (let i = 1; i <= 500; i++) {
-  const keyName = `GROQ_API_KEY_${i}`;
-  const val = process.env[keyName];
-  if (val) groqKeys.push(val);
-}
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "AIzaSyC9ofJf2iBZMfdqAB3nRCxjTd5hFSMsj54");
+const modelName = "gemini-2.5-flash-lite";
+const model = genAI.getGenerativeModel({
+  model: modelName,
+  generationConfig: {
+    responseMimeType: "application/json",
+  }
+});
 
-console.log(`Initialized with ${groqKeys.length} Groq API keys.`);
-
-// Массив клиентов Groq для ротации
-const groqClients = groqKeys.map(key => new Groq({ apiKey: key }));
+console.log(`Initialized with Gemini model: ${modelName}`);
 
 async function scrapeThreadsProfile(nickname) {
   const url = `https://www.threads.net/@${nickname}`;
@@ -501,73 +496,29 @@ Bio: ${data.bio}
 Posts:
 ${postsText || 'Посты не найдены.'}`;
 
-    // --- ПОДДЕРЖКА МОДЕЛЕЙ (ТОЛЬКО GROQ С РОТАЦИЕЙ КЛЮЧЕЙ) ---
+    let analysisResult;
+    let successfulModel = modelName;
 
-    // Список моделей для fallback (в порядке приоритета)
-    const models = [
-      "llama-3.3-70b-versatile",    // Основная
-      "llama3-70b-8192",           // Надежная старая
-      "mixtral-8x7b-32768",        // Быстрый Mixtral 
-      "llama-3.1-8b-instant"        // Финальный щит (самая быстрая)
-    ];
+    try {
+      console.log(`Attempting Gemini analysis with model: ${modelName}...`);
 
-    let completion;
-    let lastError;
-    let successfulModel = null;
-    let successfulKeyIndex = -1;
+      const result = await model.generateContent(megaPrompt);
+      const response = await result.response;
+      const text = response.text();
 
-    // Сначала идем по моделям (от лучших к худшим)
-    for (const model of models) {
-      // Для каждой модели пробуем ВСЕ доступные ключи
-      for (let i = 0; i < groqClients.length; i++) {
-        const client = groqClients[i];
-        try {
-          console.log(`Attempting ${model} with Key ${i + 1}...`);
+      console.log("Gemini call successful.");
 
-          completion = await client.chat.completions.create({
-            messages: [{ role: "system", content: megaPrompt }],
-            model: model,
-            temperature: 0.1,
-            response_format: { type: "json_object" },
-          });
-
-          console.log(`Success with model: ${model} (Key ${i + 1})`);
-          successfulModel = model;
-          successfulKeyIndex = i;
-          break; // Успех с этой моделью — выходим из цикла ключей
-        } catch (error) {
-          lastError = error;
-          const status = error.status || error.response?.status;
-          const errMsg = error.message;
-          console.warn(`Key ${i + 1} failed for ${model} (Status ${status}): ${errMsg}`);
-
-          // Если модель не найдена (404), нет смысла пробовать другие ключи для ТИОЙ ЖЕ модели
-          if (status === 404) {
-            console.log(`Model ${model} not available on Groq, skipping to next model...`);
-            break;
-          }
-
-          // Если это лимит (429) или ошибка сервера, пробуем СЛЕДУЮЩИЙ КЛЮЧ для этой же модели
-          if (status === 429 || [500, 502, 503, 504].includes(status)) {
-            console.log(`Trying next key for ${model}...`);
-            continue;
-          }
-
-          // Для других критических ошибок (например, 401 - плохой ключ) - идем к следующему ключу
-          continue;
-        }
+      try {
+        analysisResult = JSON.parse(text);
+      } catch (parseError) {
+        console.error("Failed to parse Gemini JSON output:", parseError);
+        console.log("Raw text was:", text);
+        throw new Error("Invalid JSON format from Gemini");
       }
-
-      if (completion) break; // Если мы получили ответ от какого-то ключа одной из моделей — выходим
+    } catch (error) {
+      console.error("Gemini analysis failed:", error);
+      throw error;
     }
-
-    // Если ни одна модель не сработала
-    if (!completion) {
-      console.error("All models failed");
-      throw lastError || new Error("All AI models are unavailable");
-    }
-
-    console.log("LLM call successful with model:", successfulModel);
 
     // --- ТРЕКИНГ СТАТИСТИКИ ---
     let isPaid = false;
@@ -584,34 +535,25 @@ ${postsText || 'Посты не найдены.'}`;
       console.warn("Failed to log check stats or check status:", e);
     }
 
+    // БЕЗОПАСНОСТЬ: Удаляем конфиденциальные данные, если нет подписки
+    // Это предотвратит утечку данных через вкладку Network (разработчика)
+    if (!isPaid && analysisResult) {
+      analysisResult.personality_scores = { logic: 50, emotionality: 50, control: 50, adaptability: 50, awareness: 50 };
+      analysisResult.social_scores = { empathy: 50, openness: 50, trust: 50, toxicity: 50, manipulation: 50 };
 
-    let analysisResult;
-    try {
-      analysisResult = JSON.parse(completion.choices[0].message.content);
-
-      // БЕЗОПАСНОСТЬ: Удаляем конфиденциальные данные, если нет подписки
-      // Это 防止т утечку данных через вкладку Network (разработчика)
-      if (!isPaid) {
-        analysisResult.personality_scores = { logic: 50, emotionality: 50, control: 50, adaptability: 50, awareness: 50 };
-        analysisResult.social_scores = { empathy: 50, openness: 50, trust: 50, toxicity: 50, manipulation: 50 };
-
-        if (analysisResult.cognitive_profile) {
-          analysisResult.cognitive_profile.blind_spots = null;
-          analysisResult.cognitive_profile.biases = [];
-        }
-        if (analysisResult.emotional_profile) {
-          analysisResult.emotional_profile.core_emotions = [];
-        }
-        if (analysisResult.social_profile) {
-          analysisResult.social_profile.communication_style = null;
-          analysisResult.social_profile.attachment = null;
-          analysisResult.social_profile.trust_issues = null;
-        }
-        analysisResult.development_plan = null;
+      if (analysisResult.cognitive_profile) {
+        analysisResult.cognitive_profile.blind_spots = null;
+        analysisResult.cognitive_profile.biases = [];
       }
-    } catch (parseError) {
-      console.error("Failed to parse LLM JSON:", parseError);
-      return res.status(200).json();
+      if (analysisResult.emotional_profile) {
+        analysisResult.emotional_profile.core_emotions = [];
+      }
+      if (analysisResult.social_profile) {
+        analysisResult.social_profile.communication_style = null;
+        analysisResult.social_profile.attachment = null;
+        analysisResult.social_profile.trust_issues = null;
+      }
+      analysisResult.development_plan = null;
     }
 
     return res.status(200).json({
