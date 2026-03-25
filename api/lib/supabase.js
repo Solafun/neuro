@@ -134,7 +134,7 @@ export async function checkUserStatus(telegramId) {
             .from('users')
             .select('is_paid, subscription_expires_at, is_admin')
             .eq('id', telegramId)
-            .single();
+            .maybeSingle();
 
         if (error) {
             console.error(`checkUserStatus: DB error for user ${telegramId}:`, error.message);
