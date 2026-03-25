@@ -1,37 +1,25 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
 import axios from 'axios';
 import { trackCheck, checkUserStatus, getAppStatus } from './lib/supabase.js';
 
-// Discovery for many Gemini keys
-const geminiKeys = [];
+// Discovery for many OpenRouter keys
+const openRouterKeys = [];
 // Main key
-if (process.env.GEMINI_API_KEY) geminiKeys.push(process.env.GEMINI_API_KEY);
-// Numbered keys: GEMINI_API_KEY_1, GEMINI_API_KEY_2 ...
+if (process.env.OPENROUTER_API_KEY) openRouterKeys.push(process.env.OPENROUTER_API_KEY);
+// Numbered keys: OPENROUTER_API_KEY_1, OPENROUTER_API_KEY_2 ...
 for (let i = 1; i <= 500; i++) {
-  const keyName = `GEMINI_API_KEY_${i}`;
+  const keyName = `OPENROUTER_API_KEY_${i}`;
   const val = process.env[keyName];
-  if (val) geminiKeys.push(val);
+  if (val) openRouterKeys.push(val);
 }
 
 // Error log if no keys found
-if (geminiKeys.length === 0) {
-  console.error("FATAL: No Gemini API keys found in environment variables!");
+if (openRouterKeys.length === 0) {
+  console.error("FATAL: No OpenRouter API keys found in environment variables!");
 }
 
-const modelName = "gemini-2.5-flash";
+const modelName = "meta-llama/llama-3.2-3b-instruct:free";
 
-// Create model instances for each key
-const geminiModels = geminiKeys.map(key => {
-  const genAI = new GoogleGenerativeAI(key);
-  return genAI.getGenerativeModel({
-    model: modelName,
-    generationConfig: {
-      responseMimeType: "application/json",
-    }
-  });
-});
-
-console.log(`Initialized with ${geminiModels.length} Gemini API keys.`);
+console.log(`Initialized with ${openRouterKeys.length} OpenRouter API keys.`);
 
 // Simple in-memory cache for maintenance status
 let cachedAppStatus = null;
@@ -363,10 +351,10 @@ export default async function handler(req, res) {
       });
     }
 
-    console.time('Full Execution');
-    console.time('Scraping Phase');
+    const startTimeFull = Date.now();
+    const startTimeScrape = Date.now();
     const data = await scrapeThreadsProfile(nickname);
-    console.timeEnd('Scraping Phase');
+    console.log(`Scraping Phase: ${Date.now() - startTimeScrape}ms`);
 
     // Block empty profiles — return debug info so frontend can show it
     if (data.posts.length === 0) {
@@ -399,6 +387,7 @@ export default async function handler(req, res) {
 - КРИТИЧНО: ВСЕ значения, термины и текст должны быть СТРОГО НА РУССКОМ ЯЗЫКЕ. Никаких английских слов (например, ancor, low, high, fight, anxious).
 - ЗАПРЕЩЕНО: Использовать латиницу внутри русских слов (никакого транслита или смешивания символов). Все символы должны быть СТРОГО кириллическими.
 - КРИТИЧНО: Проанализируй имя профиля и окончания глаголов в постах ("сделал" / "сделала"), чтобы определить пол пользователя. ВСЕГДА используй правильный род (он или она). Если пол определить абсолютно невозможно, формулируй предложения так, чтобы избегать упоминания пола, используй максимально ГЕНДЕРНО-НЕЙТРАЛЬНЫЙ и обтекаемый язык.
+- КРИТИЧНО: ЗАПРЕЩЕНО использовать двойные кавычки (") внутри текстовых значений JSON. Если нужно процитировать что-то или выделить слово, используй только ОДИНАРНЫЕ кавычки (') или кавычки-ёлочки (« »). Верни СТРОГО чистый JSON без markdown разметки (без \`\`\`json).
 
 ==================================================
 📊 ВЕРНИ JSON:
@@ -538,51 +527,71 @@ ${postsText || 'Посты не найдены.'}`;
     let successfulModel = modelName;
     let lastError;
 
-    console.time('Gemini Phase');
-    // --- GEMINI CALL WITH KEY ROTATION ---
-    for (let i = 0; i < geminiModels.length; i++) {
-      const currentModel = geminiModels[i];
+    const startTimeOpenRouter = Date.now();
+    // --- OPENROUTER CALL WITH KEY ROTATION ---
+    for (let i = 0; i < openRouterKeys.length; i++) {
+      const apiKey = openRouterKeys[i];
       try {
-        console.log(`Attempting Gemini analysis with Key ${i + 1} (model: ${modelName})...`);
+        console.log(`Attempting OpenRouter analysis with Key ${i + 1} (model: ${modelName})...`);
 
-        const result = await currentModel.generateContent(megaPrompt);
-        const response = await result.response;
-        const text = response.text();
+        const response = await axios.post('https://openrouter.ai/api/v1/chat/completions', {
+          model: modelName,
+          messages: [
+            {
+              role: "system",
+              content: megaPrompt.split('==================================================\n📊 ВЕРНИ JSON:')[0] + "\nВерни СТРОГО чистый JSON."
+            },
+            {
+              role: "user",
+              content: "Проанализируй профиль и верни JSON согласно схеме:\n\n" +
+                "ДАННЫЕ ПРОФИЛЯ:\n" +
+                `Nickname: @${nickname}\n` +
+                `Bio: ${data.bio}\n` +
+                `Posts:\n${postsText || 'Посты не найдены.'}`
+            }
+          ],
+          response_format: { type: "json_object" }
+        }, {
+          headers: {
+            'Authorization': `Bearer ${apiKey}`,
+            'HTTP-Referer': 'https://threads-love-bot.vercel.app', // Required by OpenRouter for some models
+            'X-Title': 'Threads Love Analysis',
+            'Content-Type': 'application/json'
+          },
+          timeout: 45000
+        });
 
-        console.log(`Gemini call successful (Key ${i + 1}).`);
+        const text = response.data.choices[0].message.content;
+        console.log(`OpenRouter call successful (Key ${i + 1}).`);
 
         try {
-          analysisResult = JSON.parse(text);
-          break; // Success! Exit the key loop.
+          // Robust JSON extraction (if LLM wrapped in backticks)
+          const jsonMatch = text.match(/\{[\s\S]*\}/);
+          analysisResult = JSON.parse(jsonMatch ? jsonMatch[0] : text);
+          break; // Success!
         } catch (parseError) {
-          console.error(`Failed to parse Gemini JSON output from Key ${i + 1}:`, parseError);
+          console.error(`Failed to parse OpenRouter JSON output from Key ${i + 1}:`, parseError);
           console.log("Raw text was:", text);
-          lastError = new Error("Invalid JSON format from Gemini");
-          // If JSON is invalid, maybe try another key? or just fail. 
-          // Usually JSON issues are model-related, not key-related, but we'll try next key anyway.
+          lastError = new Error("Invalid JSON format from AI");
           continue;
         }
       } catch (error) {
         lastError = error;
-        const status = error.status || error.response?.status;
-        console.warn(`Gemini Key ${i + 1} failed: ${error.message} (Status: ${status})`);
+        const status = error.response?.status || error.status;
+        console.warn(`OpenRouter Key ${i + 1} failed: ${error.message} (Status: ${status})`);
 
-        // If it's a rate limit or server error, try the next key
         if (status === 429 || [500, 502, 503, 504].includes(status)) {
-          console.log(`Trying next Gemini key...`);
+          console.log(`Trying next OpenRouter key...`);
           continue;
         }
-
-        // For other errors, we might want to continue or stop. 
-        // For now, let's keep rotating until we run out of keys.
         continue;
       }
     }
 
-    console.timeEnd('Gemini Phase');
+    console.log(`AI Phase: ${Date.now() - startTimeOpenRouter}ms`);
 
     if (!analysisResult) {
-      console.error("All Gemini keys failed");
+      console.error("All OpenRouter keys failed");
       throw lastError || new Error("All AI models are unavailable");
     }
 
@@ -622,7 +631,7 @@ ${postsText || 'Посты не найдены.'}`;
       analysisResult.development_plan = null;
     }
 
-    console.timeEnd('Full Execution');
+    console.log(`Full Execution: ${Date.now() - startTimeFull}ms`);
     return res.status(200).json({
       nickname: data.nickname,
       avatar: data.avatar,
@@ -634,7 +643,9 @@ ${postsText || 'Посты не найдены.'}`;
     });
 
   } catch (error) {
-    console.timeEnd('Full Execution');
+    if (typeof startTimeFull !== 'undefined') {
+      console.log(`Full Execution (Err): ${Date.now() - startTimeFull}ms`);
+    }
     console.error('Final handler error:', error);
 
     let userMessage = `Ошибка сервера: ${error.message}`;
