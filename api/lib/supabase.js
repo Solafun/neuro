@@ -60,7 +60,13 @@ export async function trackCheck(telegramId, targetNickname) {
     // ОПЦИОНАЛЬНО: Пытаемся создать "скелет" пользователя, если его нет в базе, 
     // чтобы не нарушать констреинт Foreign Key
     if (telegramId) {
-        await supabase.from('users').upsert({ id: telegramId }, { onConflict: 'id', ignoreDuplicates: true });
+        const { error: upsertError } = await supabase.from('users').upsert(
+            { id: telegramId },
+            { onConflict: 'id' }
+        );
+        if (upsertError) {
+            console.warn(`Non-critical: Could not auto-register user ${telegramId}:`, upsertError.message);
+        }
     }
 
     const { error } = await supabase.from('checks').insert({

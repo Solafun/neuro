@@ -564,8 +564,8 @@ ${postsText || 'Посты не найдены.'}`;
     try {
       const telegramId = req.body.telegramId;
       console.log(`Debug stats: nickname=${nickname}, telegramId=${telegramId}`);
-      // Не ждем (await), чтобы не тратить драгоценные секунды перед ответом пользователю
-      trackCheck(telegramId, nickname).catch(e => console.error("Async trackCheck error:", e));
+      // Возвращаем await, так как в serverless-среде без него соединение разрывается (SocketError)
+      await trackCheck(telegramId, nickname).catch(e => console.error("trackCheck error:", e));
 
       // Проверяем статус оплаты пользователя
       const status = await checkUserStatus(telegramId);
