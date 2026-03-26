@@ -107,17 +107,41 @@ export async function incrementChecksCount(telegramId) {
 }
 
 /**
+ * Уменьшает счётчик проверок (бесплатных или платных)
+ * @param {number} telegramId
+ * @param {boolean} isPaid - true = decrement paid_checks, false = decrement free_checks
+ */
+export async function decrementCheck(telegramId, isPaid) {
+    if (!supabase || !telegramId) return;
+    const column = isPaid ? 'paid_checks_remaining' : 'free_checks_remaining';
+    try {
+        const { data: user } = await supabase.from('users').select(column).eq('id', telegramId).single();
+        const current = user?.[column] ?? 0;
+        if (current > 0) {
+            await supabase.from('users').update({ [column]: current - 1 }).eq('id', telegramId);
+            console.log(`Decremented ${column} for user ${telegramId}: ${current} -> ${current - 1}`);
+        }
+    } catch (e) {
+        console.error(`Error decrementing ${column}:`, e.message);
+    }
+}
+
+/**
  * Установка статуса подписки через канал
  */
 export async function setChannelSubscription(userId, isActive) {
     if (!supabase) return;
 
-    await supabase.from('users').update({
+    const updateData = {
         is_paid: isActive,
         subscription_type: isActive ? 'channel' : 'free',
-        // Если активен, убираем дату истечения (пока он в канале)
         subscription_expires_at: null
-    }).eq('id', userId);
+    };
+    // При активации подписки сбрасываем лимит проверок
+    if (isActive) {
+        updateData.paid_checks_remaining = 30;
+    }
+    await supabase.from('users').update(updateData).eq('id', userId);
 }
 
 /**
@@ -132,18 +156,18 @@ export async function checkUserStatus(telegramId) {
         console.log(`checkUserStatus: querying DB for user ${telegramId}...`);
         const { data, error } = await supabase
             .from('users')
-            .select('is_paid, subscription_expires_at, is_admin')
+            .select('is_paid, subscription_expires_at, is_admin, free_checks_remaining, paid_checks_remaining')
             .eq('id', telegramId)
             .maybeSingle();
 
         if (error) {
             console.error(`checkUserStatus: DB error for user ${telegramId}:`, error.message);
-            return { isPaid: false, isAdmin: false };
+            return { isPaid: false, isAdmin: false, freeChecks: 1, paidChecks: 0 };
         }
 
         if (!data) {
             console.warn(`checkUserStatus: user ${telegramId} not found in DB`);
-            return { isPaid: false, isAdmin: false };
+            return { isPaid: false, isAdmin: false, freeChecks: 1, paidChecks: 0 };
         }
 
         console.log(`checkUserStatus result for ${telegramId}: paid=${data.is_paid}, admin=${data.is_admin}`);
@@ -155,11 +179,16 @@ export async function checkUserStatus(telegramId) {
             if (expires < now) {
                 console.log(`Subscription expired for user ${telegramId}, auto-revoking.`);
                 await setUserPaidStatus(telegramId, false, null);
-                return { isPaid: false, isAdmin: !!data.is_admin };
+                return { isPaid: false, isAdmin: !!data.is_admin, freeChecks: data.free_checks_remaining ?? 0, paidChecks: 0 };
             }
         }
 
-        return { isPaid: !!data.is_paid, isAdmin: !!data.is_admin };
+        return {
+            isPaid: !!data.is_paid,
+            isAdmin: !!data.is_admin,
+            freeChecks: data.free_checks_remaining ?? 0,
+            paidChecks: data.paid_checks_remaining ?? 0
+        };
     } catch (e) {
         console.error('Error in checkUserStatus:', e);
         return { isPaid: false };
@@ -181,10 +210,14 @@ export async function setUserPaidStatus(telegramId, isPaid = true, expiresAt = n
             last_seen: new Date().toISOString()
         };
 
+        // При активации подписки сбрасываем лимит проверок
+        if (isPaid) {
+            updateData.paid_checks_remaining = 30;
+        }
+
         if (expiresAt) {
             updateData.subscription_expires_at = expiresAt;
         } else if (!isPaid) {
-            // Если снимаем премиум — зануляем дату
             updateData.subscription_expires_at = null;
         }
 

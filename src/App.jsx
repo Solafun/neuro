@@ -130,8 +130,16 @@ function App() {
       const data = await analyzeProfile(cleanNick, telegramId);
 
       if (data.error) {
+        if (data.error === 'no_checks') {
+          setResult({
+            message: data.message || 'Лимит проверок исчерпан.',
+            isNoChecks: true,
+            isPaid: data.isPaid
+          });
+        } else {
+          setResult(data);
+        }
         setAppState('error');
-        setResult(data);
         return;
       }
 
@@ -192,6 +200,7 @@ function App() {
             <ErrorScreen
               key="error"
               message={result?.message}
+              isNoChecks={result?.isNoChecks}
               onReset={handleReset}
             />
           )}

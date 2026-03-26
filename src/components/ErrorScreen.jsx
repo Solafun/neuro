@@ -26,7 +26,7 @@ const item = {
     }
 };
 
-export default function ErrorScreen({ message, onReset }) {
+export default function ErrorScreen({ message, onReset, isNoChecks }) {
     return (
         <motion.div
             variants={container}
@@ -38,12 +38,15 @@ export default function ErrorScreen({ message, onReset }) {
                 variants={item}
                 className="w-24 h-24 bg-white/80 backdrop-blur-xl rounded-[32px] shadow-2xl flex items-center justify-center mb-10 ring-1 ring-black/5 relative"
             >
-                <div className="absolute inset-0 rounded-[32px] border-4 border-red-500/20 opacity-20" />
-                <AlertCircle className="w-12 h-12 text-red-500" />
+                <div className={`absolute inset-0 rounded-[32px] border-4 ${isNoChecks ? 'border-amber-500/20' : 'border-red-500/20'} opacity-20`} />
+                {isNoChecks
+                    ? <span className="material-symbols-outlined" style={{ fontSize: 48, color: '#f59e0b' }}>lock</span>
+                    : <AlertCircle className="w-12 h-12 text-red-500" />
+                }
             </motion.div>
 
             <motion.h1 variants={item} className="hero-title">
-                Ошибка анализа
+                {isNoChecks ? 'Лимит исчерпан' : 'Ошибка анализа'}
             </motion.h1>
 
             <motion.div variants={item} className="dashboard-card !bg-white/40 ring-1 ring-black/5 mb-8">
@@ -52,12 +55,24 @@ export default function ErrorScreen({ message, onReset }) {
                 </p>
             </motion.div>
 
+            {isNoChecks && (
+                <motion.div variants={item} className="w-full flex justify-center mb-4">
+                    <button
+                        onClick={() => window.Telegram?.WebApp?.openTelegramLink('https://t.me/tribute/app?startapp=sR0c')}
+                        className="btn-gradient"
+                    >
+                        <span className="material-symbols-outlined">diamond</span>
+                        ОФОРМИТЬ ПОДПИСКУ
+                    </button>
+                </motion.div>
+            )}
+
             <motion.div variants={item} className="w-full flex justify-center">
                 <button
                     onClick={onReset}
                     className="glass-button"
                 >
-                    <RefreshCw /> Попробовать снова
+                    <RefreshCw /> {isNoChecks ? 'Назад' : 'Попробовать снова'}
                 </button>
             </motion.div>
         </motion.div>

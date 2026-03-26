@@ -1,6 +1,6 @@
 import OpenAI from 'openai';
 import axios from 'axios';
-import { trackCheck, checkUserStatus, getAppStatus } from './lib/supabase.js';
+import { trackCheck, checkUserStatus, getAppStatus, decrementCheck } from './lib/supabase.js';
 
 // Aggressively suppress DEP0169 (url.parse) deprecation warning
 const originalEmit = process.emitWarning;
@@ -145,12 +145,30 @@ export default async function handler(req, res) {
     if (!nickname) return res.status(400).json();
 
     const telegramId = req.body.telegramId;
-    let isPaid = false, isAdmin = false;
+    let isPaid = false, isAdmin = false, freeChecks = 1, paidChecks = 0;
     if (telegramId) {
       const status = await checkUserStatus(telegramId);
       isPaid = status.isPaid;
       isAdmin = status.isAdmin;
+      freeChecks = status.freeChecks ?? 0;
+      paidChecks = status.paidChecks ?? 0;
       if (process.env.ADMIN_TELEGRAM_ID && String(telegramId) === String(process.env.ADMIN_TELEGRAM_ID)) isAdmin = true;
+    }
+
+    // CHECK LIMITS GATE
+    if (!isAdmin) {
+      const hasChecks = isPaid ? paidChecks > 0 : freeChecks > 0;
+      if (!hasChecks) {
+        return res.status(200).json({
+          error: 'no_checks',
+          message: isPaid
+            ? 'Ваш лимит проверок исчерпан (30/30). Обратитесь в поддержку.'
+            : 'Бесплатная проверка использована. Оформите подписку для продолжения.',
+          isPaid,
+          freeChecks: 0,
+          paidChecks: isPaid ? 0 : undefined
+        });
+      }
     }
 
     const appStatus = await getAppStatus();
@@ -166,9 +184,8 @@ export default async function handler(req, res) {
     const usedPosts = data.posts.slice(0, 60);
     const postsText = usedPosts.join('\n---\n');
 
-    // PRESERVED PROMPT
-    const megaPrompt = `
-    Ты являешься системой глубокого психологического профайлинга личности.
+    // === BUILD PROMPT BASED ON SUBSCRIPTION ===
+    const baseRules = `Ты являешься системой глубокого психологического профайлинга личности.
 Твоя задача — на основе текстов человека создать точный, понятный и психологически глубокий разбор личности.
 ==================================================
 🔴 ПРИНЦИПЫ:
@@ -182,93 +199,15 @@ export default async function handler(req, res) {
 - Пиши простым, понятным языком (без перегруза терминами), но сохраняй глубину.
 - КРИТИЧНО: ВСЕ значения, термины и текст должны быть СТРОГО НА РУССКОМ ЯЗЫКЕ. Никаких английских слов (например, ancor, low, high, fight, anxious).
 - ЗАПРЕЩЕНО: Использовать латиницу внутри русских слов (никакого транслита или смешивания символов). Все символы должны быть СТРОГО кириллическими.
-- КРИТИЧНО: Проанализируй имя профиля и окончания глаголов в постах ("сделал" / "сделала"), чтобы определить пол пользователя. ВСЕГДА используй правильный род (он или она). Если пол определить абсолютно невозможно, формулируй предложения так, чтобы избегать упоминания пола, используй максимально ГЕНДЕРНО-НЕЙТРАЛЬНЫЙ и обтекаемый язык.
+- КРИТИЧНО: Проанализируй имя профиля и окончания глаголов в постах ("сделал" / "сделала"), чтобы определить пол пользователя. ВСЕГДА используй правильный род (он или она). Если пол определить абсолютно невозможно, формулируй предложения так, чтобы избегать упоминания пола, используй максимально ГЕНДЕРНО-НЕЙТРАЛЬНЫЙ и обтекаемый язык.`;
 
-==================================================
-📊 ВЕРНИ JSON:
-==================================================
-{
-"profile_summary": {
-    "psychotype": "СТАТИЧНЫЙ ЯРЛЫК (например: «Профессиональный Архитектор»). Отражает общую роль.",
-    "summary": "Кто этот человек, его суть личности (3-4 предложения. Обязательно используй правильное местоимение 'он' или 'она' исли это возможно).",
-    "core_pattern": "ДИНАМИЧЕСКИЙ ПАТТЕРН. Главная поведенческая петля (например: «Тревожная гиперкомпенсация через контроль»)."
-    },
-  "positive_core": {
-    "natural_strengths": "ВНУТРЕННИЙ ФУНДАМЕНТ. Врожденные качества (энергия, фокус, склад ума), которые даны от природы.",
-    "real_world_value": "ПРАКТИЧЕСКИЙ ВЫХОД. В каких именно ситуациях эта природа дает реальное преимущество.",
-    "unique_trait": "РЕДКИЙ АКЦЕНТ. То, что реально отличает этого человека от 99% других с похожим типом.",
-    "strength_chart": [
-      { "name": "Название из списка", "value": "Оценка 0-100" }
-    ]
-      },
-  "system_verdict": {
-    "truth_bomb": "ЖЕСТКИЙ ИТОГ. Главная неудобная правда о человеке, основанная на фактах из постов. ИЗБЕГАЙ ОБЩИХ ФРАЗ типа «боится отвержения». Найди что-то уникальное, что следует только из его контента.",
-    "main_conflict": "ВНУТРЕННИЙ РАЗРЫВ. Конкретное столкновение двух потребностей (например: «хочет признания экспертности, но постит только котиков»). Будь предельно конкретен.",
-    "self_sabotage": "АКТИВНОЕ СОПРОТИВЛЕНИЕ. Каким именно уникальным действием он мешает себе достичь целей."
-    },
-  "cognitive_profile": {
-    "thinking_style": "СТРУКТУРА МЫСЛИ. Как мозг обрабатывает информацию (системно, ассоциативно, интуитивно).",
-    "decision_logic": "АЛГОРИТМ ВЫБОРА. На что человек опирается в момент принятия решения (логика, чувства, интуиция).",
-    "biases": ["КОГНИТИВНЫЕ ИСКАЖЕНИЯ. 3-4 ошибки с обоснованием. Формат: «<Название на русском>: <проявление>». СТРОГО БЕЗ ЛАТИНИЦЫ."],
-    "blind_spots": "ОШИБКИ ВОСПРИЯТИЯ. То, что человек КАТЕГОРИЧЕСКИ НЕ ВИДИТ в своем поведении."
-    },
-  "emotional_profile": {
-    "core_emotions": ["3-4 доминирующих чувства (СТРОГО НА РУССКОМ)"],
-    "regulation": "ЭМОЦИОНАЛЬНЫЙ ФИЛЬТР. Как человек подавляет или выражает свои чувства.",
-    "stress_response": "РЕАКЦИЯ НА УГРОЗУ. Тип реакции (бей/беги/замри/сдавайся) и описание поведения."
-    },
-  "behavior_profile": {
-    "patterns": [
-      "ПОВЕДЕНЧЕСКИЙ ЦИКЛ: ситуация → реакция → результат (ОДНОЙ СТРОКОЙ)"
-    ],
-    "life_strategy": "ГЛОБАЛЬНАЯ СТРАТЕГИЯ. Контроль / Избегание / Борьба / Адаптация."
-    },
-    "social_profile": {
-    "communication_style": "СТИЛЬ ОБЩЕНИЯ. Прямота, манипулятивность, закрытость (2-3 слова).",
-    "attachment": "ТИП ПРИВЯЗАННОСТИ. Надежный, избегающий, тревожный.",
-    "trust_issues": "УРОВЕНЬ ДОВЕРИЯ. Степень открытости и подозрительности к миру.",
-    "social_mask": "СОЦИАЛЬНАЯ РОЛЬ. Кем он хочет казаться в глазах окружающих."
-    },
-  "dark_profile": {
-    "manipulation": "Уровень и излюбленные методы влияния на окружающих.",
-    "toxicity": "Как человек отравляет среду вокруг себя (если это выражено).",
-    "control": "Стремление к доминированию или подчинению.",
-    "aggression": "Как проявляется злость (пассивно, открыто, холодно).",
-    "empathy": "Уровень сопереживания (дефицит или излишек).",
-    "dark_traits": "Главная теневая черта (нарциссизм / холодность / и др)."
-    },
-  "strengths": [
-    "ПРИКЛАДНЫЕ ИНСТРУМЕНТЫ. Конкретные навыки и «фишки» поведения (в отличие от врожденной базы)."
-  ],
-  "weak_zones": {
-    "vulnerabilities": ["СТРУКТУРНЫЕ СЛАБОСТИ. Болевые точки системы (страхи, комплексы)."],
-    "triggers": ["ВНЕШНИЕ КРЮЧКИ. Что выводит человека из равновесия мгновенно."],
-    "risks": ["ВЕРОЯТНЫЕ ПОСЛЕДСТВИЯ. К какому жизненному краху приведут уязвимости и самосаботаж."]
-    },
-  "development_plan": {
-    "growth_points": [
-      "конкретные точки роста"
-    ],
-    "what_to_change": "что именно нужно изменить в поведении",
-    "what_happens_if_not": "что будет если ничего не менять"
-      },
-"personality_scores": {
-    "logic": 0-100,
-    "emotionality": 0-100,
-    "control": 0-100,
-    "adaptability": 0-100,
-    "awareness": 0-100
-  },
-   "social_scores": {
-    "empathy": 0-100,
-    "openness": 0-100,
-    "toxicity": 0-100,
-    "manipulation": 0-100,
-    "trust": 0-100
-  },
-   "confidence": "высокая / средняя / низкая + почему"
-}
-   ==================================================
+    const profileDataBlock = `ДАННЫЕ ПРОФИЛЯ:
+Nickname: @${nickname}
+Bio: ${data.bio || 'Нет био'}
+Posts:
+${postsText || 'Посты не найдены.'}`;
+
+    const strengthChartRules = `==================================================
 📊 БЛОК: ГРАФИК СИЛЬНЫХ СТОРОН
 ==================================================
 Задача: Выделить ТОП-3 ключевых сильных стороны из списка ниже и оценить их выраженность от 0 до 100.
@@ -290,14 +229,126 @@ export default async function handler(req, res) {
 Важно:
 - Выбери именно 3 наиболее выраженные стороны.
 - Каждая сила должна быть подтверждена поведением в текстах.
-- Запрещено использовать общие слова: "добрый", "хороший", "нормальный".
-- Каждая сильная сторона должна быть конкретной и наблюдаемой.
-- Все значения и текст должны быть СТРОГО НА РУССКОМ ЯЗЫКЕ.
-ДАННЫЕ ПРОФИЛЯ:
-Nickname: @${nickname}
-Bio: ${data.bio || 'Нет био'}
-Posts:
-${postsText || 'Посты не найдены.'}`;
+- Запрещено использовать общие слова.
+- Все значения и текст должны быть СТРОГО НА РУССКОМ ЯЗЫКЕ.`;
+
+    let megaPrompt;
+
+    if (isPaid) {
+      // ===== FULL PROMPT (PAID) =====
+      megaPrompt = `${baseRules}
+
+==================================================
+📊 ВЕРНИ JSON:
+==================================================
+{
+"profile_summary": {
+    "psychotype": "СТАТИЧНЫЙ ЯРЛЫК (например: «Профессиональный Архитектор»). Отражает общую роль.",
+    "summary": "Кто этот человек, его суть личности (3-4 предложения).",
+    "core_pattern": "ДИНАМИЧЕСКИЙ ПАТТЕРН. Главная поведенческая петля."
+    },
+  "positive_core": {
+    "natural_strengths": "Врожденные качества.",
+    "real_world_value": "В каких ситуациях эта природа дает преимущество.",
+    "unique_trait": "То, что реально отличает от 99% других.",
+    "strength_chart": [{ "name": "Название", "value": "0-100" }]
+      },
+  "system_verdict": {
+    "truth_bomb": "Главная неудобная правда.",
+    "main_conflict": "Конкретное столкновение двух потребностей.",
+    "self_sabotage": "Каким действием мешает себе."
+    },
+  "cognitive_profile": {
+    "thinking_style": "Как мозг обрабатывает информацию.",
+    "decision_logic": "На что опирается при принятии решений.",
+    "biases": ["3-4 когнитивных искажения с обоснованием. СТРОГО НА РУССКОМ."],
+    "blind_spots": "То, что человек НЕ ВИДИТ в своем поведении."
+    },
+  "emotional_profile": {
+    "core_emotions": ["3-4 доминирующих чувства (СТРОГО НА РУССКОМ)"],
+    "regulation": "Как подавляет или выражает свои чувства.",
+    "stress_response": "Тип реакции на угрозу."
+    },
+  "behavior_profile": {
+    "patterns": ["ПОВЕДЕНЧЕСКИЙ ЦИКЛ: ситуация → реакция → результат"],
+    "life_strategy": "Контроль / Избегание / Борьба / Адаптация."
+    },
+  "social_profile": {
+    "communication_style": "Стиль общения (2-3 слова).",
+    "attachment": "Тип привязанности.",
+    "trust_issues": "Степень открытости.",
+    "social_mask": "Кем хочет казаться."
+    },
+  "dark_profile": {
+    "manipulation": "Методы влияния.",
+    "toxicity": "Как отравляет среду.",
+    "control": "Стремление к доминированию.",
+    "aggression": "Как проявляется злость.",
+    "empathy": "Уровень сопереживания.",
+    "dark_traits": "Главная теневая черта."
+    },
+  "strengths": ["Конкретные навыки и фишки поведения."],
+  "weak_zones": {
+    "vulnerabilities": ["Болевые точки системы."],
+    "triggers": ["Что выводит из равновесия."],
+    "risks": ["К какому краху приведут уязвимости."]
+    },
+  "development_plan": {
+    "growth_points": ["точки роста"],
+    "what_to_change": "что изменить в поведении",
+    "what_happens_if_not": "что будет если ничего не менять"
+      },
+"personality_scores": { "logic": 0-100, "emotionality": 0-100, "control": 0-100, "adaptability": 0-100, "awareness": 0-100 },
+"social_scores": { "empathy": 0-100, "openness": 0-100, "toxicity": 0-100, "manipulation": 0-100, "trust": 0-100 },
+"confidence": "высокая / средняя / низкая + почему"
+}
+${strengthChartRules}
+${profileDataBlock}`;
+    } else {
+      // ===== SHORT PROMPT (FREE) =====
+      megaPrompt = `${baseRules}
+
+==================================================
+📊 ВЕРНИ JSON (ТОЛЬКО ЭТИ БЛОКИ):
+==================================================
+{
+"profile_summary": {
+    "psychotype": "СТАТИЧНЫЙ ЯРЛЫК. Отражает общую роль.",
+    "summary": "Кто этот человек, его суть личности (3-4 предложения).",
+    "core_pattern": "Главная поведенческая петля."
+    },
+  "positive_core": {
+    "natural_strengths": "Врожденные качества.",
+    "real_world_value": "В каких ситуациях эта природа дает преимущество.",
+    "unique_trait": "То, что реально отличает от 99% других.",
+    "strength_chart": [{ "name": "Название", "value": "0-100" }]
+      },
+  "system_verdict": {
+    "truth_bomb": "Главная неудобная правда.",
+    "main_conflict": "Конкретное столкновение двух потребностей.",
+    "self_sabotage": "Каким действием мешает себе."
+    },
+  "cognitive_profile": {
+    "thinking_style": "Как мозг обрабатывает информацию.",
+    "decision_logic": "На что опирается при принятии решений."
+    },
+  "emotional_profile": {
+    "regulation": "Как подавляет или выражает свои чувства.",
+    "stress_response": "Тип реакции на угрозу."
+    },
+  "behavior_profile": {
+    "patterns": ["ПОВЕДЕНЧЕСКИЙ ЦИКЛ: ситуация → реакция → результат"],
+    "life_strategy": "Контроль / Избегание / Борьба / Адаптация."
+    },
+  "strengths": ["Конкретные навыки и фишки поведения."],
+  "weak_zones": {
+    "risks": ["К какому краху приведут уязвимости."]
+    },
+  "confidence": "высокая / средняя / низкая + почему"
+}
+${strengthChartRules}
+${profileDataBlock}`;
+    }
 
     // AI CALL (Baseten OpenAI SDK with stream accumulation)
     let analysisResult, lastError;
@@ -346,17 +397,10 @@ ${postsText || 'Посты не найдены.'}`;
     if (!analysisResult) throw lastError || new Error("AI failed");
     console.log(`AI Phase: ${Date.now() - startTimeAI}ms`);
 
-    // STATS
+    // STATS + DECREMENT CHECK
     await trackCheck(telegramId, nickname).catch(() => { });
-
-    if (!isPaid) {
-      analysisResult.personality_scores = { logic: 50, emotionality: 50, control: 50, adaptability: 50, awareness: 50 };
-      analysisResult.social_scores = { empathy: 50, openness: 50, trust: 50, toxicity: 50, manipulation: 50 };
-      if (analysisResult.cognitive_profile) { analysisResult.cognitive_profile.blind_spots = null; analysisResult.cognitive_profile.biases = []; }
-      if (analysisResult.emotional_profile) analysisResult.emotional_profile.core_emotions = [];
-      analysisResult.social_profile = { communication_style: "Скрыто", attachment: "Скрыто", trust_issues: "Скрыто", social_mask: "Скрыто" };
-      analysisResult.dark_profile = { manipulation: "Заблокировано", toxicity: "Заблокировано", dark_traits: "Premium-блок" };
-      analysisResult.development_plan = null;
+    if (telegramId && !isAdmin) {
+      await decrementCheck(telegramId, isPaid).catch(() => { });
     }
 
     return res.status(200).json({
