@@ -8,6 +8,13 @@ export default function MainScreen({ nickname, setNickname, onAnalyze, userCheck
     const totalChecks = isPaid ? 30 : 1;
     const hasChecks = remainingChecks > 0;
 
+    const getChecksText = (count) => {
+        if (count === 0) return 'Проверки закончились';
+        if (count === 1) return 'Осталась 1 проверка';
+        if (count >= 2 && count <= 4) return `Осталось ${count} проверки`;
+        return `Осталось ${count} проверок`;
+    };
+
     return (
         <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -28,20 +35,21 @@ export default function MainScreen({ nickname, setNickname, onAnalyze, userCheck
                 Система анализа на базе 13 аналитических блоков.
             </p>
 
-            <div className="input-block ring-1 ring-black/5" style={{ marginBottom: '10px' }}>
+            <div className={`input-block ring-1 ring-black/5 ${!hasChecks ? 'opacity-50 pointer-events-none grayscale-[0.5]' : ''}`} style={{ marginBottom: '10px' }}>
                 <User className="w-5 h-5 text-[var(--text-muted)] shrink-0" strokeWidth={2} />
                 <input
                     type="text"
                     value={nickname}
                     onChange={(e) => setNickname(e.target.value)}
-                    placeholder="Введи никнейм..."
+                    placeholder={hasChecks ? "Введи никнейм..." : "Проверки закончились"}
                     className="dashboard-input"
-                    onKeyPress={(e) => e.key === 'Enter' && onAnalyze()}
+                    onKeyPress={(e) => e.key === 'Enter' && hasChecks && onAnalyze()}
+                    disabled={!hasChecks}
                 />
                 <motion.button
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => onAnalyze()}
-                    disabled={!nickname.trim()}
+                    whileTap={{ scale: hasChecks ? 0.95 : 1 }}
+                    onClick={() => hasChecks && onAnalyze()}
+                    disabled={!hasChecks || !nickname.trim()}
                     className="input-action-btn ml-2"
                     aria-label="Запустить анализ"
                 >
@@ -63,12 +71,10 @@ export default function MainScreen({ nickname, setNickname, onAnalyze, userCheck
                         </span>
                         <div className="checks-status-info">
                             <span className="checks-status-label">
-                                {isPaid ? 'Premium' : 'Бесплатный план'}
+                                Статус {isPaid ? 'Premium' : 'Free'}
                             </span>
                             <span className="checks-status-count">
-                                {hasChecks
-                                    ? `${remainingChecks} из ${totalChecks} проверок`
-                                    : 'Проверки закончились'}
+                                {getChecksText(remainingChecks)}
                             </span>
                         </div>
                     </div>
