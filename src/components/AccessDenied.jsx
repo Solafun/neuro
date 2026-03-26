@@ -20,7 +20,7 @@ const AccessDenied = () => {
                     Пожалуйста, открой нашего бота и нажми кнопку «Запустить», чтобы начать анализ.
                 </p>
                 <a
-                    href="https://t.me/threadsneuro_bot"
+                    href="https://t.me/ThreadsNeuroBot"
                     className="retry-button"
                     style={{ textDecoration: 'none', display: 'inline-block', marginTop: '20px' }}
                 >
