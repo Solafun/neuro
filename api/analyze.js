@@ -2,6 +2,9 @@ import OpenAI from 'openai';
 import axios from 'axios';
 import { trackCheck, checkUserStatus, getAppStatus } from './lib/supabase.js';
 
+// Suppress non-critical Node.js warnings (like url.parse deprecation)
+process.removeAllListeners('warning');
+
 // Discovery for many Baseten keys (supports up to 500 keys)
 const basetenKeys = [];
 if (process.env.BASETEN_API_KEY) basetenKeys.push(process.env.BASETEN_API_KEY);
@@ -313,6 +316,12 @@ ${postsText || 'Посты не найдены.'}`;
         try {
           const jsonMatch = fullContent.match(/\{[\s\S]*\}/);
           analysisResult = JSON.parse(jsonMatch ? jsonMatch[0] : fullContent);
+
+          // Map top-level strengths to positive_core for frontend compatibility (preserving prompt)
+          if (analysisResult.strengths && analysisResult.positive_core && !analysisResult.positive_core.strengths) {
+            analysisResult.positive_core.strengths = analysisResult.strengths;
+          }
+
           if (analysisResult) break;
         } catch (e) {
           console.error("JSON Parse Error:", e);
