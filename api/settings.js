@@ -17,42 +17,36 @@ export default async function handler(req, res) {
         const { telegramId } = req.query;
         let isAdmin = false;
 
-        // 1. ПРОВЕРКА АДМИНА
+        // 1. ПРОВЕРКА АДМИНА И ДАННЫХ ПРОВЕРОК
+        let userChecks = { freeChecks: 1, paidChecks: 0, isPaid: false };
         if (telegramId) {
+            let userStatus = null;
+            try {
+                userStatus = await checkUserStatus(telegramId);
+            } catch (e) {
+                console.warn('Settings: user status fetch failed:', e.message);
+            }
+
             // Check ENV Admin
             if (process.env.ADMIN_TELEGRAM_ID && String(telegramId) === String(process.env.ADMIN_TELEGRAM_ID)) {
                 isAdmin = true;
+            } else if (userStatus?.isAdmin) {
+                isAdmin = true;
             }
 
-            // Check DB Admin if not ENV admin
-            if (!isAdmin) {
-                try {
-                    const status = await checkUserStatus(telegramId);
-                    if (status.isAdmin) isAdmin = true;
-                } catch (e) {
-                    console.warn('Settings: DB admin check failed:', e.message);
-                }
+            // Populate userChecks
+            if (userStatus) {
+                userChecks = {
+                    freeChecks: userStatus.freeChecks ?? 0,
+                    paidChecks: userStatus.paidChecks ?? 0,
+                    isPaid: userStatus.isPaid || false
+                };
             }
         }
 
         console.log(`API Settings: fetching app status (user=${telegramId}, isAdmin=${isAdmin})...`);
         const status = await getAppStatus();
         console.log('API Settings result:', status);
-
-        // Получаем данные о проверках пользователя
-        let userChecks = { freeChecks: 1, paidChecks: 0, isPaid: false };
-        if (telegramId) {
-            try {
-                const userStatus = await checkUserStatus(telegramId);
-                userChecks = {
-                    freeChecks: userStatus.freeChecks ?? 0,
-                    paidChecks: userStatus.paidChecks ?? 0,
-                    isPaid: userStatus.isPaid || false
-                };
-            } catch (e) {
-                console.warn('Settings: user checks fetch failed:', e.message);
-            }
-        }
 
         // Если админ — принудительно отключаем флаг техработ для этого запроса
         const isMaintenance = isAdmin ? false : (status?.is_maintenance || false);

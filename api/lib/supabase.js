@@ -12,12 +12,12 @@ export const supabase = (supabaseUrl && supabaseKey)
  * Записывает пользователя (если новый) с расширенными данными
  */
 export async function trackUser(telegramUser) {
-    if (!supabase || !telegramUser) return;
+    if (!supabase || !telegramUser) return null;
 
     const { id, username, first_name, last_name, language_code, is_premium } = telegramUser;
     console.log(`Tracking user: ${id} (${username})`);
 
-    const { error } = await supabase.from('users').upsert({
+    const { data: userRow, error } = await supabase.from('users').upsert({
         id: id,
         username: username || null,
         first_name: first_name || null,
@@ -25,11 +25,14 @@ export async function trackUser(telegramUser) {
         language_code: language_code || null,
         is_premium: is_premium || false,
         last_seen: new Date().toISOString()
-    }, { onConflict: 'id' });
+    }, { onConflict: 'id' }).select('is_admin').single();
 
     if (error) {
         console.error('Supabase trackUser error:', error.message, error.details);
+        return null;
     }
+
+    return userRow;
 }
 
 

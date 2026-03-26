@@ -68,15 +68,14 @@ export default async function handler(req, res) {
             console.log(`Message from ${user.id}: "${text}"`);
 
             // Трекаем пользователя ПЕРЕД проверкой статуса (чтобы он был в базе)
-            await trackUser(user);
+            const userRow = await trackUser(user);
 
             // Проверяем статус админа (ENV + DB)
             let isAdmin = ADMIN_ID && String(user.id) === String(ADMIN_ID);
 
-            // Если не админ по ENV, проверяем базу
-            if (!isAdmin) {
-                const userStatus = await checkUserStatus(user.id);
-                if (userStatus.isAdmin) isAdmin = true;
+            // Если не админ по ENV, проверяем базу через возвращенный upsert
+            if (!isAdmin && userRow?.is_admin) {
+                isAdmin = true;
             }
 
             if (isMaintenance && !isAdmin) {
