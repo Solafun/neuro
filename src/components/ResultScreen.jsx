@@ -243,7 +243,18 @@ export default function ResultScreen({ result, onReset }) {
                             <span className="material-symbols-outlined icon-danger">visibility_off</span>
                             <span className="card-label-inline">Слепые зоны</span>
                         </div>
-                        <p className="card-text-compact">{renderValue(result.cognitive_profile?.blind_spots)}</p>
+                        {Array.isArray(result.cognitive_profile?.blind_spots) ? (
+                            <ul className="bullet-list" style={{ marginTop: '8px' }}>
+                                {result.cognitive_profile.blind_spots.slice(0, 3).map((item, i) => (
+                                    <li key={i}>
+                                        <span className="bullet" style={{ background: 'var(--danger)' }} />
+                                        <span>{formatCamelCase(item)}</span>
+                                    </li>
+                                ))}
+                            </ul>
+                        ) : (
+                            <p className="card-text-compact">{renderValue(result.cognitive_profile?.blind_spots)}</p>
+                        )}
                     </div>
                     <div className="card-glass">
                         <h3 className="card-mini-title">Искажения</h3>

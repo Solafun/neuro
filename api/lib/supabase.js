@@ -112,17 +112,21 @@ export async function incrementChecksCount(telegramId) {
  * @param {boolean} isPaid - true = decrement paid_checks, false = decrement free_checks
  */
 export async function decrementCheck(telegramId, isPaid) {
-    if (!supabase || !telegramId) return;
+    if (!supabase || !telegramId) return null;
     const column = isPaid ? 'paid_checks_remaining' : 'free_checks_remaining';
     try {
         const { data: user } = await supabase.from('users').select(column).eq('id', telegramId).single();
         const current = user?.[column] ?? 0;
         if (current > 0) {
-            await supabase.from('users').update({ [column]: current - 1 }).eq('id', telegramId);
-            console.log(`Decremented ${column} for user ${telegramId}: ${current} -> ${current - 1}`);
+            const newVal = current - 1;
+            await supabase.from('users').update({ [column]: newVal }).eq('id', telegramId);
+            console.log(`Decremented ${column} for user ${telegramId}: ${current} -> ${newVal}`);
+            return newVal;
         }
+        return 0;
     } catch (e) {
         console.error(`Error decrementing ${column}:`, e.message);
+        return null;
     }
 }
 

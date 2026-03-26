@@ -262,7 +262,7 @@ ${postsText || 'Посты не найдены.'}`;
     "thinking_style": "Как мозг обрабатывает информацию.",
     "decision_logic": "На что опирается при принятии решений.",
     "biases": ["3-4 когнитивных искажения с обоснованием. СТРОГО НА РУССКОМ."],
-    "blind_spots": "То, что человек НЕ ВИДИТ в своем поведении."
+    "blind_spots": ["2-3 слепые зоны. То, что человек НЕ ВИДИТ в своем поведении."]
     },
   "emotional_profile": {
     "core_emotions": ["3-4 доминирующих чувства (СТРОГО НА РУССКОМ)"],
@@ -287,11 +287,11 @@ ${postsText || 'Посты не найдены.'}`;
     "empathy": "Уровень сопереживания.",
     "dark_traits": "Главная теневая черта."
     },
-  "strengths": ["Конкретные навыки и фишки поведения."],
+  "strengths": ["Ровно 3 конкретных навыка и фишки поведения."],
   "weak_zones": {
     "vulnerabilities": ["Болевые точки системы."],
     "triggers": ["Что выводит из равновесия."],
-    "risks": ["К какому краху приведут уязвимости."]
+    "risks": ["Ровно 3 риска. К какому краху приведут уязвимости."]
     },
   "development_plan": {
     "growth_points": ["точки роста"],
@@ -340,9 +340,9 @@ ${profileDataBlock}`;
     "patterns": ["ПОВЕДЕНЧЕСКИЙ ЦИКЛ: ситуация → реакция → результат"],
     "life_strategy": "Контроль / Избегание / Борьба / Адаптация."
     },
-  "strengths": ["Конкретные навыки и фишки поведения."],
+  "strengths": ["Ровно 3 конкретных навыка и фишки поведения."],
   "weak_zones": {
-    "risks": ["К какому краху приведут уязвимости."]
+    "risks": ["Ровно 3 риска. К какому краху приведут уязвимости."]
     },
   "confidence": "высокая / средняя / низкая + почему"
 }
@@ -399,8 +399,18 @@ ${profileDataBlock}`;
 
     // STATS + DECREMENT CHECK
     await trackCheck(telegramId, nickname).catch(() => { });
+    let finalFreeChecks = freeChecks;
+    let finalPaidChecks = paidChecks;
+
     if (telegramId && !isAdmin) {
-      await decrementCheck(telegramId, isPaid).catch(() => { });
+      const remaining = await decrementCheck(telegramId, isPaid).catch(() => null);
+      if (remaining !== null) {
+        if (isPaid) finalPaidChecks = remaining;
+        else finalFreeChecks = remaining;
+      } else {
+        if (isPaid) finalPaidChecks = Math.max(0, paidChecks - 1);
+        else finalFreeChecks = Math.max(0, freeChecks - 1);
+      }
     }
 
     return res.status(200).json({
@@ -408,6 +418,8 @@ ${profileDataBlock}`;
       avatar: data.avatar,
       posts_found: usedPosts.length,
       isPaid,
+      freeChecks: finalFreeChecks,
+      paidChecks: finalPaidChecks,
       ...analysisResult
     });
 

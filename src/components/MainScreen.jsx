@@ -62,7 +62,7 @@ export default function MainScreen({ nickname, setNickname, onAnalyze, userCheck
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3, duration: 0.4 }}
-                className="checks-status-block"
+                className={`checks-status-block ${hasChecks ? 'compact' : ''}`}
             >
                 <div className="checks-status-row">
                     <div className="checks-status-left">

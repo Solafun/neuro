@@ -152,6 +152,15 @@ function App() {
         return;
       }
 
+      // Успешный результат - обновляем состояние лимитов
+      if (data.freeChecks !== undefined || data.paidChecks !== undefined) {
+        setUserChecks(prev => ({
+          ...prev,
+          freeChecks: data.freeChecks !== undefined ? data.freeChecks : prev.freeChecks,
+          paidChecks: data.paidChecks !== undefined ? data.paidChecks : prev.paidChecks
+        }));
+      }
+
       setResult(data);
       setAppState('result');
     } catch (error) {
