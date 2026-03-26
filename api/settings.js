@@ -36,9 +36,7 @@ export default async function handler(req, res) {
             }
         }
 
-        console.log(`API Settings: fetching app status (user=${telegramId}, isAdmin=${isAdmin})...`);
         const status = await getAppStatus();
-        console.log('API Settings result:', status);
 
         // Если админ — принудительно отключаем флаг техработ для этого запроса
         const isMaintenance = isAdmin ? false : (status?.is_maintenance || false);

@@ -171,7 +171,6 @@ export async function checkUserStatus(telegramId) {
         return { isPaid: false };
     }
     try {
-        console.log(`checkUserStatus: querying DB for user ${telegramId}...`);
         const { data, error } = await supabase
             .from('users')
             .select('is_paid, subscription_expires_at, is_admin, free_checks_remaining, paid_checks_remaining')
@@ -187,8 +186,6 @@ export async function checkUserStatus(telegramId) {
             console.warn(`checkUserStatus: user ${telegramId} not found in DB`);
             return { isPaid: false, isAdmin: false, freeChecks: 1, paidChecks: 0 };
         }
-
-        console.log(`checkUserStatus result for ${telegramId}: paid=${data.is_paid}, admin=${data.is_admin}`);
 
         // Если оплачено, проверяем дату окончания
         if (data.is_paid && data.subscription_expires_at) {
