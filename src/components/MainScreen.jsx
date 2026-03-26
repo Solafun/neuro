@@ -86,11 +86,6 @@ export default function MainScreen({ nickname, setNickname, onAnalyze, userCheck
                             Подписка
                         </button>
                     )}
-                    {hasChecks && isPaid && (
-                        <div className="checks-badge-premium">
-                            <span className="material-symbols-outlined" style={{ fontSize: 14 }}>verified</span>
-                        </div>
-                    )}
                 </div>
             </motion.div>
 
