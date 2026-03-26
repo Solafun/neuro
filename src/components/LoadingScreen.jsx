@@ -20,7 +20,7 @@ export default function LoadingScreen() {
     useEffect(() => {
         const interval = setInterval(() => {
             setCurrentPhase(prev => (prev < phases.length - 1 ? prev + 1 : prev));
-        }, 1100);
+        }, 3500);
         return () => clearInterval(interval);
     }, []);
 
@@ -47,7 +47,7 @@ export default function LoadingScreen() {
                     className="loading-progress-fill"
                     initial={{ width: 0 }}
                     animate={{ width: `${progress}%` }}
-                    transition={{ duration: 0.4, ease: "easeOut" }}
+                    transition={{ duration: 0.8, ease: "easeOut" }}
                 />
             </div>
             <span className="loading-progress-label">{progress}%</span>

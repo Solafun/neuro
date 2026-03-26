@@ -31,7 +31,7 @@ const aiClients = vsegptKeys.map(key => new OpenAI({
   }
 }));
 
-const modelName = "meta-llama/llama-3.3-70b-instruct";
+const modelName = "openai/gpt-4.1-nano";
 
 async function scrapeThreadsProfile(nickname) {
   const url = `https://www.threads.net/@${nickname}`;
