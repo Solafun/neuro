@@ -5,6 +5,7 @@ import MainScreen from './components/MainScreen';
 import LoadingScreen from './components/LoadingScreen';
 import ErrorScreen from './components/ErrorScreen';
 import MaintenanceScreen from './components/MaintenanceScreen';
+import AccessDenied from './components/AccessDenied';
 import SpatialBackground from './components/SpatialBackground';
 import { checkMaintenance } from './services/api';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -76,6 +77,15 @@ function App() {
         }
 
         console.log(`[MaintenanceCheck] Proceeding with ID: ${telegramId || 'guest'}`);
+
+        // ПРОВЕРКА ПЛАТФОРМЫ: блокируем обычные браузеры
+        const isTelegram = tg && tg.initData && tg.initData.length > 0;
+        if (!isTelegram) {
+          console.warn("[AccessCheck] Unauthorized access from outside Telegram.");
+          setAppState('denied');
+          return;
+        }
+
         const data = await checkMaintenance(telegramId);
         console.log("[MaintenanceCheck] API Result:", data);
 
@@ -229,6 +239,10 @@ function App() {
               key="maintenance"
               message={maintenanceMessage}
             />
+          )}
+
+          {appState === 'denied' && (
+            <AccessDenied key="denied" />
           )}
         </AnimatePresence>
       </div>
