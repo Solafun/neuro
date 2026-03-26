@@ -243,9 +243,9 @@ ${postsText || 'Посты не найдены.'}`;
 ==================================================
 {
 "profile_summary": {
-    "psychotype": "СТАТИЧНЫЙ ЯРЛЫК (например: «Профессиональный Архитектор»). Отражает общую роль.",
-    "summary": "Кто этот человек, его суть личности (3-4 предложения).",
-    "core_pattern": "ДИНАМИЧЕСКИЙ ПАТТЕРН. Главная поведенческая петля."
+    "psychotype": "<Придумай яркий ярлык-роль для этого человека, например: Тихий Стратег, Эмоциональный Архитектор, Хаотичный Визионер>",
+    "summary": "<Кто этот человек, его суть личности, 3-4 предложения>",
+    "core_pattern": "<Главная поведенческая петля, например: Тревожная гиперкомпенсация через контроль>"
     },
   "positive_core": {
     "natural_strengths": "Врожденные качества.",
@@ -313,9 +313,9 @@ ${profileDataBlock}`;
 ==================================================
 {
 "profile_summary": {
-    "psychotype": "СТАТИЧНЫЙ ЯРЛЫК. Отражает общую роль.",
-    "summary": "Кто этот человек, его суть личности (3-4 предложения).",
-    "core_pattern": "Главная поведенческая петля."
+    "psychotype": "<Придумай яркий ярлык-роль для этого человека, например: Тихий Стратег, Эмоциональный Архитектор, Хаотичный Визионер>",
+    "summary": "<Кто этот человек, его суть личности, 3-4 предложения>",
+    "core_pattern": "<Главная поведенческая петля, например: Тревожная гиперкомпенсация через контроль>"
     },
   "positive_core": {
     "natural_strengths": "Врожденные качества.",
@@ -413,6 +413,21 @@ ${profileDataBlock}`;
 
   } catch (err) {
     console.error('Handler error:', err);
-    return res.status(200).json({ error: 'fatal_error', message: err.message });
+    // Скрываем технические детали от пользователя
+    const safeMessage = (err.message && (
+      err.message.includes('balance') ||
+      err.message.includes('money') ||
+      err.message.includes('account') ||
+      err.message.includes('API') ||
+      err.message.includes('key') ||
+      err.message.includes('vsegpt') ||
+      err.message.includes('401') ||
+      err.message.includes('403') ||
+      err.message.includes('429') ||
+      err.message.includes('500')
+    ))
+      ? 'Сервис временно недоступен. Попробуйте позже.'
+      : (err.message || 'Произошла ошибка. Попробуйте позже.');
+    return res.status(200).json({ error: 'fatal_error', message: safeMessage });
   }
 }

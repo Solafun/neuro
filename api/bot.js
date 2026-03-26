@@ -67,6 +67,9 @@ export default async function handler(req, res) {
 
             console.log(`Message from ${user.id}: "${text}"`);
 
+            // Трекаем пользователя ПЕРЕД проверкой статуса (чтобы он был в базе)
+            await trackUser(user);
+
             // Проверяем статус админа (ENV + DB)
             let isAdmin = ADMIN_ID && String(user.id) === String(ADMIN_ID);
 
@@ -84,9 +87,6 @@ export default async function handler(req, res) {
                 });
                 return res.status(200).send('OK');
             }
-
-            // Всегда трекаем пользователя (если есть база)
-            await trackUser(user);
 
             // Команда /start (через startsWith для поддержки параметров)
             if (text.startsWith('/start')) {
