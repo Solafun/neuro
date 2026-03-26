@@ -2,27 +2,36 @@ import OpenAI from 'openai';
 import axios from 'axios';
 import { trackCheck, checkUserStatus, getAppStatus } from './lib/supabase.js';
 
-// Suppress non-critical Node.js warnings (like url.parse deprecation)
+// Aggressively suppress DEP0169 (url.parse) deprecation warning
+const originalEmit = process.emitWarning;
+process.emitWarning = (warning, ...args) => {
+  if (typeof warning === 'string' && warning.includes('DEP0169')) return;
+  if (warning && typeof warning === 'object' && warning.code === 'DEP0169') return;
+  return originalEmit.call(process, warning, ...args);
+};
 process.removeAllListeners('warning');
 
-// Discovery for many Baseten keys (supports up to 500 keys)
-const basetenKeys = [];
-if (process.env.BASETEN_API_KEY) basetenKeys.push(process.env.BASETEN_API_KEY);
+// Discovery for VseGPT keys (supports up to 500 keys)
+const vsegptKeys = [];
+if (process.env.VSEGPT_KEY) vsegptKeys.push(process.env.VSEGPT_KEY);
 for (let i = 1; i <= 500; i++) {
-  const keyName = `BASETEN_API_KEY_${i}`;
+  const keyName = `VSEGPT_KEY_${i}`;
   const val = process.env[keyName];
-  if (val) basetenKeys.push(val);
+  if (val) vsegptKeys.push(val);
 }
 
-console.log(`Initialized with ${basetenKeys.length} Baseten API keys.`);
+console.log(`Initialized with ${vsegptKeys.length} VseGPT API keys.`);
 
-// Массив клиентов OpenAI для ротации (настроен на Baseten)
-const basetenClients = basetenKeys.map(key => new OpenAI({
+// Массив клиентов OpenAI для ротации (настроен на VseGPT)
+const aiClients = vsegptKeys.map(key => new OpenAI({
   apiKey: key,
-  baseURL: 'https://inference.baseten.co/v1',
+  baseURL: 'https://api.vsegpt.ru/v1',
+  defaultHeaders: {
+    "X-Title": "Threads Profile Analysis"
+  }
 }));
 
-const modelName = "openai/gpt-oss-120b";
+const modelName = "meta-llama/llama-3.3-70b-instruct";
 
 async function scrapeThreadsProfile(nickname) {
   const url = `https://www.threads.net/@${nickname}`;
@@ -294,9 +303,9 @@ ${postsText || 'Посты не найдены.'}`;
     let analysisResult, lastError;
     const startTimeAI = Date.now();
 
-    for (const client of basetenClients) {
+    for (const client of aiClients) {
       try {
-        console.log(`Attempting Baseten (OpenAI SDK): ${modelName}`);
+        console.log(`Attempting VseGPT (OpenAI SDK): ${modelName}`);
         const stream = await client.chat.completions.create({
           model: modelName,
           messages: [
