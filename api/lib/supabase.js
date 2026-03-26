@@ -155,9 +155,16 @@ export async function setChannelSubscription(userId, isActive) {
         subscription_type: isActive ? 'channel' : 'free',
         subscription_expires_at: null
     };
-    // При активации подписки сбрасываем лимит проверок
+    // При активации подписки добавляем +30 проверок к текущему остатку
     if (isActive) {
-        updateData.paid_checks_remaining = 30;
+        try {
+            const { data: user } = await supabase.from('users').select('paid_checks_remaining').eq('id', userId).single();
+            const current = user?.paid_checks_remaining ?? 0;
+            updateData.paid_checks_remaining = current + 30;
+        } catch (e) {
+            console.error('Error fetching current checks for additive update:', e.message);
+            updateData.paid_checks_remaining = 30; // Fallback
+        }
     }
     await supabase.from('users').update(updateData).eq('id', userId);
 }
@@ -225,9 +232,17 @@ export async function setUserPaidStatus(telegramId, isPaid = true, expiresAt = n
             last_seen: new Date().toISOString()
         };
 
-        // При активации подписки сбрасываем лимит проверок
+        // При активации подписки добавляем +30 проверок к текущему остатку
         if (isPaid) {
-            updateData.paid_checks_remaining = 30;
+            try {
+                const { data: user } = await supabase.from('users').select('paid_checks_remaining').eq('id', telegramId).single();
+                const current = user?.paid_checks_remaining ?? 0;
+                updateData.paid_checks_remaining = current + 30;
+                console.log(`Accrued +30 checks for user ${telegramId}. New target: ${updateData.paid_checks_remaining}`);
+            } catch (e) {
+                console.error('Error fetching current checks for accrual:', e.message);
+                updateData.paid_checks_remaining = 30; // Fallback
+            }
         }
 
         if (expiresAt) {
