@@ -402,7 +402,7 @@ ${profileDataBlock}`;
     let finalFreeChecks = freeChecks;
     let finalPaidChecks = paidChecks;
 
-    if (telegramId && !isAdmin) {
+    if (telegramId) {
       const remaining = await decrementCheck(telegramId, isPaid).catch(() => null);
       if (remaining !== null) {
         if (isPaid) finalPaidChecks = remaining;
