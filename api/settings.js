@@ -1,11 +1,3 @@
-// Suppress DEP0169 (url.parse) deprecation warning
-const _origWarn = process.emitWarning;
-process.emitWarning = (w, ...a) => {
-    if (typeof w === 'string' && w.includes('DEP0169')) return;
-    if (w && typeof w === 'object' && w.code === 'DEP0169') return;
-    return _origWarn.call(process, w, ...a);
-};
-
 import { getAppStatus, checkUserStatus } from './lib/supabase.js';
 
 export default async function handler(req, res) {

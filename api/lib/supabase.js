@@ -1,5 +1,16 @@
 import { createClient } from '@supabase/supabase-js';
 
+// Жёстко глушим варнинг DEP0169 (url.parse) на уровне stderr,
+// так как Node.js пишет его напрямую из движка, минуя console.error и emitWarning
+if (typeof process !== 'undefined' && process.stderr && !process.stderr.__dep0169_patched) {
+    const origWrite = process.stderr.write.bind(process.stderr);
+    process.stderr.write = function (chunk, encoding, callback) {
+        if (typeof chunk === 'string' && chunk.includes('DEP0169')) return true;
+        return origWrite(chunk, encoding, callback);
+    };
+    process.stderr.__dep0169_patched = true;
+}
+
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_ANON_KEY;
 
