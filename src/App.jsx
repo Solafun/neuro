@@ -15,6 +15,7 @@ function App() {
   const [result, setResult] = useState(null);
   const [isMaintenance, setIsMaintenance] = useState(false);
   const [maintenanceMessage, setMaintenanceMessage] = useState('');
+  const [userChecks, setUserChecks] = useState({ freeChecks: 1, paidChecks: 0, isPaid: false });
 
   useEffect(() => {
     const tg = window.Telegram?.WebApp;
@@ -84,6 +85,14 @@ function App() {
           setAppState('maintenance');
         } else {
           setAppState('idle');
+        }
+        // Сохраняем данные о проверках
+        if (data.freeChecks !== undefined || data.paidChecks !== undefined) {
+          setUserChecks({
+            freeChecks: data.freeChecks ?? 0,
+            paidChecks: data.paidChecks ?? 0,
+            isPaid: data.isPaid || false
+          });
         }
       } catch (err) {
         console.error("[MaintenanceCheck] Error:", err);
@@ -181,6 +190,7 @@ function App() {
               nickname={nickname}
               setNickname={setNickname}
               onAnalyze={handleAnalyze}
+              userChecks={userChecks}
             />
           )}
 

@@ -39,12 +39,28 @@ export default async function handler(req, res) {
         const status = await getAppStatus();
         console.log('API Settings result:', status);
 
+        // Получаем данные о проверках пользователя
+        let userChecks = { freeChecks: 1, paidChecks: 0, isPaid: false };
+        if (telegramId) {
+            try {
+                const userStatus = await checkUserStatus(telegramId);
+                userChecks = {
+                    freeChecks: userStatus.freeChecks ?? 0,
+                    paidChecks: userStatus.paidChecks ?? 0,
+                    isPaid: userStatus.isPaid || false
+                };
+            } catch (e) {
+                console.warn('Settings: user checks fetch failed:', e.message);
+            }
+        }
+
         // Если админ — принудительно отключаем флаг техработ для этого запроса
         const isMaintenance = isAdmin ? false : (status?.is_maintenance || false);
 
         return res.status(200).json({
             isMaintenance: isMaintenance,
-            maintenanceMessage: status?.maintenance_message || 'Технические работы'
+            maintenanceMessage: status?.maintenance_message || 'Технические работы',
+            ...userChecks
         });
     } catch (error) {
         console.error('API Settings error:', error);

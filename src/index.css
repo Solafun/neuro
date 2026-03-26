@@ -2106,3 +2106,96 @@ p,
     transform: rotate(360deg);
   }
 }
+
+/* ====================================
+   CHECKS STATUS BLOCK (MAIN SCREEN)
+   ==================================== */
+.checks-status-block {
+  width: 100%;
+  max-width: 320px;
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 16px;
+  padding: 12px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  margin-top: 4px;
+}
+
+.checks-status-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.checks-status-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.checks-status-icon {
+  font-size: 24px;
+  color: var(--text-muted);
+  background: rgba(0, 0, 0, 0.03);
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.checks-status-icon.text-premium {
+  color: #FFA500;
+  background: rgba(255, 165, 0, 0.1);
+}
+
+.checks-status-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.checks-status-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  letter-spacing: 0.5px;
+  margin-bottom: 2px;
+}
+
+.checks-status-count {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1;
+}
+
+.checks-subscribe-btn {
+  background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+  color: #000;
+  border: none;
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(255, 165, 0, 0.3);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.checks-subscribe-btn:active {
+  transform: scale(0.95);
+  box-shadow: 0 1px 4px rgba(255, 165, 0, 0.2);
+}
+
+.checks-badge-premium {
+  color: #00D4FF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

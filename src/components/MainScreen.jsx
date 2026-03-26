@@ -2,7 +2,12 @@ import React from 'react';
 import { Sparkles, Brain, Search, User } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-export default function MainScreen({ nickname, setNickname, onAnalyze }) {
+export default function MainScreen({ nickname, setNickname, onAnalyze, userChecks }) {
+    const { freeChecks = 1, paidChecks = 0, isPaid = false } = userChecks || {};
+    const remainingChecks = isPaid ? paidChecks : freeChecks;
+    const totalChecks = isPaid ? 30 : 1;
+    const hasChecks = remainingChecks > 0;
+
     return (
         <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -43,6 +48,45 @@ export default function MainScreen({ nickname, setNickname, onAnalyze }) {
                     <Search className="w-6 h-6 text-white" />
                 </motion.button>
             </div>
+
+            {/* Check status block */}
+            <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3, duration: 0.4 }}
+                className="checks-status-block"
+            >
+                <div className="checks-status-row">
+                    <div className="checks-status-left">
+                        <span className={`checks-status-icon material-symbols-outlined ${isPaid ? 'text-premium' : ''}`}>
+                            {isPaid ? 'diamond' : 'token'}
+                        </span>
+                        <div className="checks-status-info">
+                            <span className="checks-status-label">
+                                {isPaid ? 'Premium' : 'Бесплатный план'}
+                            </span>
+                            <span className="checks-status-count">
+                                {hasChecks
+                                    ? `${remainingChecks} из ${totalChecks} проверок`
+                                    : 'Проверки закончились'}
+                            </span>
+                        </div>
+                    </div>
+                    {!hasChecks && (
+                        <button
+                            className="checks-subscribe-btn"
+                            onClick={() => window.Telegram?.WebApp?.openTelegramLink('https://t.me/tribute/app?startapp=sR0c')}
+                        >
+                            Подписка
+                        </button>
+                    )}
+                    {hasChecks && isPaid && (
+                        <div className="checks-badge-premium">
+                            <span className="material-symbols-outlined" style={{ fontSize: 14 }}>verified</span>
+                        </div>
+                    )}
+                </div>
+            </motion.div>
 
             {/* Pushing the block fully to the bottom with mt-auto and extra padding top to distance it from input */}
             <div className="mt-auto mb-6 text-[12px] text-[var(--text-muted)] font-black uppercase tracking-[0.2em] opacity-80 flex items-center justify-center w-full gap-2 text-center">
