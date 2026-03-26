@@ -132,9 +132,18 @@ export default async function handler(req, res) {
     const nickname = req.body.nickname;
     if (!nickname) return res.status(400).json();
 
+    const telegramId = req.body.telegramId;
+    let isPaid = false, isAdmin = false;
+    if (telegramId) {
+      const status = await checkUserStatus(telegramId);
+      isPaid = status.isPaid;
+      isAdmin = status.isAdmin;
+      if (process.env.ADMIN_TELEGRAM_ID && String(telegramId) === String(process.env.ADMIN_TELEGRAM_ID)) isAdmin = true;
+    }
+
     const appStatus = await getAppStatus();
-    if (appStatus?.is_maintenance === true) {
-      return res.status(200).json({ error: 'maintenance', message: appStatus.maintenance_message || 'Техработы' });
+    if (appStatus?.is_maintenance === true && !isAdmin) {
+      return res.status(200).json({ error: 'maintenance', message: appStatus.maintenance_message || 'Мы обновляем систему. Приложение временно недоступно.' });
     }
 
     const data = await scrapeThreadsProfile(nickname);
@@ -319,11 +328,8 @@ ${postsText || 'Посты не найдены.'}`;
     if (!analysisResult) throw lastError || new Error("AI failed");
     console.log(`AI Phase: ${Date.now() - startTimeAI}ms`);
 
-    // STATS & GATING
-    const telegramId = req.body.telegramId;
+    // STATS
     await trackCheck(telegramId, nickname).catch(() => { });
-    const status = await checkUserStatus(telegramId);
-    const isPaid = status.isPaid;
 
     if (!isPaid) {
       analysisResult.personality_scores = { logic: 50, emotionality: 50, control: 50, adaptability: 50, awareness: 50 };
