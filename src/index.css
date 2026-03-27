@@ -659,60 +659,44 @@ p,
   position: fixed;
   inset: 0;
   pointer-events: none;
-  z-index: 5;
-  border: 12px solid transparent;
-  border-image: radial-gradient(circle at var(--x, 50%) var(--y, 50%), var(--aura-color) 0%, transparent 70%) 1;
-  mask:
-    linear-gradient(#fff 0 0) content-box,
-    linear-gradient(#fff 0 0);
-  -webkit-mask:
-    linear-gradient(#fff 0 0) content-box,
-    linear-gradient(#fff 0 0);
-  mask-composite: exclude;
-  -webkit-mask-composite: destination-out;
-  filter: blur(20px);
-  opacity: 0.6;
-  animation: aura-lava-flow 8s ease-in-out infinite alternate;
+  z-index: 9999;
+  /* Max z-index to ensure visibility */
+  overflow: hidden;
 }
 
-/* Alternative simpler but robust border glow */
+/* Primary Border Glow */
 .screen-aura::before {
   content: '';
   position: absolute;
-  inset: -20px;
+  inset: 0;
+  border: 15px solid var(--aura-color);
+  filter: blur(20px);
+  opacity: 0.4;
+  animation: aura-border-pulse 4s ease-in-out infinite alternate;
+}
+
+/* Secondary Outer Soft Glow */
+.screen-aura::after {
+  content: '';
+  position: absolute;
+  inset: -10px;
   border: 40px solid var(--aura-color);
   filter: blur(60px);
   opacity: 0.15;
-  border-radius: 40px;
-  animation: aura-pulse 4s ease-in-out infinite alternate;
+  animation: aura-border-pulse 4s ease-in-out infinite alternate-reverse;
 }
 
-@keyframes aura-lava-flow {
+@keyframes aura-border-pulse {
   0% {
-    opacity: 0.4;
-    transform: scale(1.02);
-  }
-
-  50% {
-    opacity: 0.7;
-    transform: scale(1.05);
+    opacity: 0.15;
+    transform: scale(1);
+    filter: blur(20px);
   }
 
   100% {
-    opacity: 0.4;
+    opacity: 0.45;
     transform: scale(1.02);
-  }
-}
-
-@keyframes aura-pulse {
-  0% {
-    opacity: 0.1;
-    transform: scale(0.98);
-  }
-
-  100% {
-    opacity: 0.25;
-    transform: scale(1.02);
+    filter: blur(40px);
   }
 }
 
