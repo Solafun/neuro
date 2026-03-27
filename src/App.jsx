@@ -188,7 +188,7 @@ function App() {
 
   return (
     <>
-      <SpatialBackground />
+      <SpatialBackground auraColor={result?.aura?.color} />
       <div className="app-container">
         <AnimatePresence mode="wait">
           {appState === 'init' && (
