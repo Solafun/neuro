@@ -300,7 +300,11 @@ ${postsText || 'Посты не найдены.'}`;
       },
 "personality_scores": { "logic": 0-100, "emotionality": 0-100, "control": 0-100, "adaptability": 0-100, "awareness": 0-100 },
 "social_scores": { "empathy": 0-100, "openness": 0-100, "toxicity": 0-100, "manipulation": 0-100, "trust": 0-100 },
-"confidence": "высокая / средняя / низкая + почему"
+"confidence": "высокая / средняя / низкая + почему",
+"aura": {
+    "color": "<HEX-код цвета, отражающего ауру, например: #FF5733>",
+    "description": "<Короткое поэтическое название ауры на русском языке, например: Сияющий Изумруд>"
+}
 }
 ${strengthChartRules}
 ${profileDataBlock}`;
@@ -344,7 +348,11 @@ ${profileDataBlock}`;
   "weak_zones": {
     "risks": ["Ровно 3 риска. К какому краху приведут уязвимости."]
     },
-  "confidence": "высокая / средняя / низкая + почему"
+  "confidence": "высокая / средняя / низкая + почему",
+  "aura": {
+    "color": "<HEX-код цвета, отражающего ауру, например: #FF5733>",
+    "description": "<Короткое поэтическое название ауры на русском языке, например: Сияющий Изумруд>"
+  }
 }
 ${strengthChartRules}
 ${profileDataBlock}`;

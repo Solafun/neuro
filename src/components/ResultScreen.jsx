@@ -122,8 +122,24 @@ export default function ResultScreen({ result, onReset }) {
             {/* ===== HEADER ===== */}
             <motion.header variants={item} className="result-header">
                 <div className="avatar-glow-wrapper">
-                    <div className="avatar-glow" />
-                    <div className="avatar-ring">
+                    <div
+                        className="avatar-glow"
+                        style={{
+                            background: result.aura?.color || 'var(--primary)',
+                            opacity: 0.4
+                        }}
+                    />
+                    <div
+                        className="avatar-ring"
+                        style={{
+                            background: result.aura?.color
+                                ? `linear-gradient(135deg, ${result.aura.color} 0%, #ffffff 100%)`
+                                : 'linear-gradient(135deg, var(--primary) 0%, #00D4FF 100%)',
+                            boxShadow: result.aura?.color
+                                ? `0 8px 32px ${result.aura.color}66`
+                                : '0 8px 32px rgba(0, 122, 255, 0.3)'
+                        }}
+                    >
                         <div className="avatar-inner">
                             <div
                                 className="avatar-image"
@@ -136,8 +152,24 @@ export default function ResultScreen({ result, onReset }) {
                 </div>
                 <h1 className="result-nickname">@{result.nickname}</h1>
                 <p className="result-subtitle">Психологический профиль</p>
-                <div className="result-psychotype">
-                    {result.profile_summary?.psychotype || 'Анализ завершён'}
+                <div className="flex flex-col items-center gap-3 mt-4">
+                    <div className="result-psychotype">
+                        {result.profile_summary?.psychotype || 'Анализ завершён'}
+                    </div>
+                    {result.aura && (
+                        <div
+                            className="aura-badge"
+                            style={{
+                                '--aura-color': result.aura.color,
+                                background: `${result.aura.color}15`,
+                                border: `1px solid ${result.aura.color}40`,
+                                color: result.aura.color
+                            }}
+                        >
+                            <span className="material-symbols-outlined">auto_awesome</span>
+                            {result.aura.description}
+                        </div>
+                    )}
                 </div>
             </motion.header>
 

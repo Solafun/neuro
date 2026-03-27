@@ -647,6 +647,33 @@ p,
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 }
 
+.aura-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 0.5px;
+  animation: aura-shimmer 3s ease-in-out infinite alternate;
+}
+
+.aura-badge .material-symbols-outlined {
+  font-size: 18px;
+}
+
+@keyframes aura-shimmer {
+  0% {
+    box-shadow: 0 0 10px var(--aura-color, var(--primary));
+    transform: scale(1);
+  }
+  100% {
+    box-shadow: 0 0 20px var(--aura-color, var(--primary));
+    transform: scale(1.02);
+  }
+}
+
 /* Result Cards */
 .card-glass {
   background: rgba(255, 255, 255, 0.75);
