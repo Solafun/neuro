@@ -123,7 +123,11 @@ export default function ResultScreen({ result, onReset }) {
                 <div
                     className="screen-aura"
                     style={{ '--aura-color': result.aura.color }}
-                />
+                >
+                    <div className="aura-blob" style={{ width: '400px', height: '400px', top: '-100px', left: '-100px', animationDelay: '0s' }} />
+                    <div className="aura-blob" style={{ width: '350px', height: '350px', bottom: '-80px', right: '-80px', animationDelay: '-5s' }} />
+                    <div className="aura-blob" style={{ width: '300px', height: '300px', top: '40%', left: '30%', animationDelay: '-10s' }} />
+                </div>
             )}
             {/* ===== HEADER ===== */}
             <motion.header variants={item} className="result-header">
