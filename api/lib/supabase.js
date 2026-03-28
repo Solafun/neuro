@@ -222,8 +222,9 @@ export async function checkUserStatus(telegramId) {
  * @param {number} telegramId - ID пользователя
  * @param {boolean} isPaid - Статус оплаты
  * @param {string|null} expiresAt - Дата окончания подписки (ISO string)
+ * @param {number} checksToAdd - Сколько проверок добавить (по умолчанию 30)
  */
-export async function setUserPaidStatus(telegramId, isPaid = true, expiresAt = null) {
+export async function setUserPaidStatus(telegramId, isPaid = true, expiresAt = null, checksToAdd = 30) {
     if (!supabase || !telegramId) return null;
     try {
         const updateData = {
@@ -232,16 +233,16 @@ export async function setUserPaidStatus(telegramId, isPaid = true, expiresAt = n
             last_seen: new Date().toISOString()
         };
 
-        // При активации подписки добавляем +30 проверок к текущему остатку
+        // При активации подписки добавляем проверки к текущему остатку
         if (isPaid) {
             try {
                 const { data: user } = await supabase.from('users').select('paid_checks_remaining').eq('id', telegramId).single();
                 const current = user?.paid_checks_remaining ?? 0;
-                updateData.paid_checks_remaining = current + 30;
-                console.log(`Accrued +30 checks for user ${telegramId}. New target: ${updateData.paid_checks_remaining}`);
+                updateData.paid_checks_remaining = current + checksToAdd;
+                console.log(`Accrued +${checksToAdd} checks for user ${telegramId}. New target: ${updateData.paid_checks_remaining}`);
             } catch (e) {
                 console.error('Error fetching current checks for accrual:', e.message);
-                updateData.paid_checks_remaining = 30; // Fallback
+                updateData.paid_checks_remaining = checksToAdd; // Fallback
             }
         }
 

@@ -55,8 +55,19 @@ export default async function handler(req, res) {
             const expiresAt = payload.expires_at || null;
 
             if (telegramId) {
-                console.log(`Updating paid status for user: ${telegramId}, expires: ${expiresAt}`);
-                await setUserPaidStatus(telegramId, true, expiresAt);
+                const amount = payload.amount || 0;
+                let checksToAdd = 30; // По умолчанию 30
+
+                // ТИРИНГ: 100 руб = 5 проверок, 299 руб = 30 проверок
+                // Проверяем примерные значения (могут быть копейки или валютные колебания)
+                if (amount >= 90 && amount < 200) {
+                    checksToAdd = 5;
+                } else if (amount >= 200) {
+                    checksToAdd = 30;
+                }
+
+                console.log(`Updating paid status for user: ${telegramId}, amount: ${amount}, checks: ${checksToAdd}, expires: ${expiresAt}`);
+                await setUserPaidStatus(telegramId, true, expiresAt, checksToAdd);
 
                 // Логируем платеж в таблицу payments
                 await logPayment({
