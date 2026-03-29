@@ -59,132 +59,133 @@ export default async function handler(req, res) {
             return res.status(200).send('OK');
         }
 
-        // 2. ОБРАБОТКА СООБЩЕНИЙ
-        if (body.message) {
-            const chatId = body.message.chat.id;
-            const text = body.message.text || "";
-            const user = body.message.from;
+        // 2. УНИФИЦИРОВАННАЯ ОБРАБОТКА (message или callback_query)
+        const message = body.message || body.callback_query?.message;
+        const user = body.message?.from || body.callback_query?.from;
+        const chatId = message?.chat?.id;
 
-            console.log(`Message from ${user.id}: "${text}"`);
-
-            // Трекаем пользователя ПЕРЕД проверкой статуса (чтобы он был в базе)
+        if (user) {
+            // Трекаем пользователя ПЕРЕД любой обработкой (чтобы он был в базе)
             const userRow = await trackUser(user);
 
             // Проверяем статус админа (ENV + DB)
             let isAdmin = ADMIN_ID && String(user.id) === String(ADMIN_ID);
-
-            // Если не админ по ENV, проверяем базу через возвращенный upsert
             if (!isAdmin && userRow?.is_admin) {
                 isAdmin = true;
             }
 
-            if (isMaintenance && !isAdmin) {
-                await axios.post(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
-                    chat_id: chatId,
-                    text: `🛠 **${maintenanceMsg}**`,
-                    parse_mode: 'Markdown'
-                });
-                return res.status(200).send('OK');
-            }
+            // Обработка текстовых сообщений
+            if (body.message) {
+                const text = body.message.text || "";
+                console.log(`Message from ${user.id}: "${text}"`);
 
-            // Команда /start (через startsWith для поддержки параметров)
-            if (text.startsWith('/start')) {
-                console.log("Handling /start command");
-                // Проверяем подписку при старте
-                const isMember = await checkChannelMembership(user.id);
-                if (isMember) {
-                    await setChannelSubscription(user.id, true);
+                if (isMaintenance && !isAdmin) {
+                    await axios.post(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
+                        chat_id: chatId,
+                        text: `🛠 **${maintenanceMsg}**`,
+                        parse_mode: 'Markdown'
+                    });
+                    return res.status(200).send('OK');
                 }
 
-                // Экранируем спецсимволы в имени для HTML
-                const safeName = (user.first_name || "друг").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-
-                const messageText = `👋 Привет, <b>${safeName}</b>!\n\n` +
-                    `🤖 Я — <b>Threads Neuro</b>. Я использую нейросети для проведения глубокого психологического анализа личности на основе твоего профиля и публикаций.\n\n` +
-                    `🔍 <b>Что я могу:</b>\n` +
-                    `• Составить твой психологический портрет\n` +
-                    `• Определить твой стиль общения и поведения\n` +
-                    `• Найти скрытые конфликты и «слепые зоны»\n` +
-                    `• Оценить уровень токсичности и манипулятивности\n\n` +
-                    `${isMember ? '💎 Тебе доступен <b>Premium</b> статус!' : 'Жми кнопку ниже, чтобы начать! 👇'}`;
-
-                await axios.post(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
-                    chat_id: chatId,
-                    text: messageText,
-                    parse_mode: 'HTML',
-                    reply_markup: {
-                        inline_keyboard: [
-                            [
-                                {
-                                    text: '🚀 Запустить анализ',
-                                    web_app: { url: WEBAPP_URL }
-                                }
-                            ]
-                        ]
+                // Команда /start
+                if (text.startsWith('/start')) {
+                    console.log("Handling /start command");
+                    const isMember = await checkChannelMembership(user.id);
+                    if (isMember) {
+                        await setChannelSubscription(user.id, true);
                     }
-                });
-                console.log("/start response sent");
-            }
 
-            // Команда /admin - Статистика
-            else if (text === '/admin') {
-                console.log(`Admin stats command by ${user.id}`);
-                if (ADMIN_ID && String(user.id) === String(ADMIN_ID)) {
-                    const stats = await getStats();
-                    if (!stats) {
-                        await axios.post(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
-                            chat_id: chatId,
-                            text: "❌ База данных не настроена."
-                        });
-                    } else {
-                        const statsText = `📊 **Статистика бота**\n\n` +
-                            `👥 Всего пользователей: **${stats.totalUsers}**\n` +
-                            `⭐ Telegram Premium: **${stats.premiumUsers}**\n` +
-                            `💎 Платных (подписки): **${stats.paidUsers}**\n\n` +
-                            `✅ Всего проверок: **${stats.totalChecks}**\n` +
-                            `📅 Проверок сегодня: **${stats.todayChecks}**`;
+                    const safeName = (user.first_name || "друг").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                    const messageText = `👋 Привет, <b>${safeName}</b>!\n\n` +
+                        `🤖 Я — <b>Threads Neuro</b>. Я использую нейросети для проведения глубокого психологического анализа личности на основе твоего профиля и публикаций.\n\n` +
+                        `🔍 <b>Что я могу:</b>\n` +
+                        `• Составить твой психологический портрет\n` +
+                        `• Определить твой стиль общения и поведения\n` +
+                        `• Найти скрытые конфликты и «слепые зоны»\n` +
+                        `• Оценить уровень токсичности и манипулятивности\n\n` +
+                        `${isMember ? '💎 Тебе доступен <b>Premium</b> статус!' : 'Жми кнопку ниже, чтобы начать! 👇'}`;
 
-                        await axios.post(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
-                            chat_id: chatId,
-                            text: statsText,
-                            parse_mode: 'Markdown'
-                        });
-                    }
-                }
-            }
-
-            // Команда /paid <username> <on/off> - Управление доступом
-            else if (text.startsWith('/paid')) {
-                console.log(`Admin paid command by ${user.id}: ${text}`);
-                if (ADMIN_ID && String(user.id) === String(ADMIN_ID)) {
-                    const parts = text.split(/\s+/);
-                    if (parts.length < 3) {
-                        await axios.post(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
-                            chat_id: chatId,
-                            text: "💡 Формат: `/paid <username> <on/off>`\nПример: `/paid usemikehelp on`",
-                            parse_mode: 'Markdown'
-                        });
-                    } else {
-                        const targetUsername = parts[1];
-                        const statusStr = parts[2].toLowerCase();
-                        const isPaid = ['on', 'true', '1', 'вкл'].includes(statusStr);
-
-                        const result = await setUserPaidStatusByUsername(targetUsername, isPaid);
-
-                        let responseText = "";
-                        if (result.success) {
-                            responseText = `✅ Пользователь **@${targetUsername.replace('@', '')}** (ID: ${result.userId}) теперь **${isPaid ? 'Premium' : 'Free'}**.`;
-                        } else {
-                            responseText = `❌ Ошибка: ${result.error || 'Неизвестная ошибка'}`;
+                    await axios.post(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
+                        chat_id: chatId,
+                        text: messageText,
+                        parse_mode: 'HTML',
+                        reply_markup: {
+                            inline_keyboard: [[{
+                                text: '🚀 Запустить анализ',
+                                web_app: { url: WEBAPP_URL }
+                            }]]
                         }
+                    });
+                }
 
-                        await axios.post(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
-                            chat_id: chatId,
-                            text: responseText,
-                            parse_mode: 'Markdown'
-                        });
+                // Команда /admin - Статистика
+                else if (text === '/admin') {
+                    console.log(`Admin stats command by ${user.id}`);
+                    if (isAdmin) {
+                        const stats = await getStats();
+                        if (!stats) {
+                            await axios.post(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
+                                chat_id: chatId,
+                                text: "❌ База данных не настроена."
+                            });
+                        } else {
+                            const statsText = `📊 **Статистика бота**\n\n` +
+                                `👥 Всего пользователей: **${stats.totalUsers}**\n` +
+                                `⭐ Telegram Premium: **${stats.premiumUsers}**\n` +
+                                `💎 Платных (подписки): **${stats.paidUsers}**\n\n` +
+                                `✅ Всего проверок: **${stats.totalChecks}**\n` +
+                                `📅 Проверок сегодня: **${stats.todayChecks}**`;
+
+                            await axios.post(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
+                                chat_id: chatId,
+                                text: statsText,
+                                parse_mode: 'Markdown'
+                            });
+                        }
                     }
                 }
+
+                // Команда /paid <username> <on/off>
+                else if (text.startsWith('/paid')) {
+                    console.log(`Admin paid command by ${user.id}: ${text}`);
+                    if (isAdmin) {
+                        const parts = text.split(/\s+/);
+                        if (parts.length < 3) {
+                            await axios.post(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
+                                chat_id: chatId,
+                                text: "💡 Формат: `/paid <username> <on/off>`\nПример: `/paid usemikehelp on`",
+                                parse_mode: 'Markdown'
+                            });
+                        } else {
+                            const targetUsername = parts[1];
+                            const statusStr = parts[2].toLowerCase();
+                            const isPaid = ['on', 'true', '1', 'вкл'].includes(statusStr);
+                            const result = await setUserPaidStatusByUsername(targetUsername, isPaid);
+
+                            let responseText = result.success
+                                ? `✅ Пользователь **@${targetUsername.replace('@', '')}** (ID: ${result.userId}) теперь **${isPaid ? 'Premium' : 'Free'}**.`
+                                : `❌ Ошибка: ${result.error || 'Неизвестная ошибка'}`;
+
+                            await axios.post(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
+                                chat_id: chatId,
+                                text: responseText,
+                                parse_mode: 'Markdown'
+                            });
+                        }
+                    }
+                }
+            }
+
+            // Обработка нажатий на кнопки
+            if (body.callback_query) {
+                console.log(`Callback from ${user.id}: "${body.callback_query.data}"`);
+                // Можно добавить специфичную логику для колбэков здесь
+                // Для трекинга пользователя достаточно того, что мы уже вызвали trackUser(user) выше
+
+                await axios.post(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/answerCallbackQuery`, {
+                    callback_query_id: body.callback_query.id
+                });
             }
         }
 
