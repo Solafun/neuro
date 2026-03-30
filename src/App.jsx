@@ -205,7 +205,7 @@ function AppContent() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="flex items-center justify-center h-full w-full"
+              className="flex-1 flex items-center justify-center w-full"
             >
               <div className="simple-spinner"></div>
             </motion.div>

@@ -191,8 +191,6 @@ export default async function handler(req, res) {
             // Обработка нажатий на кнопки
             if (body.callback_query) {
                 console.log(`Callback from ${user.id}: "${body.callback_query.data}"`);
-                // Можно добавить специфичную логику для колбэков здесь
-                // Для трекинга пользователя достаточно того, что мы уже вызвали trackUser(user) выше
 
                 await axios.post(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/answerCallbackQuery`, {
                     callback_query_id: body.callback_query.id

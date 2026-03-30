@@ -56,17 +56,27 @@ export default async function handler(req, res) {
 
             if (telegramId) {
                 const amount = payload.amount || 0;
+                const currency = (payload.currency || 'RUB').toUpperCase();
                 let checksToAdd = 30; // По умолчанию 30
 
-                // ТИРИНГ: 100 руб = 5 проверок, 299 руб = 30 проверок
-                // Проверяем примерные значения (могут быть копейки или валютные колебания)
-                if (amount >= 90 && amount < 200) {
-                    checksToAdd = 5;
-                } else if (amount >= 200) {
-                    checksToAdd = 30;
+                // ТИРИНГ в зависимости от валюты
+                if (currency === 'RUB') {
+                    // 100 руб = 5 проверок, 299 руб = 30 проверок
+                    if (amount >= 90 && amount < 200) {
+                        checksToAdd = 5;
+                    } else if (amount >= 200) {
+                        checksToAdd = 30;
+                    }
+                } else if (currency === 'USD' || currency === 'EUR') {
+                    // 1-2 доллара = 5 проверок, 3+ долларa = 30 проверок (4 USD по тарифу)
+                    if (amount >= 1 && amount < 3) {
+                        checksToAdd = 5;
+                    } else if (amount >= 3) {
+                        checksToAdd = 30;
+                    }
                 }
 
-                console.log(`Updating paid status for user: ${telegramId}, amount: ${amount}, checks: ${checksToAdd}, expires: ${expiresAt}`);
+                console.log(`Updating paid status for user: ${telegramId}, amount: ${amount} ${currency}, checks: ${checksToAdd}, expires: ${expiresAt}`);
                 await setUserPaidStatus(telegramId, true, expiresAt, checksToAdd);
 
                 // Логируем платеж в таблицу payments
