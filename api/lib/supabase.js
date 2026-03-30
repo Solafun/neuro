@@ -457,15 +457,17 @@ export async function updateUserLanguage(telegramId, languageCode) {
     try {
         const { data, error } = await supabase
             .from('users')
-            .update({ language_code: languageCode })
-            .eq('id', telegramId)
+            .upsert(
+                { id: telegramId, language_code: languageCode, last_seen: new Date().toISOString() },
+                { onConflict: 'id' }
+            )
             .select();
 
         if (error) {
             console.error('Error updating user language:', error.message);
             return null;
         }
-        console.log(`Language updated in DB for user ${telegramId}: ${languageCode}`);
+        console.log(`Language updated/upserted in DB for user ${telegramId}: ${languageCode}`);
         return data;
     } catch (e) {
         console.error('Catch error update language:', e);

@@ -35,7 +35,7 @@ export const I18nProvider = ({ children }) => {
     };
 
     const changeLanguage = (lang) => {
-        if (translations[lang]) {
+        if (translations[lang] && lang !== language) {
             setLanguage(lang);
             localStorage.setItem('app_language', lang);
 
