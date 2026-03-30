@@ -1,12 +1,10 @@
-import React, { useState } from 'react';
-import { Sparkles, Brain, Search, User, Settings } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React from 'react';
+import { Brain, Search, User } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { useI18n } from '../i18n/I18nContext';
-import SettingsModal from './SettingsModal';
 
 export default function MainScreen({ nickname, setNickname, onAnalyze, userChecks }) {
     const { t, language, setLanguage } = useI18n();
-    const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
     const { freeChecks = 1, paidChecks = 0, isPaid = false } = userChecks || {};
     const remainingChecks = isPaid ? paidChecks : freeChecks;
@@ -27,17 +25,20 @@ export default function MainScreen({ nickname, setNickname, onAnalyze, userCheck
             transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
             className="hero-container flex-1 flex flex-col items-center justify-start pt-28 w-full relative"
         >
-            <button
-                onClick={() => setIsSettingsOpen(true)}
-                className="absolute top-12 right-6 p-2 rounded-full bg-white/10 backdrop-blur-md ring-1 ring-white/20 hover:bg-white/20 transition-all active:scale-95"
-                aria-label={t('settings_title')}
-            >
-                <Settings className="w-6 h-6 text-[var(--text-muted)]" />
-            </button>
-
             <motion.div className="mb-8 animate-slide-up">
                 <Brain className="w-16 h-16 text-[var(--primary)] drop-shadow-md" />
             </motion.div>
+
+            <div className="language-selector-pills">
+                <button
+                    onClick={() => setLanguage('ru')}
+                    className={`pill ${language === 'ru' ? 'active' : ''}`}
+                >RU</button>
+                <button
+                    onClick={() => setLanguage('en')}
+                    className={`pill ${language === 'en' ? 'active' : ''}`}
+                >EN</button>
+            </div>
 
             <h1 className="hero-title tracking-tight-custom text-balance">
                 {t('hero_title')} <br /><span className="text-shimmer">Threads</span>
@@ -121,12 +122,6 @@ export default function MainScreen({ nickname, setNickname, onAnalyze, userCheck
                     usemikehelp
                 </a>
             </div>
-
-            <AnimatePresence>
-                {isSettingsOpen && (
-                    <SettingsModal onClose={() => setIsSettingsOpen(false)} />
-                )}
-            </AnimatePresence>
         </motion.div>
     );
 }
