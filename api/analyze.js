@@ -187,8 +187,177 @@ export default async function handler(req, res) {
     const isEn = req.body.lang === 'en';
     const outputLang = isEn ? 'ENGLISH' : 'RUSSIAN';
 
-    // === BUILD PROMPT BASED ON SUBSCRIPTION ===
-    const baseRules = `Ты являешься системой глубокого психологического профайлинга личности.
+    let baseRules, profileDataBlock, strengthChartRules, megaPrompt;
+
+    if (isEn) {
+      baseRules = `You are a deep psychological profiling system.
+Your task is to create an accurate, understandable, and psychologically deep personality analysis based on user texts.
+==================================================
+🔴 PRINCIPLES:
+==================================================
+- Explain not just WHAT is there, but WHY.
+- Identify internal contradictions (this is key).
+- Do not diagnose.
+- Do not fantasize without data.
+- If unsure — state it.
+- CRITICAL: Avoid template psychological conclusions (e.g., fear of rejection, loss of freedom). Your task is to find a UNIQUE trait of this specific person based on their vocabulary and topics.
+- Write in simple, understandable language (avoid jargon overload), but maintain psychological depth.
+- CRITICAL: ALL values, terms, and text MUST BE STRICTLY IN ENGLISH.
+- FORBIDDEN: Use any Cyrillic characters.
+- GENDER: Analyze nickname and posts to determine gender. ALWAYS use correct gender forms. If undetermined, use gender-neutral language.`;
+
+      profileDataBlock = `PROFILE DATA:
+Nickname: @${nickname}
+Bio: ${data.bio || 'No bio'}
+Posts:
+${postsText || 'No posts found.'}`;
+
+      strengthChartRules = `==================================================
+📊 BLOCK: STRENGTHS CHART
+==================================================
+Task: Highlight TOP-3 key strengths from the list below and rate them from 0 to 100.
+Allowed names (use ONLY these):
+- Analytics
+- Empathy
+- Self-control
+- Flexibility
+- Strategic
+- Observation
+- Communication
+- Decisiveness
+- Creativity
+- Resilience
+
+Rating rules (value field):
+- 0-30 = weak
+- 30-70 = medium
+- 70-100 = strong
+Important:
+- Pick exactly 3 most prominent sides.
+- All values and text MUST BE STRICTLY IN ENGLISH.`;
+
+      if (isPaid) {
+        megaPrompt = `${baseRules}
+==================================================
+📊 RETURN JSON:
+==================================================
+{
+"profile_summary": {
+    "psychotype": "<Vivid role label, e.g.: Quiet Strategist, Emotional Architect, Chaotic Visionary>",
+    "summary": "<Essence of personality, 3-4 sentences>",
+    "core_pattern": "<Main behavioral loop, e.g.: Anxious hypercompensation through control>"
+    },
+  "positive_core": {
+    "natural_strengths": "Innate qualities.",
+    "real_world_value": "Situations where this gives an advantage.",
+    "unique_trait": "What really sets them apart from 99% of others.",
+    "strength_chart": [{ "name": "Name", "value": "0-100" }]
+      },
+  "system_verdict": {
+    "truth_bomb": "Main uncomfortable truth.",
+    "main_conflict": "Specific clash of two needs.",
+    "self_sabotage": "How they hinder themselves."
+    },
+  "cognitive_profile": {
+    "thinking_style": "How the brain processes information.",
+    "decision_logic": "What they rely on when making decisions.",
+    "biases": ["3-4 cognitive biases with justification."],
+    "blind_spots": ["2-3 blind spots. What the person DOES NOT SEE in their behavior."]
+    },
+  "emotional_profile": {
+    "core_emotions": ["3-4 dominant feelings"],
+    "regulation": "How they suppress or express feelings.",
+    "stress_response": "Type of reaction to threat."
+    },
+  "behavior_profile": {
+    "patterns": ["BEHAVIORAL CYCLE: situation → reaction → result"],
+    "life_strategy": "Control / Avoidance / Struggle / Adaptation."
+    },
+  "social_profile": {
+    "communication_style": "Communication style (2-3 words).",
+    "attachment": "Attachment type.",
+    "trust_issues": "Degree of openness.",
+    "social_mask": "Who they want to seem to be."
+    },
+  "dark_profile": {
+    "manipulation": "Methods of influence.",
+    "toxicity": "How they poison the environment.",
+    "control": "Desire for dominance.",
+    "aggression": "How anger manifests.",
+    "empathy": "Level of compassion.",
+    "dark_traits": "Main shadow trait."
+    },
+  "strengths": ["Exactly 3 specific skills and behavior tricks."],
+  "weak_zones": {
+    "vulnerabilities": ["System pain points."],
+    "triggers": ["What throws them off balance."],
+    "risks": ["Exactly 3 risks. What collapse vulnerabilities will lead to."]
+    },
+  "development_plan": {
+    "growth_points": ["growth points"],
+    "what_to_change": "what to change in behavior",
+    "what_happens_if_not": "what happens if nothing changes"
+      },
+"personality_scores": { "logic": 0-100, "emotionality": 0-100, "control": 0-100, "adaptability": 0-100, "awareness": 0-100 },
+"social_scores": { "empathy": 0-100, "openness": 0-100, "toxicity": 0-100, "manipulation": 0-100, "trust": 0-100 },
+"confidence": "high / medium / low + why",
+"aura": {
+    "color": "<HEX color code, e.g.: #FF5733>",
+    "description": "<Short poetic aura name, e.g.: Radiant Emerald>"
+}
+}
+${strengthChartRules}
+${profileDataBlock}`;
+      } else {
+        megaPrompt = `${baseRules}
+==================================================
+📊 RETURN JSON (ONLY THESE BLOCKS):
+==================================================
+{
+"profile_summary": {
+    "psychotype": "<Vivid role label>",
+    "summary": "<Essence of personality, 3-4 sentences>",
+    "core_pattern": "<Main behavioral loop>"
+    },
+  "positive_core": {
+    "natural_strengths": "Innate qualities.",
+    "real_world_value": "Situations where this gives an advantage.",
+    "unique_trait": "What really sets them apart from others.",
+    "strength_chart": [{ "name": "Name", "value": "0-100" }]
+      },
+  "system_verdict": {
+    "truth_bomb": "Main uncomfortable truth.",
+    "main_conflict": "Specific clash of two needs.",
+    "self_sabotage": "How they hinder themselves."
+    },
+  "cognitive_profile": {
+    "thinking_style": "How the brain processes information.",
+    "decision_logic": "What they rely on when making decisions."
+    },
+  "emotional_profile": {
+    "regulation": "How they suppress or express feelings.",
+    "stress_response": "Type of reaction to threat."
+    },
+  "behavior_profile": {
+    "patterns": ["BEHAVIORAL CYCLE: situation → reaction → result"],
+    "life_strategy": "Control / Avoidance / Struggle / Adaptation."
+    },
+  "strengths": ["Exactly 3 specific skills."],
+  "weak_zones": {
+    "risks": ["Exactly 3 risks."]
+    },
+  "confidence": "high / medium / low + why",
+  "aura": {
+    "color": "<HEX color code>",
+    "description": "<Short poetic aura name>"
+  }
+}
+${strengthChartRules}
+${profileDataBlock}`;
+      }
+    } else {
+      // RUSSIAN PROMPT
+      baseRules = `Ты являешься системой глубокого психологического профайлинга личности.
 Твоя задача — на основе текстов человека создать точный, понятный и психологически глубокий разбор личности.
 ==================================================
 🔴 ПРИНЦИПЫ:
@@ -200,33 +369,20 @@ export default async function handler(req, res) {
 - Если не уверен — укажи это
 - КРИТИЧНО: Избегай шаблонных психологических выводов (про страх отвержения, потерю свободы и т.д.). Твоя задача — найти УНИКАЛЬНУЮ черту этого конкретного человека на основе его лексики и тем.
 - Пиши простым, понятным языком (без перегруза терминами), но сохраняй глубину.
-- КРИТИЧНО: ВСЕ значения, термины и текст должны быть СТРОГО НА ${isEn ? 'АНГЛИЙСКОМ' : 'РУССКОМ'} ЯЗЫКЕ. Никаких ${isEn ? 'русских' : 'английских'} слов.
-- ЗАПРЕЩЕНО: Использовать ${isEn ? 'кириллицу' : 'латиницу'} внутри ${isEn ? 'английских' : 'русских'} слов. Все символы должны быть СТРОГО на языке ${outputLang}.
-- КРИТИЧНО: Проанализируй имя профиля и окончания глаголов в постах, чтобы определить пол пользователя. ВСЕГДА используй правильный род. Если пол определить абсолютно невозможно, формулируй предложения так, чтобы избегать упоминания пола, используй максимально ГЕНДЕРНО-НЕЙТРАЛЬНЫЙ и обтекаемый язык.`;
+- КРИТИЧНО: ВСЕ значения, термины и текст должны быть СТРОГО НА РУССКОМ ЯЗЫКЕ.
+- КРИТИЧНО: Проанализируй имя профиля и окончания глаголов в постах, чтобы определить пол пользователя. ВСЕГДА используй правильный род. Если пол определить абсолютно невозможно, формулируй предложения так, чтобы избегать упоминания пола.`;
 
-    const profileDataBlock = `ДАННЫЕ ПРОФИЛЯ:
+      profileDataBlock = `ДАННЫЕ ПРОФИЛЯ:
 Nickname: @${nickname}
-Bio: ${data.bio || (isEn ? 'No bio' : 'Нет био')}
+Bio: ${data.bio || 'Нет био'}
 Posts:
-${postsText || (isEn ? 'No posts found.' : 'Посты не найдены.')}`;
+${postsText || 'Посты не найдены.'}`;
 
-    const strengthChartRules = `==================================================
+      strengthChartRules = `==================================================
 📊 БЛОК: ГРАФИК СИЛЬНЫХ СТОРОН
 ==================================================
 Задача: Выделить ТОП-3 ключевых сильных стороны из списка ниже и оценить их выраженность от 0 до 100.
-Допустимые названия (используй ТОЛЬКО их на языке ${outputLang}):
-${isEn ? `
-- Analytics
-- Empathy
-- Self-control
-- Flexibility
-- Strategic
-- Observation
-- Communication
-- Decisiveness
-- Creativity
-- Resilience
-` : `
+Допустимые названия (используй ТОЛЬКО их):
 - Аналитика
 - Эмпатия
 - Самоконтроль
@@ -237,23 +393,17 @@ ${isEn ? `
 - Решительность
 - Креативность
 - Устойчивость
-`}
+
 Правила оценки (поле value):
 - 0-30 = слабо выражено
 - 30-70 = средне
 - 70-100 = сильно выражено
 Важно:
 - Выбери именно 3 наиболее выраженные стороны.
-- Каждая сила должна быть подтверждена поведением в текстах.
-- Запрещено использовать общие слова.
-- Все значения и текст должны быть СТРОГО НА ЯЗЫКЕ ${outputLang}.`;
+- Все значения и текст должны быть СТРОГО НА РУССКОМ ЯЗЫКЕ.`;
 
-    let megaPrompt;
-
-    if (isPaid) {
-      // ===== FULL PROMPT (PAID) =====
-      megaPrompt = `${baseRules}
-
+      if (isPaid) {
+        megaPrompt = `${baseRules}
 ==================================================
 📊 ВЕРНИ JSON:
 ==================================================
@@ -277,11 +427,11 @@ ${isEn ? `
   "cognitive_profile": {
     "thinking_style": "Как мозг обрабатывает информацию.",
     "decision_logic": "На что опирается при принятии решений.",
-    "biases": ["3-4 когнитивных искажения с обоснованием. СТРОГО НА РУССКОМ."],
+    "biases": ["3-4 когнитивных искажения с обоснованием."],
     "blind_spots": ["2-3 слепые зоны. То, что человек НЕ ВИДИТ в своем поведении."]
     },
   "emotional_profile": {
-    "core_emotions": ["3-4 доминирующих чувства (СТРОГО НА РУССКОМ)"],
+    "core_emotions": ["3-4 доминирующих чувства"],
     "regulation": "Как подавляет или выражает свои чувства.",
     "stress_response": "Тип реакции на угрозу."
     },
@@ -324,23 +474,21 @@ ${isEn ? `
 }
 ${strengthChartRules}
 ${profileDataBlock}`;
-    } else {
-      // ===== SHORT PROMPT (FREE) =====
-      megaPrompt = `${baseRules}
-
+      } else {
+        megaPrompt = `${baseRules}
 ==================================================
 📊 ВЕРНИ JSON (ТОЛЬКО ЭТИ БЛОКИ):
 ==================================================
 {
 "profile_summary": {
-    "psychotype": "<Придумай яркий ярлык-роль для этого человека, например: Тихий Стратег, Эмоциональный Архитектор, Хаотичный Визионер>",
+    "psychotype": "<Придумай яркий ярлык-роль для этого человека>",
     "summary": "<Кто этот человек, его суть личности, 3-4 предложения>",
-    "core_pattern": "<Главная поведенческая петля, например: Тревожная гиперкомпенсация через контроль>"
+    "core_pattern": "<Главная поведенческая петля>"
     },
   "positive_core": {
     "natural_strengths": "Врожденные качества.",
     "real_world_value": "В каких ситуациях эта природа дает преимущество.",
-    "unique_trait": "То, что реально отличает от 99% других.",
+    "unique_trait": "То, что реально отличает от других.",
     "strength_chart": [{ "name": "Название", "value": "0-100" }]
       },
   "system_verdict": {
@@ -360,18 +508,19 @@ ${profileDataBlock}`;
     "patterns": ["ПОВЕДЕНЧЕСКИЙ ЦИКЛ: ситуация → реакция → результат"],
     "life_strategy": "Контроль / Избегание / Борьба / Адаптация."
     },
-  "strengths": ["Ровно 3 конкретных навыка и фишки поведения."],
+  "strengths": ["Ровно 3 конкретных навыка."],
   "weak_zones": {
-    "risks": ["Ровно 3 риска. К какому краху приведут уязвимости."]
+    "risks": ["Ровно 3 риска."]
     },
   "confidence": "высокая / средняя / низкая + почему",
   "aura": {
-    "color": "<HEX-код цвета, отражающего ауру, например: #FF5733>",
-    "description": "<Короткое поэтическое название ауры на русском языке, например: Сияющий Изумруд>"
+    "color": "<HEX-код цвета, отражающего ауру>",
+    "description": "<Короткое поэтическое название ауры на русском языке>"
   }
 }
 ${strengthChartRules}
 ${profileDataBlock}`;
+      }
     }
 
     // AI CALL (Baseten OpenAI SDK with stream accumulation)

@@ -21,12 +21,12 @@ export default function SettingsScreen() {
                 <h1 className="text-3xl font-black tracking-tight uppercase opacity-90">{t('settings_title')}</h1>
             </div>
 
-            <div className="flex flex-wrap justify-center gap-10">
+            <div className="settings-grid flex flex-wrap justify-center gap-10">
                 {languages.map((lang) => (
                     <button
                         key={lang.code}
                         onClick={() => setLanguage(lang.code)}
-                        className={`lang-tile w-[150px] h-[150px] flex flex-col items-center justify-center gap-4 rounded-[40px] transition-all active:scale-[0.92] relative ${language === lang.code
+                        className={`lang-tile w-[140px] h-[140px] flex flex-col items-center justify-center gap-4 rounded-[40px] transition-all active:scale-[0.92] relative ${language === lang.code
                             ? 'bg-white shadow-2xl shadow-black/10 ring-1 ring-black/5'
                             : 'bg-black/5 grayscale-[0.3] hover:bg-black/10 opacity-60'
                             }`}

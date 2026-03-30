@@ -2377,3 +2377,12 @@ p,
   align-items: center;
   justify-content: center;
 }
+/* Settings Grid Enforcement */
+.settings-grid {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 40px !important;
+  justify-content: center !important;
+  align-items: center !important;
+  width: 100% !important;
+}

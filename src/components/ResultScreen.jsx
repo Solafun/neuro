@@ -157,7 +157,7 @@ export default function ResultScreen({ result, onReset }) {
                 <p className="result-subtitle">{t('psychological_profile')}</p>
                 <div className="result-psychotype-wrapper">
                     <div className="result-psychotype">
-                        {(typeof result.profile_summary === 'object' ? result.profile_summary.psychotype : result.profile_summary) || 'Analysis Complete'}
+                        {(typeof result.profile_summary === 'object' ? result.profile_summary.psychotype : result.profile_summary) || t('analysis_complete')}
                     </div>
                 </div>
             </motion.header>
