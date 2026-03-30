@@ -15,20 +15,20 @@ export default function SettingsScreen() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="flex-1 flex flex-col w-full px-6"
+            className="flex-1 flex flex-col items-center justify-center w-full px-6"
         >
-            <div className="pt-24 mb-12 text-center">
+            <div className="mb-12 text-center">
                 <h1 className="text-3xl font-black tracking-tight uppercase opacity-90">{t('settings_title')}</h1>
             </div>
 
-            <div className="flex flex-wrap justify-center gap-6">
+            <div className="flex flex-wrap justify-center gap-10">
                 {languages.map((lang) => (
                     <button
                         key={lang.code}
                         onClick={() => setLanguage(lang.code)}
                         className={`lang-tile w-[150px] h-[150px] flex flex-col items-center justify-center gap-4 rounded-[40px] transition-all active:scale-[0.92] relative ${language === lang.code
-                                ? 'bg-white shadow-2xl shadow-black/10 ring-1 ring-black/5'
-                                : 'bg-black/5 grayscale-[0.3] hover:bg-black/10 opacity-60'
+                            ? 'bg-white shadow-2xl shadow-black/10 ring-1 ring-black/5'
+                            : 'bg-black/5 grayscale-[0.3] hover:bg-black/10 opacity-60'
                             }`}
                     >
                         <span className="text-5xl leading-none">{lang.label}</span>

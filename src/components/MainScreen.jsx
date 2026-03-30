@@ -83,7 +83,7 @@ export default function MainScreen({ nickname, setNickname, onAnalyze, userCheck
                     {!hasChecks && (
                         <button
                             className="checks-subscribe-btn"
-                            onClick={() => window.Telegram?.WebApp?.openTelegramLink('https://t.me/tribute/app?startapp=sR0c')}
+                            onClick={() => window.Telegram?.WebApp?.openTelegramLink(t('payment_link'))}
                         >
                             {t('subscribe')}
                         </button>

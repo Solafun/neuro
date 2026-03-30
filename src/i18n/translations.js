@@ -98,6 +98,7 @@ export const translations = {
         'subscription_unlock_compact': 'Оформите подписку, чтобы разблокировать этот раздел.',
         'subscription_unlock_full': 'Оформите подписку, чтобы разблокировать этот раздел и получить глубокий анализ личности.',
         'open_access': 'ОТКРЫТЬ ДОСТУП',
+        'payment_link': 'https://t.me/tribute/app?startapp=sR0c',
 
         // Settings
         'settings_title': 'Настройки',
@@ -225,6 +226,7 @@ export const translations = {
         'subscription_unlock_compact': 'Subscribe to unlock this section.',
         'subscription_unlock_full': 'Subscribe to unlock this section and get deep personality analysis.',
         'open_access': 'OPEN ACCESS',
+        'payment_link': 'https://t.me/tribute/app?startapp=sRH5',
 
         // Settings
         'settings_title': 'Settings',

@@ -81,7 +81,7 @@ const PremiumGate = ({ isPaid, children, title, compact = false }) => {
                         ? t('subscription_unlock_compact')
                         : t('subscription_unlock_full')}
                 </p>
-                <button className="btn-unlock" onClick={() => window.Telegram?.WebApp?.openTelegramLink('https://t.me/tribute/app?startapp=sR0c')}>
+                <button className="btn-unlock" onClick={() => window.Telegram?.WebApp?.openTelegramLink(t('payment_link'))}>
                     {t('open_access')}
                 </button>
             </div>

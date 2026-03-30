@@ -61,7 +61,7 @@ export default function ErrorScreen({ message, onReset, isNoChecks }) {
             {isNoChecks && (
                 <motion.div variants={item} className="w-full flex justify-center mb-4">
                     <button
-                        onClick={() => window.Telegram?.WebApp?.openTelegramLink('https://t.me/tribute/app?startapp=sR0c')}
+                        onClick={() => window.Telegram?.WebApp?.openTelegramLink(t('payment_link'))}
                         className="btn-gradient"
                     >
                         <span className="material-symbols-outlined">diamond</span>
