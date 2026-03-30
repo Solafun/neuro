@@ -446,3 +446,29 @@ export async function syncAllUserChecks() {
         return { success: false, error: e.message };
     }
 }
+
+/**
+ * Обновляет язык пользователя в базе данных
+ * @param {number|string} telegramId
+ * @param {string} languageCode
+ */
+export async function updateUserLanguage(telegramId, languageCode) {
+    if (!supabase || !telegramId) return null;
+    try {
+        const { data, error } = await supabase
+            .from('users')
+            .update({ language_code: languageCode })
+            .eq('id', telegramId)
+            .select();
+
+        if (error) {
+            console.error('Error updating user language:', error.message);
+            return null;
+        }
+        console.log(`Language updated in DB for user ${telegramId}: ${languageCode}`);
+        return data;
+    } catch (e) {
+        console.error('Catch error update language:', e);
+        return null;
+    }
+}

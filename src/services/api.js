@@ -27,3 +27,16 @@ export const checkMaintenance = async (telegramId = null, lang = 'ru') => {
         return { isMaintenance: false };
     }
 };
+
+export const updateUserLanguage = async (telegramId, lang) => {
+    try {
+        const response = await axios.post(`${API_BASE_URL}/update-language`, {
+            telegramId,
+            lang
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error updating user language:', error);
+        return { success: false };
+    }
+};

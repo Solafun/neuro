@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { translations } from './translations';
+import { updateUserLanguage } from '../services/api';
 
 const I18nContext = createContext();
 
@@ -37,6 +38,12 @@ export const I18nProvider = ({ children }) => {
         if (translations[lang]) {
             setLanguage(lang);
             localStorage.setItem('app_language', lang);
+
+            // Sync with database if telegram user is available
+            const telegramId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id;
+            if (telegramId) {
+                updateUserLanguage(telegramId, lang);
+            }
         }
     };
 
