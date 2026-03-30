@@ -9,10 +9,12 @@ import AccessDenied from './components/AccessDenied';
 import SpatialBackground from './components/SpatialBackground';
 import { checkMaintenance } from './services/api';
 import { AnimatePresence, motion } from 'framer-motion';
+import { I18nProvider, useI18n } from './i18n/I18nContext';
 
-function App() {
+function AppContent() {
+  const { t, language } = useI18n();
   const [nickname, setNickname] = useState('');
-  const [appState, setAppState] = useState('init'); // Новый статус - инициализация
+  const [appState, setAppState] = useState('init');
   const [result, setResult] = useState(null);
   const [isMaintenance, setIsMaintenance] = useState(false);
   const [maintenanceMessage, setMaintenanceMessage] = useState('');
@@ -24,7 +26,6 @@ function App() {
       tg.ready();
       tg.expand();
 
-      // Попытка войти в полноэкранный режим (для новых версий Telegram 7.10+)
       if (tg.isVersionAtLeast('7.10') && tg.requestFullscreen) {
         try {
           tg.requestFullscreen();
@@ -33,7 +34,6 @@ function App() {
         }
       }
 
-      // Отключаем свайп вниз для закрытия (Только для iOS, на Android это часто ломает скролл)
       const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
       if (isIOS && tg.isVersionAtLeast('7.7') && tg.disableVerticalSwipe) {
         try {
@@ -43,12 +43,8 @@ function App() {
         }
       }
 
-
-      tg.setHeaderColor('#F2F2F7'); // Верхняя панель светлая (под цвет фона)
-
-      // Фон за клавиатурой и нижней панелью - в цвет нашей подложки
+      tg.setHeaderColor('#F2F2F7');
       const bottomColor = '#F2F2F7';
-
       tg.setBackgroundColor(bottomColor);
 
       if (tg.isVersionAtLeast('7.10') && tg.setBottomBarColor) {
@@ -60,34 +56,24 @@ function App() {
       }
     }
 
-    // Проверка режима тех. работ при загрузке
     const fetchMaintenanceStatus = async (retryCount = 0) => {
       const tg = window.Telegram?.WebApp;
       const user = tg?.initDataUnsafe?.user;
       const telegramId = user?.id;
 
-      console.log(`[MaintenanceCheck] Attempt ${retryCount + 1}: user=${user ? JSON.stringify(user) : 'null'}, id=${telegramId}`);
-
       try {
-        // Если ID еще нет, но мы в телеграме - пробуем подождать (до 5 раз по 1 сек)
         if (!telegramId && tg && (tg.initData || tg.initDataUnsafe) && retryCount < 5) {
-          console.log(`[MaintenanceCheck] Telegram ID not ready, retrying in 1000ms...`);
           setTimeout(() => fetchMaintenanceStatus(retryCount + 1), 1000);
           return;
         }
 
-        console.log(`[MaintenanceCheck] Proceeding with ID: ${telegramId || 'guest'}`);
-
-        // ПРОВЕРКА ПЛАТФОРМЫ: блокируем обычные браузеры
         const isTelegram = tg && tg.initData && tg.initData.length > 0;
         if (!isTelegram) {
-          console.warn("[AccessCheck] Unauthorized access from outside Telegram.");
           setAppState('denied');
           return;
         }
 
-        const data = await checkMaintenance(telegramId);
-        console.log("[MaintenanceCheck] API Result:", data);
+        const data = await checkMaintenance(telegramId, language);
 
         if (data.isMaintenance) {
           setIsMaintenance(true);
@@ -96,7 +82,6 @@ function App() {
         } else {
           setAppState('idle');
         }
-        // Сохраняем данные о проверках
         if (data.freeChecks !== undefined || data.paidChecks !== undefined) {
           setUserChecks({
             freeChecks: data.freeChecks ?? 0,
@@ -105,14 +90,12 @@ function App() {
           });
         }
       } catch (err) {
-        console.error("[MaintenanceCheck] Error:", err);
-        setAppState('idle'); // В случае ошибки пускаем в приложение
+        setAppState('idle');
       }
     };
     fetchMaintenanceStatus();
   }, []);
 
-  // Telegram Back Button logic
   useEffect(() => {
     const tg = window.Telegram?.WebApp;
     if (!tg) return;
@@ -146,12 +129,12 @@ function App() {
       const tg = window.Telegram?.WebApp;
       const telegramId = tg?.initDataUnsafe?.user?.id;
 
-      const data = await analyzeProfile(cleanNick, telegramId);
+      const data = await analyzeProfile(cleanNick, telegramId, language);
 
       if (data.error) {
         if (data.error === 'no_checks') {
           setResult({
-            message: data.message || 'Лимит проверок исчерпан.',
+            message: data.message || t('limit_reached'),
             isNoChecks: true,
             isPaid: data.isPaid
           });
@@ -162,7 +145,6 @@ function App() {
         return;
       }
 
-      // Успешный результат - обновляем состояние лимитов
       if (data.freeChecks !== undefined || data.paidChecks !== undefined) {
         setUserChecks(prev => ({
           ...prev,
@@ -175,7 +157,7 @@ function App() {
       setAppState('result');
     } catch (error) {
       console.error("Analysis failed:", error);
-      setResult({ message: error.message || "Произошла ошибка при вызове сервера." });
+      setResult({ message: error.message || t('error_server') });
       setAppState('error');
     }
   };
@@ -247,6 +229,14 @@ function App() {
         </AnimatePresence>
       </div>
     </>
+  );
+}
+
+function App() {
+  return (
+    <I18nProvider>
+      <AppContent />
+    </I18nProvider>
   );
 }
 

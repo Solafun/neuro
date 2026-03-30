@@ -1,7 +1,10 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useI18n } from '../i18n/I18nContext';
 
 const MaintenanceScreen = ({ message }) => {
+    const { t } = useI18n();
+
     return (
         <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -18,18 +21,18 @@ const MaintenanceScreen = ({ message }) => {
                     </svg>
                 </div>
 
-                <h1 className="maintenance-title">Технические работы</h1>
+                <h1 className="maintenance-title">{t('maintenance_title')}</h1>
                 <p className="maintenance-description">
-                    {message || "Мы обновляем систему, чтобы стать лучше. Приложение временно недоступно."}
+                    {message || t('maintenance_subtitle')}
                 </p>
 
                 <div className="status-badge">
                     <span className="pulse"></span>
-                    Скоро вернемся
+                    {t('maintenance_status')}
                 </div>
 
                 <div className="maintenance-footer">
-                    Пожалуйста, зайдите позже
+                    {t('maintenance_footer')}
                 </div>
             </div>
         </motion.div>

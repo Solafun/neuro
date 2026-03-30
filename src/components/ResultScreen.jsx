@@ -7,6 +7,7 @@ import {
     ResponsiveContainer
 } from 'recharts';
 import { motion } from 'framer-motion';
+import { useI18n } from '../i18n/I18nContext';
 
 const container = {
     hidden: { opacity: 0 },
@@ -41,12 +42,10 @@ const parseScore = (val) => {
     return 50;
 };
 
-// Хелпер для удаления китайских иероглифов и разделения слипшихся слов
+// Helper for cleaning text
 const formatCamelCase = (text) => {
     if (typeof text !== 'string') return text;
-    // Удаляем иероглифы (CJK Unified Ideographs)
     let cleanText = text.replace(/[\u4e00-\u9fa5\u3040-\u30ff\uac00-\uafff]/g, '').trim();
-    // Разделяем CamelCase/PascalCase
     return cleanText.replace(/([a-zа-яё])([A-ZА-ЯЁ])/g, '$1 $2');
 };
 
@@ -61,7 +60,10 @@ const renderValue = (val, fallback = '—') => {
     return fallback;
 };
 
-const PremiumGate = ({ isPaid, children, title = "Раздел заблокирован", compact = false }) => {
+const PremiumGate = ({ isPaid, children, title, compact = false }) => {
+    const { t } = useI18n();
+    const gateTitle = title || t('section_locked');
+
     if (isPaid) return children;
 
     return (
@@ -73,14 +75,14 @@ const PremiumGate = ({ isPaid, children, title = "Раздел заблокир�
                 <div className="premium-lock-icon">
                     <span className="material-symbols-outlined">lock</span>
                 </div>
-                <h4 className="premium-title">{title}</h4>
+                <h4 className="premium-title">{gateTitle}</h4>
                 <p className="premium-text">
                     {compact
-                        ? "Оформите подписку, чтобы разблокировать этот раздел."
-                        : "Оформите подписку, чтобы разблокировать этот раздел и получить глубокий анализ личности."}
+                        ? t('subscription_unlock_compact')
+                        : t('subscription_unlock_full')}
                 </p>
                 <button className="btn-unlock" onClick={() => window.Telegram?.WebApp?.openTelegramLink('https://t.me/tribute/app?startapp=sR0c')}>
-                    ОТКРЫТЬ ДОСТУП
+                    {t('open_access')}
                 </button>
             </div>
         </div>
@@ -88,22 +90,23 @@ const PremiumGate = ({ isPaid, children, title = "Раздел заблокир�
 };
 
 export default function ResultScreen({ result, onReset }) {
+    const { t } = useI18n();
     if (!result) return null;
 
     const personalityData = [
-        { subject: 'Логика', value: parseScore(result.personality_scores?.logic), fullMark: 100 },
-        { subject: 'Эмоции', value: parseScore(result.personality_scores?.emotionality), fullMark: 100 },
-        { subject: 'Контроль', value: parseScore(result.personality_scores?.control), fullMark: 100 },
-        { subject: 'Адаптивность', value: parseScore(result.personality_scores?.adaptability), fullMark: 100 },
-        { subject: 'Осознаность', value: parseScore(result.personality_scores?.awareness), fullMark: 100 },
+        { subject: t('logic'), value: parseScore(result.personality_scores?.logic), fullMark: 100 },
+        { subject: t('emotionality'), value: parseScore(result.personality_scores?.emotionality), fullMark: 100 },
+        { subject: t('control'), value: parseScore(result.personality_scores?.control), fullMark: 100 },
+        { subject: t('adaptability'), value: parseScore(result.personality_scores?.adaptability), fullMark: 100 },
+        { subject: t('awareness'), value: parseScore(result.personality_scores?.awareness), fullMark: 100 },
     ];
 
     const socialData = [
-        { subject: 'Эмпатия', value: parseScore(result.social_scores?.empathy), fullMark: 100 },
-        { subject: 'Открытость', value: parseScore(result.social_scores?.openness), fullMark: 100 },
-        { subject: 'Доверие', value: parseScore(result.social_scores?.trust), fullMark: 100 },
-        { subject: 'Токсичность', value: parseScore(result.social_scores?.toxicity), fullMark: 100 },
-        { subject: 'Манипуляция', value: parseScore(result.social_scores?.manipulation), fullMark: 100 },
+        { subject: t('empathy'), value: parseScore(result.social_scores?.empathy), fullMark: 100 },
+        { subject: t('openness'), value: parseScore(result.social_scores?.openness), fullMark: 100 },
+        { subject: t('trust'), value: parseScore(result.social_scores?.trust), fullMark: 100 },
+        { subject: t('toxicity'), value: parseScore(result.social_scores?.toxicity), fullMark: 100 },
+        { subject: t('manipulation'), value: parseScore(result.social_scores?.manipulation), fullMark: 100 },
     ];
 
     // Показываем 3-4 эмоции (сколько пришло, без прочерков)
@@ -151,10 +154,10 @@ export default function ResultScreen({ result, onReset }) {
                     </div>
                 </div>
                 <h1 className="result-nickname">@{result.nickname}</h1>
-                <p className="result-subtitle">Психологический профиль</p>
+                <p className="result-subtitle">{t('psychological_profile')}</p>
                 <div className="result-psychotype-wrapper">
                     <div className="result-psychotype">
-                        {result.profile_summary?.psychotype || 'Анализ завершён'}
+                        {(typeof result.profile_summary === 'object' ? result.profile_summary.psychotype : result.profile_summary) || 'Analysis Complete'}
                     </div>
                 </div>
             </motion.header>
@@ -163,23 +166,23 @@ export default function ResultScreen({ result, onReset }) {
             <motion.section variants={item} className="card-dark">
                 <div className="card-header-dark">
                     <span className="material-symbols-outlined icon-primary">terminal</span>
-                    <h3>Вердикт Системы</h3>
+                    <h3>{t('system_verdict')}</h3>
                 </div>
                 <div className="verdict-quote">
-                    <p>"{renderValue(result.system_verdict?.truth_bomb, 'Анализ не выявил ключевых инсайтов')}"</p>
+                    <p>"{renderValue(result.system_verdict?.truth_bomb, t('truth_bomb_placeholder'))}"</p>
                 </div>
                 <div className="verdict-details">
                     <div className="verdict-item">
                         <h4 className="verdict-label-primary">
                             <span className="material-symbols-outlined">bolt</span>
-                            Главный конфликт
+                            {t('main_conflict')}
                         </h4>
                         <p>{renderValue(result.system_verdict?.main_conflict)}</p>
                     </div>
                     <div className="verdict-item">
                         <h4 className="verdict-label-danger">
                             <span className="material-symbols-outlined">warning</span>
-                            Самосаботаж
+                            {t('self_sabotage')}
                         </h4>
                         <p>{renderValue(result.system_verdict?.self_sabotage)}</p>
                     </div>
@@ -190,14 +193,14 @@ export default function ResultScreen({ result, onReset }) {
             <motion.div variants={item} className="card-glass">
                 <div className="card-header">
                     <span className="material-symbols-outlined icon-primary">summarize</span>
-                    <h3>Общий Профиль</h3>
+                    <h3>{t('general_profile')}</h3>
                 </div>
                 <p className="card-text">
-                    {renderValue(result.profile_summary?.summary, 'Описание профиля недоступно')}
+                    {renderValue(result.profile_summary?.summary || result.profile_summary, t('profile_summary_placeholder'))}
                 </p>
                 {result.profile_summary?.core_pattern && (
                     <div className="card-highlight">
-                        <span className="card-highlight-label">Ключевой паттерн</span>
+                        <span className="card-highlight-label">{t('core_pattern')}</span>
                         <p>{result.profile_summary.core_pattern}</p>
                     </div>
                 )}
@@ -205,16 +208,16 @@ export default function ResultScreen({ result, onReset }) {
 
             {/* ===== СЕКЦИЯ: МЫШЛЕНИЕ ===== */}
             <motion.div variants={item} className="section-divider">
-                <h2>МЫШЛЕНИЕ</h2>
-                <p>Как устроен ваш ум</p>
+                <h2>{t('thinking_section')}</h2>
+                <p>{t('thinking_subtitle')}</p>
             </motion.div>
 
             {/* Матрица личности */}
-            <PremiumGate isPaid={result.isPaid} title="Матрица личности">
+            <PremiumGate isPaid={result.isPaid} title={t('personality_matrix')}>
                 <motion.div variants={item} className="card-glass">
                     <div className="card-header">
                         <span className="material-symbols-outlined icon-primary">insights</span>
-                        <h3>Матрица Личности</h3>
+                        <h3>{t('personality_matrix')}</h3>
                     </div>
                     <div className="radar-container">
                         <ResponsiveContainer width="100%" height="100%" minWidth={50} minHeight={50}>
@@ -247,19 +250,19 @@ export default function ResultScreen({ result, onReset }) {
 
             {/* Логика решений */}
             <motion.div variants={item} className="card-glass">
-                <h3 className="card-title-primary">Логика решений</h3>
+                <h3 className="card-title-primary">{t('decision_logic')}</h3>
                 <p className="card-text">
                     {renderValue(result.cognitive_profile?.decision_logic)}
                 </p>
             </motion.div>
 
             {/* Слепые зоны и Искажения */}
-            <PremiumGate isPaid={result.isPaid} title="Скрытые механизмы" compact={true}>
+            <PremiumGate isPaid={result.isPaid} title={t('hidden_mechanisms')} compact={true}>
                 <motion.div variants={item} className="cards-row">
                     <div className="card-danger">
                         <div className="card-header-mini">
                             <span className="material-symbols-outlined icon-danger">visibility_off</span>
-                            <span className="card-label-inline">Слепые зоны</span>
+                            <span className="card-label-inline">{t('blind_spots')}</span>
                         </div>
                         {Array.isArray(result.cognitive_profile?.blind_spots) ? (
                             <ul className="bullet-list" style={{ marginTop: '8px' }}>
@@ -275,7 +278,7 @@ export default function ResultScreen({ result, onReset }) {
                         )}
                     </div>
                     <div className="card-glass">
-                        <h3 className="card-mini-title">Искажения</h3>
+                        <h3 className="card-mini-title">{t('biases')}</h3>
                         <ul className="bullet-list">
                             {(result.cognitive_profile?.biases || []).slice(0, 3).map((bias, i) => (
                                 <li key={i}>
@@ -290,8 +293,8 @@ export default function ResultScreen({ result, onReset }) {
 
             {/* ===== СЕКЦИЯ: СИЛЬНАЯ СТОРОНА ===== */}
             <motion.div variants={item} className="section-divider mb-4">
-                <h2>Сильная сторона</h2>
-                <p>Ваши таланты и потенциал</p>
+                <h2>{t('strengths_section')}</h2>
+                <p>{t('strengths_subtitle')}</p>
             </motion.div>
 
             {/* ГРАФИК СИЛЬНЫХ СТОРОН */}
@@ -317,16 +320,16 @@ export default function ResultScreen({ result, onReset }) {
             <motion.div variants={item} className="card-glass">
                 <div className="card-header">
                     <span className="material-symbols-outlined icon-success">auto_awesome</span>
-                    <h3>Ваши таланты</h3>
+                    <h3>{t('your_talents')}</h3>
                 </div>
 
                 <div className="plan-section">
-                    <span className="plan-label success">Естественная сила</span>
+                    <span className="plan-label success">{t('natural_strength')}</span>
                     <p className="card-text">{renderValue(result.positive_core?.natural_strengths)}</p>
                 </div>
 
                 <div className="plan-quote">
-                    <span className="plan-quote-label">Где это работает:</span>
+                    <span className="plan-quote-label">{t('where_it_works')}:</span>
                     {renderValue(result.positive_core?.real_world_value)}
                 </div>
 
@@ -337,8 +340,8 @@ export default function ResultScreen({ result, onReset }) {
 
             {/* ===== СЕКЦИЯ: ЭМОЦИИ ===== */}
             <motion.div variants={item} className="section-divider">
-                <h2>ЭМОЦИИ</h2>
-                <p>Реакции и поведение</p>
+                <h2>{t('emotions_section')}</h2>
+                <p>{t('emotions_subtitle')}</p>
             </motion.div>
 
             {/* Стресс и Регуляция */}
@@ -346,14 +349,14 @@ export default function ResultScreen({ result, onReset }) {
                 <div className="card-glass">
                     <div className="card-header-mini">
                         <span className="material-symbols-outlined icon-primary">bolt</span>
-                        <span className="card-label-inline">Стресс</span>
+                        <span className="card-label-inline">{t('stress')}</span>
                     </div>
                     <p className="card-text-compact">{renderValue(result.emotional_profile?.stress_response)}</p>
                 </div>
                 <div className="card-glass">
                     <div className="card-header-mini">
                         <span className="material-symbols-outlined icon-primary">self_improvement</span>
-                        <span className="card-label-inline">Регуляция</span>
+                        <span className="card-label-inline">{t('regulation')}</span>
                     </div>
                     <p className="card-text-compact">{renderValue(result.emotional_profile?.regulation)}</p>
                 </div>
@@ -361,7 +364,7 @@ export default function ResultScreen({ result, onReset }) {
 
             {/* Паттерны поведения */}
             <motion.div variants={item} className="card-glass">
-                <h3 className="card-mini-title">Паттерны поведения</h3>
+                <h3 className="card-mini-title">{t('behavior_patterns')}</h3>
                 <div className="patterns-list-simple">
                     {(result.behavior_profile?.patterns || []).slice(0, 4).map((pattern, i) => (
                         <div key={i} className="pattern-item-simple">
@@ -377,9 +380,9 @@ export default function ResultScreen({ result, onReset }) {
             </motion.div>
 
             {/* Базовые эмоции — ЦЕНТРИРОВАНО */}
-            <PremiumGate isPaid={result.isPaid} title="Эмоциональный спектр" compact={true}>
+            <PremiumGate isPaid={result.isPaid} title={t('emotional_spectrum')} compact={true}>
                 <motion.div variants={item} className="card-glass">
-                    <h3 className="card-mini-title">Базовые эмоции</h3>
+                    <h3 className="card-mini-title">{t('core_emotions')}</h3>
                     <div className="tags-row-centered">
                         {displayEmotions.map((emotion, i) => (
                             <span key={i} className={`tag ${emotionTagColors[i % emotionTagColors.length]}`}>
@@ -392,16 +395,16 @@ export default function ResultScreen({ result, onReset }) {
 
             {/* ===== СЕКЦИЯ: ТЁМНАЯ СТОРОНА ===== */}
             <motion.div variants={item} className="section-divider">
-                <h2>ТЁМНАЯ СТОРОНА</h2>
-                <p>Скрытые черты и маски</p>
+                <h2>{t('dark_side_section')}</h2>
+                <p>{t('dark_side_subtitle')}</p>
             </motion.div>
 
             {/* Теневой профиль — ШИРОКИЙ В КРАСНОМ СТИЛЕ */}
-            <PremiumGate isPaid={result.isPaid} title="Теневой Профиль">
+            <PremiumGate isPaid={result.isPaid} title={t('shadow_profile')}>
                 <motion.div variants={item} className="card-glass card-shadow-red">
                     <div className="card-header">
                         <span className="material-symbols-outlined icon-danger">mist</span>
-                        <h3>Теневой Профиль</h3>
+                        <h3>{t('shadow_profile')}</h3>
                     </div>
                     <div className="radar-container radar-red">
                         <ResponsiveContainer width="100%" height="100%" minWidth={50} minHeight={50}>
@@ -433,17 +436,17 @@ export default function ResultScreen({ result, onReset }) {
             </PremiumGate>
 
             {/* Социальная динамика */}
-            <PremiumGate isPaid={result.isPaid} title="Социальная динамика" compact={true}>
+            <PremiumGate isPaid={result.isPaid} title={t('social_dynamics')} compact={true}>
                 <motion.div variants={item} className="card-glass">
                     <div className="card-header">
                         <span className="material-symbols-outlined icon-primary">groups</span>
-                        <h3>Социальная динамика</h3>
+                        <h3>{t('social_dynamics')}</h3>
                     </div>
                     <div className="metrics-list">
                         {[
-                            { label: 'Стиль общения', value: result.social_profile?.communication_style },
-                            { label: 'Тип привязанности', value: result.social_profile?.attachment },
-                            { label: 'Доверие', value: result.social_profile?.trust_issues },
+                            { label: t('communication_style'), value: result.social_profile?.communication_style },
+                            { label: t('attachment_type'), value: result.social_profile?.attachment },
+                            { label: t('trust'), value: result.social_profile?.trust_issues },
                         ].map((row, i) => (
                             <div key={i} className="metric-row">
                                 <span className="metric-label">{row.label}</span>
@@ -456,14 +459,14 @@ export default function ResultScreen({ result, onReset }) {
 
             {/* ===== СЕКЦИЯ: РОСТ ===== */}
             <motion.div variants={item} className="section-divider">
-                <h2>РОСТ</h2>
-                <p>Потенциал и точки роста</p>
+                <h2>{t('growth_section')}</h2>
+                <p>{t('growth_subtitle')}</p>
             </motion.div>
 
             {/* Силы и Риски */}
             <motion.div variants={item} className="cards-row">
                 <div className="card-success">
-                    <h4>Силы</h4>
+                    <h4>{t('strengths')}</h4>
                     <ul>
                         {(result.positive_core?.strengths || []).slice(0, 4).map((s, i) => (
                             <li key={i}>
@@ -474,7 +477,7 @@ export default function ResultScreen({ result, onReset }) {
                     </ul>
                 </div>
                 <div className="card-danger-light">
-                    <h4>Риски</h4>
+                    <h4>{t('risks')}</h4>
                     <ul>
                         {(result.weak_zones?.risks || []).slice(0, 3).map((r, i) => (
                             <li key={i}>
@@ -487,16 +490,16 @@ export default function ResultScreen({ result, onReset }) {
             </motion.div>
 
             {/* План развития */}
-            <PremiumGate isPaid={result.isPaid} title="План Развития" compact={true}>
+            <PremiumGate isPaid={result.isPaid} title={t('development_plan')} compact={true}>
                 <motion.div variants={item} className="card-glass">
                     <div className="card-header">
                         <span className="material-symbols-outlined icon-success">trending_up</span>
-                        <h3>План Развития</h3>
+                        <h3>{t('development_plan')}</h3>
                     </div>
 
                     {result.development_plan?.growth_points?.length > 0 && (
                         <div className="plan-section">
-                            <span className="plan-label success">Точки прорыва</span>
+                            <span className="plan-label success">{t('breakthrough_points')}</span>
                             <ul className="plan-list">
                                 {result.development_plan.growth_points.slice(0, 4).map((point, i) => (
                                     <li key={i}>
@@ -510,14 +513,14 @@ export default function ResultScreen({ result, onReset }) {
 
                     {result.development_plan?.what_to_change && (
                         <div className="plan-quote">
-                            <span className="plan-quote-label">Что изменить:</span>
+                            <span className="plan-quote-label">{t('what_to_change')}:</span>
                             {result.development_plan.what_to_change}
                         </div>
                     )}
 
                     {result.development_plan?.what_happens_if_not && (
                         <div className="plan-warning">
-                            <span className="plan-warning-label">Прогноз:</span>
+                            <span className="plan-warning-label">{t('forecast')}:</span>
                             {result.development_plan.what_happens_if_not}
                         </div>
                     )}
@@ -525,19 +528,19 @@ export default function ResultScreen({ result, onReset }) {
             </PremiumGate>
 
             {/* Уязвимости */}
-            <PremiumGate isPaid={result.isPaid} title="Уязвимости" compact={true}>
+            <PremiumGate isPaid={result.isPaid} title={t('vulnerabilities')} compact={true}>
                 <motion.div variants={item} className="card-glass card-border-danger">
-                    <h3 className="card-mini-title">Уязвимости</h3>
+                    <h3 className="card-mini-title">{t('vulnerabilities')}</h3>
                     <div className="vulnerabilities">
                         {result.weak_zones?.vulnerabilities?.length > 0 && (
                             <div>
-                                <span className="vuln-label">Зоны</span>
+                                <span className="vuln-label">{t('zones')}</span>
                                 <p>{result.weak_zones.vulnerabilities.map(formatCamelCase).join(', ')}</p>
                             </div>
                         )}
                         {result.weak_zones?.triggers?.length > 0 && (
                             <div>
-                                <span className="vuln-label">Триггеры</span>
+                                <span className="vuln-label">{t('triggers')}</span>
                                 <p>{result.weak_zones.triggers.map(formatCamelCase).join(', ')}</p>
                             </div>
                         )}
@@ -548,7 +551,7 @@ export default function ResultScreen({ result, onReset }) {
             {/* Уверенность анализа — В СТИЛЕ ЛОГИКИ РЕШЕНИЙ */}
             {result.confidence && (
                 <motion.div variants={item} className="card-glass">
-                    <h3 className="card-title-primary">Уверенность анализа</h3>
+                    <h3 className="card-title-primary">{t('analysis_confidence')}</h3>
                     <p className="card-text">
                         {result.confidence}
                     </p>
@@ -559,7 +562,7 @@ export default function ResultScreen({ result, onReset }) {
             <motion.div variants={item} className="result-footer">
                 <button onClick={onReset} className="btn-gradient">
                     <span className="material-symbols-outlined">analytics</span>
-                    НОВЫЙ АНАЛИЗ
+                    {t('new_analysis')}
                 </button>
             </motion.div>
         </motion.div>

@@ -4,6 +4,9 @@
             "maxDuration": 60
         }
     },
+    "env": {
+        "NODE_NO_WARNINGS": "1"
+    },
     "rewrites": [
         {
             "source": "/api/(.*)",

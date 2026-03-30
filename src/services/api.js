@@ -2,11 +2,12 @@ import axios from 'axios';
 
 const API_BASE_URL = '/api';
 
-export const analyzeProfile = async (nickname, telegramId = null) => {
+export const analyzeProfile = async (nickname, telegramId = null, lang = 'ru') => {
     try {
         const response = await axios.post(`${API_BASE_URL}/analyze`, {
             nickname,
-            telegramId
+            telegramId,
+            lang
         });
         return response.data;
     } catch (error) {
@@ -15,12 +16,12 @@ export const analyzeProfile = async (nickname, telegramId = null) => {
     }
 };
 
-export const checkMaintenance = async (telegramId = null) => {
+export const checkMaintenance = async (telegramId = null, lang = 'ru') => {
     try {
         const response = await axios.get(`${API_BASE_URL}/settings`, {
-            params: { telegramId }
+            params: { telegramId, lang }
         });
-        return response.data; // { isMaintenance, maintenanceMessage }
+        return response.data; // { isMaintenance, maintenanceMessage, ...userChecks }
     } catch (error) {
         console.error('Error checking maintenance status:', error);
         return { isMaintenance: false };

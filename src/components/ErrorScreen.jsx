@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { AlertCircle, RefreshCw } from 'lucide-react';
+import { useI18n } from '../i18n/I18nContext';
 
 const container = {
     hidden: { opacity: 0 },
@@ -27,6 +28,8 @@ const item = {
 };
 
 export default function ErrorScreen({ message, onReset, isNoChecks }) {
+    const { t } = useI18n();
+
     return (
         <motion.div
             variants={container}
@@ -46,12 +49,12 @@ export default function ErrorScreen({ message, onReset, isNoChecks }) {
             </motion.div>
 
             <motion.h1 variants={item} className="hero-title">
-                {isNoChecks ? 'Лимит исчерпан' : 'Ошибка анализа'}
+                {isNoChecks ? t('limit_reached') : t('error_analysis')}
             </motion.h1>
 
             <motion.div variants={item} className="dashboard-card !bg-white/40 ring-1 ring-black/5 mb-8">
                 <p className="text-[17px] font-medium text-[var(--text)] text-center leading-relaxed">
-                    {message || 'Не удалось получить данные профиля. Проверьте никнейм или попробуйте позже.'}
+                    {message || t('error_profile_fetch')}
                 </p>
             </motion.div>
 
@@ -62,7 +65,7 @@ export default function ErrorScreen({ message, onReset, isNoChecks }) {
                         className="btn-gradient"
                     >
                         <span className="material-symbols-outlined">diamond</span>
-                        ОФОРМИТЬ ПОДПИСКУ
+                        {t('subscribe_btn')}
                     </button>
                 </motion.div>
             )}
@@ -72,7 +75,7 @@ export default function ErrorScreen({ message, onReset, isNoChecks }) {
                     onClick={onReset}
                     className="glass-button"
                 >
-                    <RefreshCw /> {isNoChecks ? 'Назад' : 'Попробовать снова'}
+                    <RefreshCw /> {isNoChecks ? t('back') : t('try_again')}
                 </button>
             </motion.div>
         </motion.div>

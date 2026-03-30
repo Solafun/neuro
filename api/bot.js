@@ -96,15 +96,26 @@ export default async function handler(req, res) {
                         await setChannelSubscription(user.id, true);
                     }
 
-                    const safeName = (user.first_name || "друг").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-                    const messageText = `👋 Привет, <b>${safeName}</b>!\n\n` +
+                    const lang = user.language_code === 'ru' ? 'ru' : 'en';
+                    const safeName = (user.first_name || (lang === 'ru' ? "друг" : "friend")).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+                    const messageText = lang === 'ru'
+                        ? `👋 Привет, <b>${safeName}</b>!\n\n` +
                         `🤖 Я — <b>Threads Neuro</b>. Я использую нейросети для проведения глубокого психологического анализа личности на основе твоего профиля и публикаций.\n\n` +
                         `🔍 <b>Что я могу:</b>\n` +
                         `• Составить твой психологический портрет\n` +
                         `• Определить твой стиль общения и поведения\n` +
                         `• Найти скрытые конфликты и «слепые зоны»\n` +
                         `• Оценить уровень токсичности и манипулятивности\n\n` +
-                        `${isMember ? '💎 Тебе доступен <b>Premium</b> статус!' : 'Жми кнопку ниже, чтобы начать! 👇'}`;
+                        `${isMember ? '💎 Тебе доступен <b>Premium</b> статус!' : 'Жми кнопку ниже, чтобы начать! 👇'}`
+                        : `👋 Hi, <b>${safeName}</b>!\n\n` +
+                        `🤖 I am <b>Threads Neuro</b>. I use neural networks to conduct deep psychological personality analysis based on your profile and posts.\n\n` +
+                        `🔍 <b>What I can do:</b>\n` +
+                        `• Create your psychological portrait\n` +
+                        `• Define your communication and behavior style\n` +
+                        `• Find hidden conflicts and "blind spots"\n` +
+                        `• Assess toxicity and manipulativeness levels\n\n` +
+                        `${isMember ? '💎 <b>Premium</b> status is available to you!' : 'Press the button below to start! 👇'}`;
 
                     await axios.post(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
                         chat_id: chatId,
@@ -112,7 +123,7 @@ export default async function handler(req, res) {
                         parse_mode: 'HTML',
                         reply_markup: {
                             inline_keyboard: [[{
-                                text: '🚀 Запустить анализ',
+                                text: lang === 'ru' ? '🚀 Запустить анализ' : '🚀 Launch Analysis',
                                 web_app: { url: WEBAPP_URL }
                             }]]
                         }

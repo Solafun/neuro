@@ -1,19 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-
-const phases = [
-    { text: "Сканирование постов", icon: "search" },
-    { text: "Когнитивный профиль", icon: "psychology" },
-    { text: "Эмоциональная архитектура", icon: "favorite" },
-    { text: "Социальная матрица", icon: "groups" },
-    { text: "Теневой профиль", icon: "mist" },
-    { text: "Поведенческие паттерны", icon: "fingerprint" },
-    { text: "Защитные механизмы", icon: "shield" },
-    { text: "Точки роста и риски", icon: "trending_up" },
-    { text: "Финальный профайл", icon: "insights" }
-];
+import { useI18n } from '../i18n/I18nContext';
 
 export default function LoadingScreen() {
+    const { t } = useI18n();
+
+    const phases = [
+        { text: t('phase_scanning'), icon: "search" },
+        { text: t('phase_cognitive'), icon: "psychology" },
+        { text: t('phase_emotional'), icon: "favorite" },
+        { text: t('phase_social'), icon: "groups" },
+        { text: t('phase_shadow'), icon: "mist" },
+        { text: t('phase_behavior'), icon: "fingerprint" },
+        { text: t('phase_defense'), icon: "shield" },
+        { text: t('phase_growth'), icon: "trending_up" },
+        { text: t('phase_final'), icon: "insights" }
+    ];
+
     const [currentPhase, setCurrentPhase] = useState(0);
     const [progress, setProgress] = useState(0);
 
@@ -22,11 +25,11 @@ export default function LoadingScreen() {
             setCurrentPhase(prev => (prev < phases.length - 1 ? prev + 1 : prev));
         }, 3500);
         return () => clearInterval(interval);
-    }, []);
+    }, [phases.length]);
 
     useEffect(() => {
         setProgress(Math.round(((currentPhase + 1) / phases.length) * 100));
-    }, [currentPhase]);
+    }, [currentPhase, phases.length]);
 
     return (
         <motion.div
@@ -38,8 +41,8 @@ export default function LoadingScreen() {
         >
 
             {/* Title */}
-            <h2 className="loading-title">Глубокий анализ</h2>
-            <p className="loading-subtitle">Обработка 13 аналитических блоков</p>
+            <h2 className="loading-title">{t('loading_title')}</h2>
+            <p className="loading-subtitle">{t('loading_subtitle')}</p>
 
             {/* Progress bar */}
             <div className="loading-progress-track">

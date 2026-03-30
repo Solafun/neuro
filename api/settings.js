@@ -6,7 +6,7 @@ export default async function handler(req, res) {
     }
 
     try {
-        const { telegramId } = req.query;
+        const { telegramId, lang = 'ru' } = req.query;
         let isAdmin = false;
 
         // 1. ПРОВЕРКА АДМИНА И ДАННЫХ ПРОВЕРОК
@@ -41,9 +41,13 @@ export default async function handler(req, res) {
         // Если админ — принудительно отключаем флаг техработ для этого запроса
         const isMaintenance = isAdmin ? false : (status?.is_maintenance || false);
 
+        const defaultMaintenanceMsg = lang === 'ru'
+            ? 'Технические работы'
+            : 'Technical Works';
+
         return res.status(200).json({
             isMaintenance: isMaintenance,
-            maintenanceMessage: status?.maintenance_message || 'Технические работы',
+            maintenanceMessage: status?.maintenance_message || defaultMaintenanceMsg,
             ...userChecks
         });
     } catch (error) {
