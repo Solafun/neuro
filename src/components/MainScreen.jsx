@@ -29,17 +29,6 @@ export default function MainScreen({ nickname, setNickname, onAnalyze, userCheck
                 <Brain className="w-16 h-16 text-[var(--primary)] drop-shadow-md" />
             </motion.div>
 
-            <div className="language-selector-pills">
-                <button
-                    onClick={() => setLanguage('ru')}
-                    className={`pill ${language === 'ru' ? 'active' : ''}`}
-                >RU</button>
-                <button
-                    onClick={() => setLanguage('en')}
-                    className={`pill ${language === 'en' ? 'active' : ''}`}
-                >EN</button>
-            </div>
-
             <h1 className="hero-title tracking-tight-custom text-balance">
                 {t('hero_title')} <br /><span className="text-shimmer">Threads</span>
             </h1>

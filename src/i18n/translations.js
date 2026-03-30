@@ -102,6 +102,7 @@ export const translations = {
         // Settings
         'settings_title': 'Настройки',
         'language': 'Язык',
+        'settings_help_text': 'Язык приложения синхронизирован с настройками Telegram, но вы можете изменить его здесь.',
 
         // Radar Labels
         'logic': 'Логика',
@@ -228,6 +229,7 @@ export const translations = {
         // Settings
         'settings_title': 'Settings',
         'language': 'Language',
+        'settings_help_text': 'App language is synced with your Telegram settings, but you can override it here.',
 
         // Radar Labels
         'logic': 'Logic',

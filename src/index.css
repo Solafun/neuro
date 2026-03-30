@@ -381,6 +381,21 @@ h3,
   color: rgba(255, 255, 255, 0.9) !important;
 }
 
+/* Settings Screen */
+.lang-tile {
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.lang-tile.bg-white {
+  border-color: var(--primary-opacity);
+}
+
+.lang-tile:active {
+  background: rgba(0, 0, 0, 0.08);
+}
+
 .dark-text-muted-fix {
   color: rgba(255, 255, 255, 0.5) !important;
 }

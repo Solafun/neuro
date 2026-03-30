@@ -6,6 +6,7 @@ import LoadingScreen from './components/LoadingScreen';
 import ErrorScreen from './components/ErrorScreen';
 import MaintenanceScreen from './components/MaintenanceScreen';
 import AccessDenied from './components/AccessDenied';
+import SettingsScreen from './components/SettingsScreen';
 import SpatialBackground from './components/SpatialBackground';
 import { checkMaintenance } from './services/api';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -14,7 +15,8 @@ import { I18nProvider, useI18n } from './i18n/I18nContext';
 function AppContent() {
   const { t, language } = useI18n();
   const [nickname, setNickname] = useState('');
-  const [appState, setAppState] = useState('init');
+  const [appState, setAppState] = useState('init'); // 'init', 'idle', 'loading', 'result', 'error', 'maintenance', 'denied', 'settings'
+  const [previousState, setPreviousState] = useState('idle');
   const [result, setResult] = useState(null);
   const [isMaintenance, setIsMaintenance] = useState(false);
   const [maintenanceMessage, setMaintenanceMessage] = useState('');
@@ -96,26 +98,50 @@ function AppContent() {
     fetchMaintenanceStatus();
   }, []);
 
+  // Native UI handling (SettingsButton, BackButton)
   useEffect(() => {
     const tg = window.Telegram?.WebApp;
     if (!tg) return;
 
+    const settingsButton = tg.SettingsButton;
     const backButton = tg.BackButton;
 
-    if (appState === 'result' || appState === 'error') {
-      backButton.show();
-      const onBackClick = () => {
-        handleReset();
-      };
-      backButton.onClick(onBackClick);
+    const onSettingsClick = () => {
+      setPreviousState(appState);
+      setAppState('settings');
+    };
 
-      return () => {
-        backButton.offClick(onBackClick);
-      };
+    const onBackClick = () => {
+      if (appState === 'settings') {
+        setAppState(prev => (prev === 'settings' ? previousState : 'idle'));
+      } else {
+        handleReset();
+      }
+    };
+
+    // Settings Button Visibility
+    if (['idle', 'result', 'error'].includes(appState)) {
+      settingsButton.show();
+      settingsButton.onClick(onSettingsClick);
+    } else {
+      settingsButton.hide();
+      settingsButton.offClick(onSettingsClick);
+    }
+
+    // Back Button Visibility
+    if (['result', 'error', 'settings'].includes(appState)) {
+      backButton.show();
+      backButton.onClick(onBackClick);
     } else {
       backButton.hide();
+      backButton.offClick(onBackClick);
     }
-  }, [appState]);
+
+    return () => {
+      settingsButton.offClick(onSettingsClick);
+      backButton.offClick(onBackClick);
+    };
+  }, [appState, previousState]);
 
   const handleAnalyze = async (inputNick) => {
     const cleanNick = (inputNick || nickname).replace('@', '').trim();
@@ -225,6 +251,13 @@ function AppContent() {
 
           {appState === 'denied' && (
             <AccessDenied key="denied" />
+          )}
+
+          {appState === 'settings' && (
+            <SettingsScreen
+              key="settings"
+              onBack={() => setAppState(previousState)}
+            />
           )}
         </AnimatePresence>
       </div>
