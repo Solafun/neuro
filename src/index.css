@@ -381,19 +381,20 @@ h3,
   color: rgba(255, 255, 255, 0.9) !important;
 }
 
-/* Settings Screen */
+/* Settings Screen Refined */
 .lang-tile {
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(0, 0, 0, 0.05);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(0, 0, 0, 0.03);
 }
 
 .lang-tile.bg-white {
-  border-color: var(--primary-opacity);
+  border-color: rgba(0, 0, 0, 0.05);
 }
 
 .lang-tile:active {
-  background: rgba(0, 0, 0, 0.08);
+  transform: scale(0.92) !important;
+  background: rgba(0, 0, 0, 0.1) !important;
 }
 
 .dark-text-muted-fix {
@@ -1922,6 +1923,7 @@ p,
   font-weight: 700;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   cursor: pointer;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
@@ -1981,6 +1983,7 @@ p,
   font-size: 11px;
   min-width: 120px;
   width: auto;
+  justify-content: center;
 }
 
 /* Strong Side Styles */
