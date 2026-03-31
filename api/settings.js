@@ -31,8 +31,8 @@ export default async function handler(req, res) {
             // Populate userChecks
             if (userRow) {
                 userChecks = {
-                    freeChecks: userRow.free_checks ?? 0,
-                    paidChecks: userRow.paid_checks ?? 0,
+                    freeChecks: userRow.free_checks_remaining ?? 0,
+                    paidChecks: userRow.paid_checks_remaining ?? 0,
                     isPaid: userRow.is_paid || false
                 };
             }

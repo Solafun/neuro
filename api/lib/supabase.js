@@ -36,7 +36,7 @@ export async function trackUser(telegramUser) {
         language_code: language_code || null,
         is_premium: is_premium || false,
         last_seen: new Date().toISOString()
-    }, { onConflict: 'id' }).select('is_admin').single();
+    }, { onConflict: 'id' }).select('*').single();
 
     if (error) {
         console.error('Supabase trackUser error:', error.message, error.details);
