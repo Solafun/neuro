@@ -75,7 +75,7 @@ function AppContent() {
           return;
         }
 
-        const data = await checkMaintenance(telegramId, language);
+        const data = await checkMaintenance(user, language);
 
         if (data.isMaintenance) {
           setIsMaintenance(true);

@@ -16,10 +16,11 @@ export const analyzeProfile = async (nickname, telegramId = null, lang = 'ru') =
     }
 };
 
-export const checkMaintenance = async (telegramId = null, lang = 'ru') => {
+export const checkMaintenance = async (user = null, lang = 'ru') => {
     try {
-        const response = await axios.get(`${API_BASE_URL}/settings`, {
-            params: { telegramId, lang }
+        const response = await axios.post(`${API_BASE_URL}/settings`, {
+            user,
+            lang
         });
         return response.data; // { isMaintenance, maintenanceMessage, ...userChecks }
     } catch (error) {

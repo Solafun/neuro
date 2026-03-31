@@ -1,37 +1,39 @@
-import { getAppStatus, checkUserStatus } from './lib/supabase.js';
+import { getAppStatus, trackUser } from './lib/supabase.js';
 
 export default async function handler(req, res) {
-    if (req.method !== 'GET') {
+    if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
     try {
-        const { telegramId, lang = 'ru' } = req.query;
+        const { user, lang = 'ru' } = req.body;
+        const telegramId = user?.id;
         let isAdmin = false;
 
         // 1. ПРОВЕРКА АДМИНА И ДАННЫХ ПРОВЕРОК
         let userChecks = { freeChecks: 1, paidChecks: 0, isPaid: false };
         if (telegramId) {
-            let userStatus = null;
+            let userRow = null;
             try {
-                userStatus = await checkUserStatus(telegramId);
+                // Активно регистрируем/обновляем пользователя при каждом входе в настройки
+                userRow = await trackUser(user);
             } catch (e) {
-                console.warn('Settings: user status fetch failed:', e.message);
+                console.warn('Settings: user track failed:', e.message);
             }
 
             // Check ENV Admin
             if (process.env.ADMIN_TELEGRAM_ID && String(telegramId) === String(process.env.ADMIN_TELEGRAM_ID)) {
                 isAdmin = true;
-            } else if (userStatus?.isAdmin) {
+            } else if (userRow?.is_admin) {
                 isAdmin = true;
             }
 
             // Populate userChecks
-            if (userStatus) {
+            if (userRow) {
                 userChecks = {
-                    freeChecks: userStatus.freeChecks ?? 0,
-                    paidChecks: userStatus.paidChecks ?? 0,
-                    isPaid: userStatus.isPaid || false
+                    freeChecks: userRow.free_checks ?? 0,
+                    paidChecks: userRow.paid_checks ?? 0,
+                    isPaid: userRow.is_paid || false
                 };
             }
         }
