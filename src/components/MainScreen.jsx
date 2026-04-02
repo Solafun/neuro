@@ -33,7 +33,7 @@ export default function MainScreen({ nickname, setNickname, onAnalyze, userCheck
                 {t('hero_title')} <br /><span className="text-shimmer">Threads</span>
             </h1>
 
-            <p className="hero-subtitle opacity-80 mb-8 text-center text-balance max-w-[280px] mx-auto">
+            <p className="hero-subtitle opacity-80 mb-4 text-center text-balance max-w-[280px] mx-auto text-[13px]">
                 {t('hero_subtitle')}
             </p>
 
@@ -43,7 +43,7 @@ export default function MainScreen({ nickname, setNickname, onAnalyze, userCheck
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: 0.2, duration: 0.4 }}
-                    className="analysis-mode-pills mb-10"
+                    className="analysis-mode-pills mb-6"
                 >
                     <button
                         className={`pill ${analysisMode === 'classic' ? 'active' : ''}`}
