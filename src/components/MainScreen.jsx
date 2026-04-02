@@ -43,7 +43,8 @@ export default function MainScreen({ nickname, setNickname, onAnalyze, userCheck
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: 0.2, duration: 0.4 }}
-                    className="analysis-mode-pills mb-6"
+                    className="analysis-mode-pills"
+                    style={{ marginBottom: '28px' }}
                 >
                     <button
                         className={`pill ${analysisMode === 'classic' ? 'active' : ''}`}
