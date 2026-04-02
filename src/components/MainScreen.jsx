@@ -3,7 +3,7 @@ import { Brain, Search, User } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useI18n } from '../i18n/I18nContext';
 
-export default function MainScreen({ nickname, setNickname, onAnalyze, userChecks }) {
+export default function MainScreen({ nickname, setNickname, onAnalyze, userChecks, analysisMode, setAnalysisMode }) {
     const { t, language, setLanguage } = useI18n();
 
     const { freeChecks = 1, paidChecks = 0, isPaid = false } = userChecks || {};
@@ -33,9 +33,32 @@ export default function MainScreen({ nickname, setNickname, onAnalyze, userCheck
                 {t('hero_title')} <br /><span className="text-shimmer">Threads</span>
             </h1>
 
-            <p className="hero-subtitle opacity-80 mb-12 text-center text-balance max-w-[280px] mx-auto">
+            <p className="hero-subtitle opacity-80 mb-8 text-center text-balance max-w-[280px] mx-auto">
                 {t('hero_subtitle')}
             </p>
+
+            {/* Analysis mode switcher — premium only */}
+            {isPaid && (
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.2, duration: 0.4 }}
+                    className="analysis-mode-pills mb-8"
+                >
+                    <button
+                        className={`pill ${analysisMode === 'classic' ? 'active' : ''}`}
+                        onClick={() => setAnalysisMode('classic')}
+                    >
+                        {t('analysis_mode_classic')}
+                    </button>
+                    <button
+                        className={`pill ${analysisMode === 'new' ? 'active' : ''}`}
+                        onClick={() => setAnalysisMode('new')}
+                    >
+                        ✨ {t('analysis_mode_new')}
+                    </button>
+                </motion.div>
+            )}
 
             <div className={`input-block ring-1 ring-black/5 ${!hasChecks ? 'opacity-50 pointer-events-none grayscale-[0.5]' : ''}`} style={{ marginBottom: '10px' }}>
                 <User className="w-5 h-5 text-[var(--text-muted)] shrink-0" strokeWidth={2} />

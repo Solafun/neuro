@@ -31,6 +31,8 @@ export const translations = {
         'checks_few': 'Осталось {count} проверки',
         'checks_many': 'Осталось {count} проверок',
         'subscribe': 'Подписка',
+        'analysis_mode_classic': 'Классический',
+        'analysis_mode_new': 'Новый',
         'creator': 'Создатель',
 
         // Loading Screen
@@ -162,6 +164,8 @@ export const translations = {
         'checks_few': '{count} checks left',
         'checks_many': '{count} checks left',
         'subscribe': 'Subscription',
+        'analysis_mode_classic': 'Classic',
+        'analysis_mode_new': 'New',
         'creator': 'Creator',
 
         // Loading Screen

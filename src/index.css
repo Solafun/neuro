@@ -377,6 +377,36 @@ h3,
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
 }
 
+/* Analysis Mode Switcher Pills */
+.analysis-mode-pills {
+  display: flex;
+  background: rgba(0, 0, 0, 0.05);
+  padding: 4px;
+  border-radius: 100px;
+  gap: 2px;
+  width: fit-content;
+}
+
+.analysis-mode-pills .pill {
+  padding: 8px 22px;
+  border-radius: 100px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-muted);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.analysis-mode-pills .pill.active {
+  background: white;
+  color: var(--text);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
 .dark-text-fix {
   color: rgba(255, 255, 255, 0.9) !important;
 }
@@ -2378,6 +2408,7 @@ p,
   align-items: center;
   justify-content: center;
 }
+
 /* Settings Grid Enforcement */
 .settings-grid {
   display: flex !important;

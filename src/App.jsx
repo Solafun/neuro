@@ -21,6 +21,7 @@ function AppContent() {
   const [isMaintenance, setIsMaintenance] = useState(false);
   const [maintenanceMessage, setMaintenanceMessage] = useState('');
   const [userChecks, setUserChecks] = useState({ freeChecks: 1, paidChecks: 0, isPaid: false });
+  const [analysisMode, setAnalysisMode] = useState('classic'); // 'classic' | 'new'
 
   useEffect(() => {
     const tg = window.Telegram?.WebApp;
@@ -218,6 +219,8 @@ function AppContent() {
               setNickname={setNickname}
               onAnalyze={handleAnalyze}
               userChecks={userChecks}
+              analysisMode={analysisMode}
+              setAnalysisMode={setAnalysisMode}
             />
           )}
 
