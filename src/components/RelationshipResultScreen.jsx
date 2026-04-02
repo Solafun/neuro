@@ -238,7 +238,7 @@ export default function RelationshipResultScreen({ result, onReset }) {
                     <h3 style={{ textTransform: 'uppercase', fontSize: '13px', letterSpacing: '1px' }}>{t('rel_relationship_pattern')}</h3>
                 </div>
                 <div className="card-highlight" style={{ background: 'rgba(175, 82, 222, 0.05)', border: '1px solid rgba(175, 82, 222, 0.1)' }}>
-                    <div style={{ margin: 0, fontWeight: '500', lineHeight: '1.7', whiteSpace: 'pre-wrap', fontSize: '15px' }}>
+                    <div style={{ margin: 0, fontWeight: '500', lineHeight: '1.7', whiteSpace: 'pre-wrap', fontSize: '14.5px' }}>
                         {renderRelationshipPattern(result.relationship_pattern)}
                     </div>
                 </div>
@@ -290,7 +290,7 @@ export default function RelationshipResultScreen({ result, onReset }) {
                                 <span className="text-[13px] font-black uppercase text-[#FF2D55] tracking-wider mb-2 flex items-center gap-1.5 w-fit">
                                     {t('rel_gap')}
                                 </span>
-                                <div className="plan-success-bubble" style={{ background: 'rgba(255, 45, 85, 0.04)', color: '#FF2D55', border: '1px solid rgba(255, 45, 85, 0.1)', fontSize: '15px', borderRadius: '18px' }}>
+                                <div className="plan-quote" style={{ borderLeftColor: '#FF2D55', fontSize: '15px' }}>
                                     {formatCamelCase(result.mask_vs_reality.gap)}
                                 </div>
                             </div>
@@ -300,8 +300,10 @@ export default function RelationshipResultScreen({ result, onReset }) {
                                 <span className="text-[13px] font-black uppercase text-[#FF2D55] tracking-wider mb-2 flex items-center gap-1.5 w-fit">
                                     {t('rel_cost')}
                                 </span>
-                                <div className="plan-success-bubble" style={{ background: 'rgba(255, 45, 85, 0.08)', color: '#FF2D55', border: '1px solid rgba(255, 45, 85, 0.15)', fontSize: '15px', borderRadius: '18px', fontWeight: '600' }}>
-                                    {formatCamelCase(result.mask_vs_reality.cost)}
+                                <div className="w-full p-4 rounded-[18px]" style={{ background: 'rgba(255, 45, 85, 0.08)', borderLeft: '4px solid #FF2D55' }}>
+                                    <div className="text-[15px] font-semibold text-[var(--text)] leading-relaxed italic">
+                                        {formatCamelCase(result.mask_vs_reality.cost)}
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -339,7 +341,7 @@ export default function RelationshipResultScreen({ result, onReset }) {
                         </div>
                     </div>
 
-                    <p className="card-text italic text-[var(--text-muted)] text-[15px] leading-relaxed">
+                    <p className="card-text italic text-[var(--text-muted)] text-[14.5px] leading-relaxed">
                         {renderValue(result.awareness.description)}
                     </p>
                 </motion.div>
@@ -353,14 +355,14 @@ export default function RelationshipResultScreen({ result, onReset }) {
                         <h3 style={{ textTransform: 'uppercase', fontSize: '13px', letterSpacing: '1px' }}>{t('rel_archetype_title')}</h3>
                     </div>
                     <div className="text-center py-4">
-                        <h2 className="text-[20px] font-extrabold text-[var(--text)] mb-3 leading-tight">
+                        <h2 className="text-[17px] font-extrabold text-[var(--text)] mb-3 leading-tight uppercase tracking-tight">
                             {renderValue(result.relationship_archetype.type)}
                         </h2>
-                        <div className="w-12 h-[2px] bg-[#AF52DE]/20 mx-auto mb-4"></div>
-                        <p className="text-[15px] font-medium leading-relaxed px-2 text-[var(--text)] opacity-90">
+                        <div className="w-10 h-[1.5px] bg-[#AF52DE]/30 mx-auto mb-4"></div>
+                        <p className="text-[14.5px] font-medium leading-relaxed px-2 text-[var(--text)] opacity-90">
                             {renderValue(result.relationship_archetype.description)}
                         </p>
-                        <div className="mt-4 p-4 rounded-[18px] bg-[#AF52DE]/05 border border-[#AF52DE]/10 italic text-[14px] text-[var(--text-muted)]">
+                        <div className="mt-4 p-4 rounded-[18px] bg-[#AF52DE]/05 border border-[#AF52DE]/10 italic text-[13.5px] text-[var(--text-muted)]">
                             {renderValue(result.relationship_archetype.core_mechanism)}
                         </div>
                     </div>
