@@ -21,7 +21,8 @@ export const translations = {
 
         // Main Screen
         'hero_title': 'Нейро-профайлинг',
-        'hero_subtitle': 'Система анализа на базе 13 аналитических блоков.',
+        'hero_subtitle_classic': 'Система анализа на базе 13 аналитических блоков.',
+        'hero_subtitle_relationship': 'Разбор поведения и типажа в отношениях.',
         'input_placeholder': 'Введи никнейм...',
         'checks_ended': 'Проверки закончились',
         'status_premium': 'Статус Premium',
@@ -32,12 +33,13 @@ export const translations = {
         'checks_many': 'Осталось {count} проверок',
         'subscribe': 'Подписка',
         'analysis_mode_classic': 'Классический',
-        'analysis_mode_new': 'Новый',
+        'analysis_mode_new': 'Любовный',
         'creator': 'Создатель',
 
         // Loading Screen
         'loading_title': 'Глубокий анализ',
-        'loading_subtitle': 'Обработка 13 аналитических блоков',
+        'loading_subtitle_classic': 'Обработка 13 аналитических блоков',
+        'loading_subtitle_relationship': 'Анализ паттернов поведения и типажа',
         'phase_scanning': 'Сканирование постов',
         'phase_cognitive': 'Когнитивный профиль',
         'phase_emotional': 'Эмоциональная архитектура',
@@ -80,7 +82,7 @@ export const translations = {
         'dark_side_subtitle': 'Скрытые черты и маски',
         'shadow_profile': 'Теневой Профиль',
         'social_dynamics': 'Социальная динамика',
-        'comm_style': 'Стиль общения', // Deprecated, keeping for safety if used elsewhere
+        'comm_style': 'Стиль общения',
         'communication_style': 'Стиль общения',
         'attachment_type': 'Тип привязанности',
         'trust': 'Доверие',
@@ -170,7 +172,8 @@ export const translations = {
 
         // Main Screen
         'hero_title': 'Neuro-profiling',
-        'hero_subtitle': 'Analysis system based on 13 analytical blocks.',
+        'hero_subtitle_classic': 'Analysis system based on 13 analytical blocks.',
+        'hero_subtitle_relationship': 'Analysis of behavior and archetype in relationships.',
         'input_placeholder': 'Enter nickname...',
         'checks_ended': 'Checks ended',
         'status_premium': 'Premium Status',
@@ -181,12 +184,13 @@ export const translations = {
         'checks_many': '{count} checks left',
         'subscribe': 'Subscription',
         'analysis_mode_classic': 'Classic',
-        'analysis_mode_new': 'New',
+        'analysis_mode_new': 'Love',
         'creator': 'Creator',
 
         // Loading Screen
         'loading_title': 'Deep Analysis',
-        'loading_subtitle': 'Processing 13 analytical blocks',
+        'loading_subtitle_classic': 'Processing 13 analytical blocks',
+        'loading_subtitle_relationship': 'Analyzing relationship patterns and behavior',
         'phase_scanning': 'Scanning posts',
         'phase_cognitive': 'Cognitive profile',
         'phase_emotional': 'Emotional architecture',
@@ -229,7 +233,7 @@ export const translations = {
         'dark_side_subtitle': 'Hidden traits and masks',
         'shadow_profile': 'Shadow Profile',
         'social_dynamics': 'Social Dynamics',
-        'comm_style': 'Communication Style', // Deprecated
+        'comm_style': 'Communication Style',
         'communication_style': 'Communication Style',
         'attachment_type': 'Attachment Type',
         'trust': 'Trust',

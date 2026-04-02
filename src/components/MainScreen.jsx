@@ -23,7 +23,7 @@ export default function MainScreen({ nickname, setNickname, onAnalyze, userCheck
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95 }}
             transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-            className="hero-container flex-1 flex flex-col items-center justify-start pt-28 w-full relative"
+            className="hero-container flex-1 flex flex-col items-center justify-start pt-16 w-full relative"
         >
             <motion.div className="mb-8 animate-slide-up">
                 <Brain className="w-16 h-16 text-[var(--primary)] drop-shadow-md" />
@@ -34,7 +34,7 @@ export default function MainScreen({ nickname, setNickname, onAnalyze, userCheck
             </h1>
 
             <p className="hero-subtitle opacity-80 mb-4 text-center text-balance max-w-[280px] mx-auto text-[13px]">
-                {t('hero_subtitle')}
+                {t(analysisMode === 'new' ? 'hero_subtitle_relationship' : 'hero_subtitle_classic')}
             </p>
 
             {/* Analysis mode switcher — premium only */}

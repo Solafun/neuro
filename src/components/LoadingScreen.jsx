@@ -42,7 +42,9 @@ export default function LoadingScreen() {
 
             {/* Title */}
             <h2 className="loading-title">{t('loading_title')}</h2>
-            <p className="loading-subtitle">{t('loading_subtitle')}</p>
+            <p className="loading-subtitle">
+                {t(analysisMode === 'new' ? 'loading_subtitle_relationship' : 'loading_subtitle_classic')}
+            </p>
 
             {/* Progress bar */}
             <div className="loading-progress-track">

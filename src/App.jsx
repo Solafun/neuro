@@ -226,7 +226,7 @@ function AppContent() {
           )}
 
           {appState === 'loading' && (
-            <LoadingScreen key="loading" />
+            <LoadingScreen key="loading" analysisMode={analysisMode} />
           )}
 
           {appState === 'result' && result && (

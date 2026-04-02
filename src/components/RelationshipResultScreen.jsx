@@ -182,7 +182,7 @@ export default function RelationshipResultScreen({ result, onReset }) {
                     </div>
                 </div>
                 <h1 className="result-nickname">@{result.nickname}</h1>
-                <p className="result-subtitle">{t('analysis_mode_new')} • {t('psychological_profile')}</p>
+                <p className="result-subtitle">{t('psychological_profile')}</p>
 
                 {result.share_hook && (
                     <div className="result-psychotype-wrapper cursor-pointer mt-4 mb-2" onClick={handleShare}>
@@ -255,65 +255,67 @@ export default function RelationshipResultScreen({ result, onReset }) {
                 </p>
             </motion.div>
 
-            {/* ===== MASK VS REALITY INFOGRAPHIC ===== */}
+            {/* ===== MASK VS REALITY OVERHAUL ===== */}
             <PremiumGate isPaid={result.isPaid} title={t('rel_mask_vs_reality')}>
                 <motion.div variants={item} className="card-glass my-4">
-                    <div className="card-header pb-4 mb-4">
+                    <div className="card-header pb-4 mb-6">
                         <span className="material-symbols-outlined" style={{ color: '#AF52DE' }}>webhook</span>
                         <h3 style={{ textTransform: 'uppercase', fontSize: '13px', letterSpacing: '1px' }}>{t('rel_mask_vs_reality')}</h3>
                     </div>
 
                     {result.mask_vs_reality && (
-                        <div className="flex flex-col gap-8 px-2 py-2">
+                        <div className="flex flex-col px-1">
                             {/* Step 1: Mask */}
-                            <div className="flex gap-4 items-start">
-                                <div className="w-8 h-8 rounded-full bg-[#AF52DE] flex items-center justify-center shrink-0 shadow-lg">
-                                    <span className="text-[14px] font-bold text-white">01</span>
-                                </div>
-                                <div className="flex-1 pt-0">
-                                    <div className="flex items-center gap-1 mb-1">
-                                        <span className="text-[11px] font-bold uppercase tracking-wider text-[#AF52DE] opacity-70">{t('rel_mask')}</span>
+                            <div className="flex flex-col mb-10">
+                                <div className="flex items-center gap-3 mb-2">
+                                    <div className="w-8 h-8 rounded-full bg-[#AF52DE] flex items-center justify-center shrink-0 shadow-md">
+                                        <span className="text-[14px] font-bold text-white tracking-tighter">1</span>
                                     </div>
-                                    <div className="text-[18px] font-bold text-[var(--text)] leading-tight">{formatCamelCase(result.mask_vs_reality.mask)}</div>
+                                    <span className="text-[20px] font-black uppercase text-[#AF52DE] tracking-tight">{t('rel_mask')}</span>
+                                </div>
+                                <div className="pl-11 text-[16px] font-medium text-[var(--text)] leading-snug opacity-90">
+                                    {formatCamelCase(result.mask_vs_reality.mask)}
                                 </div>
                             </div>
 
                             {/* Step 2: Reality */}
-                            <div className="flex gap-4 items-start">
-                                <div className="w-8 h-8 rounded-full bg-[#AF52DE] flex items-center justify-center shrink-0 shadow-lg">
-                                    <span className="text-[14px] font-bold text-white">02</span>
-                                </div>
-                                <div className="flex-1 pt-0">
-                                    <div className="flex items-center gap-1 mb-1">
-                                        <span className="text-[11px] font-bold uppercase tracking-wider text-[#AF52DE] opacity-70">{t('rel_reality')}</span>
+                            <div className="flex flex-col mb-10">
+                                <div className="flex items-center gap-3 mb-2">
+                                    <div className="w-8 h-8 rounded-full bg-[#AF52DE] flex items-center justify-center shrink-0 shadow-md">
+                                        <span className="text-[14px] font-bold text-white tracking-tighter">2</span>
                                     </div>
-                                    <div className="text-[18px] font-bold text-[var(--text)] leading-tight">{formatCamelCase(result.mask_vs_reality.reality)}</div>
+                                    <span className="text-[20px] font-black uppercase text-[#AF52DE] tracking-tight">{t('rel_reality')}</span>
+                                </div>
+                                <div className="pl-11 text-[16px] font-medium text-[var(--text)] leading-snug opacity-90">
+                                    {formatCamelCase(result.mask_vs_reality.reality)}
                                 </div>
                             </div>
 
                             {/* Step 3: Gap */}
-                            <div className="flex gap-4 items-start">
-                                <div className="w-8 h-8 rounded-full bg-[#FF2D55] flex items-center justify-center shrink-0 shadow-lg">
-                                    <span className="text-[14px] font-bold text-white">03</span>
-                                </div>
-                                <div className="flex-1 pt-0">
-                                    <div className="flex items-center gap-1 mb-1">
-                                        <span className="text-[11px] font-bold uppercase tracking-wider text-[#FF2D55] opacity-70">{t('rel_gap')}</span>
+                            <div className="flex flex-col mb-10">
+                                <div className="flex items-center gap-3 mb-2">
+                                    <div className="w-8 h-8 rounded-full bg-[#FF2D55] flex items-center justify-center shrink-0 shadow-md">
+                                        <span className="text-[14px] font-bold text-white tracking-tighter">3</span>
                                     </div>
-                                    <div className="text-[18px] font-bold text-[#FF2D55] leading-snug">{formatCamelCase(result.mask_vs_reality.gap)}</div>
+                                    <span className="text-[20px] font-black uppercase text-[#FF2D55] tracking-tight">{t('rel_gap')}</span>
+                                </div>
+                                <div className="pl-11 text-[16px] font-bold text-[#FF2D55] leading-snug">
+                                    {formatCamelCase(result.mask_vs_reality.gap)}
                                 </div>
                             </div>
 
                             {/* Step 4: Cost */}
-                            <div className="flex gap-4 items-start">
-                                <div className="w-8 h-8 rounded-full bg-[#FF2D55] flex items-center justify-center shrink-0 shadow-lg">
-                                    <span className="material-symbols-outlined text-[18px] text-white">warning</span>
-                                </div>
-                                <div className="flex-1 pt-0">
-                                    <div className="flex items-center gap-1 mb-1">
-                                        <span className="text-[11px] font-bold uppercase tracking-wider text-[#FF2D55] opacity-70">{t('rel_cost')}</span>
+                            <div className="flex flex-col mb-4">
+                                <div className="flex items-center gap-3 mb-3">
+                                    <div className="w-8 h-8 rounded-full bg-[#FF2D55] flex items-center justify-center shrink-0 shadow-md">
+                                        <span className="material-symbols-outlined text-[18px] text-white">warning</span>
                                     </div>
-                                    <div className="text-[17px] font-medium text-[var(--text)] leading-relaxed italic opacity-90">{formatCamelCase(result.mask_vs_reality.cost)}</div>
+                                    <span className="text-[20px] font-black uppercase text-[#FF2D55] tracking-tight">{t('rel_cost')}</span>
+                                </div>
+                                <div className="p-4 rounded-[20px]" style={{ background: 'rgba(255, 45, 85, 0.08)', borderLeft: '4px solid #FF2D55' }}>
+                                    <div className="text-[16px] font-semibold text-[var(--text)] leading-relaxed italic opacity-100">
+                                        {formatCamelCase(result.mask_vs_reality.cost)}
+                                    </div>
                                 </div>
                             </div>
                         </div>
