@@ -71,31 +71,31 @@ const renderRelationshipPattern = (text) => {
                 let color = 'var(--text)';
                 let bulletColor = 'bg-gray-300';
                 if (/Начало:|Beginning:/i.test(line)) {
-                    color = '#007AFF';
+                    color = '#0e71dbff';
                     bulletColor = 'bg-[#007AFF]';
                 } else if (/Развитие:|Development:/i.test(line)) {
-                    color = '#FF9500';
-                    bulletColor = 'bg-[#FF9500]';
+                    color = '#c06c23ff'; // Darker orange
+                    bulletColor = 'bg-[#E67E22]';
                 } else if (/Итог:|Outcome:/i.test(line)) {
-                    color = '#34C759';
-                    bulletColor = 'bg-[#34C759]';
+                    color = '#169e48ff'; // Greener green
+                    bulletColor = 'bg-[#16A34A]';
                 }
 
                 const parts = line.split(/(Начало:|Развитие:|Итог:|Beginning:|Development:|Outcome:)/i);
                 if (parts.length > 2) {
                     return (
-                        <div key={i} className="flex gap-3 items-start mb-2">
-                            <div className={`mt-[8.5px] w-[6px] h-[6px] rounded-full shrink-0 ${bulletColor} shadow-[0_2px_4px_rgba(0,0,0,0.15)]`}></div>
-                            <div style={{ color: color, fontSize: '14px', lineHeight: '1.6' }}>
-                                <strong>{parts[1]}</strong><span className="ml-1">{parts.slice(2).join('')}</span>
+                        <div key={i} className="flex gap-3 items-start mb-3">
+                            <div className={`mt-[6px] w-[8px] h-[8px] rounded-full shrink-0 ${bulletColor} shadow-[0_2px_4px_rgba(0,0,0,0.15)]`}></div>
+                            <div style={{ color: color, fontSize: '15px', lineHeight: '1.6', flex: 1, paddingLeft: '4px' }}>
+                                <strong style={{ letterSpacing: '0.2px' }}>{parts[1]}</strong><span className="ml-1">{parts.slice(2).join('')}</span>
                             </div>
                         </div>
                     );
                 }
                 return (
-                    <div key={i} className="flex gap-3 items-start mb-2">
-                        <div className={`mt-[8.5px] w-[6px] h-[6px] rounded-full shrink-0 ${bulletColor} shadow-[0_2px_4px_rgba(0,0,0,0.15)]`}></div>
-                        <div style={{ color: color, fontSize: '14px', lineHeight: '1.6' }}>{line}</div>
+                    <div key={i} className="flex gap-3 items-start mb-3">
+                        <div className={`mt-[6px] w-[8px] h-[8px] rounded-full shrink-0 ${bulletColor} shadow-[0_2px_4px_rgba(0,0,0,0.15)]`}></div>
+                        <div style={{ color: color, fontSize: '15px', lineHeight: '1.6', flex: 1, paddingLeft: '4px' }}>{line}</div>
                     </div>
                 );
             })}
@@ -214,7 +214,6 @@ export default function RelationshipResultScreen({ result, onReset }) {
 
                 <div className="plan-section mt-4 mb-6">
                     <span className="plan-label success mb-3 flex items-center gap-1.5 w-fit" style={{ fontSize: '11px' }}>
-                        <span className="material-symbols-outlined text-[16px]">hotel_class</span>
                         {t('rel_ideal_self')}
                     </span>
                     <div className="plan-success-bubble">
@@ -224,11 +223,10 @@ export default function RelationshipResultScreen({ result, onReset }) {
 
                 <div className="plan-section mt-2 mb-2">
                     <span className="plan-label mb-3 flex items-center gap-1.5 w-fit" style={{ color: 'var(--text-muted)', fontSize: '11px' }}>
-                        <span className="material-symbols-outlined text-[16px]">movie_info</span>
                         {t('rel_real_behavior')}
                     </span>
                     <div className="plan-quote">
-                        {renderValue(result.real_behavior)}
+                        <div style={{ whiteSpace: 'pre-wrap' }}>{renderValue(result.real_behavior)}</div>
                     </div>
                 </div>
             </motion.div>
@@ -309,8 +307,8 @@ export default function RelationshipResultScreen({ result, onReset }) {
                         <h3 style={{ textTransform: 'uppercase', fontSize: '13px', letterSpacing: '1px' }}>{t('rel_awareness')}</h3>
                     </div>
 
-                    <div className="strength-chart-box mb-4" style={{ background: 'transparent', padding: 0, boxShadow: 'none' }}>
-                        <div className="strength-bar-row">
+                    <div className="strength-chart-box mb-4" style={{ background: 'transparent', padding: 0, boxShadow: 'none', border: 'none' }}>
+                        <div className="strength-bar-row" style={{ background: 'transparent' }}>
                             <div className="strength-bar-info">
                                 <span className="strength-bar-label" style={{ fontSize: '13px', textTransform: 'uppercase', color: '#AF52DE', fontWeight: 'bold' }}>
                                     {renderValue(result.awareness.level_text || result.awareness.level)}
@@ -337,16 +335,26 @@ export default function RelationshipResultScreen({ result, onReset }) {
                 </motion.div>
             )}
 
-            {/* ===== CONFIDENCE ===== */}
-            {result.confidence && (
+            {/* ===== RELATIONSHIP ARCHETYPE ===== */}
+            {result.relationship_archetype && (
                 <motion.div variants={item} className="card-glass my-4">
                     <div className="card-header pb-2">
-                        <span className="material-symbols-outlined icon-primary">analytics</span>
-                        <h3 style={{ textTransform: 'uppercase', fontSize: '13px', letterSpacing: '1px' }}>{t('analysis_confidence')}</h3>
+                        <span className="material-symbols-outlined icon-primary" style={{ color: '#AF52DE' }}>stars</span>
+                        <h3 style={{ textTransform: 'uppercase', fontSize: '13px', letterSpacing: '1px' }}>{t('rel_archetype_title')}</h3>
                     </div>
-                    <p className="card-text text-[14px] font-medium leading-relaxed" style={{ whiteSpace: 'pre-wrap' }}>
-                        {result.confidence}
-                    </p>
+                    <div className="text-center py-4">
+                        <h2 className="text-[20px] font-extrabold text-[var(--text)] mb-3 leading-tight">
+                            {renderValue(result.relationship_archetype.type)}
+                        </h2>
+                        <div className="w-12 h-[2px] bg-[#AF52DE]/20 mx-auto mb-4"></div>
+                        <p className="text-[15px] font-medium leading-relaxed px-2 text-[var(--text)] opacity-90">
+                            {renderValue(result.relationship_archetype.description)}
+                        </p>
+                        <div className="mt-4 p-4 rounded-[18px] bg-[#AF52DE]/05 border border-[#AF52DE]/10 italic text-[14px] text-[var(--text-muted)]">
+                            <span className="font-bold border-r border-[#AF52DE]/20 pr-2 mr-2">Core</span>
+                            {renderValue(result.relationship_archetype.core_mechanism)}
+                        </div>
+                    </div>
                 </motion.div>
             )}
 
