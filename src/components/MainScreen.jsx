@@ -33,7 +33,7 @@ export default function MainScreen({ nickname, setNickname, onAnalyze, userCheck
                 {t('hero_title')} <br /><span className="text-shimmer">Threads</span>
             </h1>
 
-            <p className="hero-subtitle opacity-80 mb-4 text-center text-balance max-w-[280px] mx-auto text-[13px]">
+            <p className="hero-subtitle opacity-80 mb-4 text-center text-balance max-w-[320px] mx-auto text-[13px]">
                 {t(analysisMode === 'new' ? 'hero_subtitle_relationship' : 'hero_subtitle_classic')}
             </p>
 
@@ -56,7 +56,7 @@ export default function MainScreen({ nickname, setNickname, onAnalyze, userCheck
                         className={`pill ${analysisMode === 'new' ? 'active' : ''}`}
                         onClick={() => setAnalysisMode('new')}
                     >
-                        ✨ {t('analysis_mode_new')}
+                     {t('analysis_mode_new')}
                     </button>
                 </motion.div>
             )}

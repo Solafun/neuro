@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useI18n } from '../i18n/I18nContext';
 
-export default function LoadingScreen() {
+export default function LoadingScreen({ analysisMode }) {
     const { t } = useI18n();
 
     const phases = [

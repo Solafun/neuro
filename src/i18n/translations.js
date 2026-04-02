@@ -21,7 +21,7 @@ export const translations = {
 
         // Main Screen
         'hero_title': 'Нейро-профайлинг',
-        'hero_subtitle_classic': 'Система анализа на базе 13 аналитических блоков.',
+        'hero_subtitle_classic': 'Анализ личности по 13 нейро-блокам.',
         'hero_subtitle_relationship': 'Разбор поведения и типажа в отношениях.',
         'input_placeholder': 'Введи никнейм...',
         'checks_ended': 'Проверки закончились',
@@ -172,7 +172,7 @@ export const translations = {
 
         // Main Screen
         'hero_title': 'Neuro-profiling',
-        'hero_subtitle_classic': 'Analysis system based on 13 analytical blocks.',
+        'hero_subtitle_classic': 'Personality analysis by 13 analytical blocks.',
         'hero_subtitle_relationship': 'Analysis of behavior and archetype in relationships.',
         'input_placeholder': 'Enter nickname...',
         'checks_ended': 'Checks ended',
