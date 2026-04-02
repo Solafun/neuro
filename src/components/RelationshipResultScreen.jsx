@@ -40,36 +40,67 @@ const renderValue = (val, fallback = '—') => {
 };
 
 const renderPartnerAttraction = (text) => {
-    if (!text) return '—';
-    const cleanText = renderValue(text);
+    if (!text || typeof text !== 'string') return text;
+    let cleanText = text.replace(/[\u4e00-\u9fa5\u3040-\u30ff]/g, '').trim();
+
     const parts = cleanText.split(/(Инсайт:|Insight:)/i);
-    if (parts.length > 1) {
-        return (
-            <>
-                <span>{parts[0]}</span>
-                <br /><br />
-                <span className="font-bold text-[var(--danger)]">{parts[1]} </span>
-                <span>{parts.slice(2).join('')}</span>
-            </>
-        );
-    }
-    return cleanText;
+
+    if (parts.length === 1) return <div style={{ fontSize: '14px', lineHeight: '1.6' }}>{cleanText}</div>;
+
+    const beforeInsight = parts[0].trim();
+    const insightKeyword = parts[1];
+    const insightText = parts.slice(2).join('').trim();
+
+    return (
+        <div className="flex flex-col gap-4">
+            {beforeInsight && <div style={{ fontSize: '14px', lineHeight: '1.6' }}>{beforeInsight}</div>}
+            <div className="plan-warning" style={{ background: 'rgba(255, 45, 85, 0.05)', color: '#FF2D55', borderLeft: '3px solid #FF2D55', margin: 0, padding: '12px 16px' }}>
+                <strong style={{ textTransform: 'uppercase', letterSpacing: '0.5px' }}>{insightKeyword}</strong> {insightText}
+            </div>
+        </div>
+    );
 };
 
 const renderRelationshipPattern = (text) => {
-    if (!text) return '—';
-    const cleanText = renderValue(text);
+    if (!text || typeof text !== 'string') return text;
+    let cleanText = text.replace(/[\u4e00-\u9fa5\u3040-\u30ff]/g, '').trim();
 
-    // Highlight specific keywords in the pattern
-    const regex = /(Начало:|Развитие:|Итог:|Beginning:|Development:|Outcome:)/gi;
-    const parts = cleanText.split(regex);
+    return (
+        <div className="flex flex-col gap-3">
+            {cleanText.split('\n').filter(line => line.trim().length > 0).map((line, i) => {
+                let color = 'var(--text)';
+                let bulletColor = 'bg-gray-300';
+                if (/Начало:|Beginning:/i.test(line)) {
+                    color = '#007AFF';
+                    bulletColor = 'bg-[#007AFF]';
+                } else if (/Развитие:|Development:/i.test(line)) {
+                    color = '#FF9500';
+                    bulletColor = 'bg-[#FF9500]';
+                } else if (/Итог:|Outcome:/i.test(line)) {
+                    color = '#34C759';
+                    bulletColor = 'bg-[#34C759]';
+                }
 
-    return parts.map((part, i) => {
-        if (part.match(/Начало:|Beginning:/i)) return <span key={i} className="text-blue-500 font-bold">{part}</span>;
-        if (part.match(/Развитие:|Development:/i)) return <span key={i} className="text-orange-500 font-bold">{part}</span>;
-        if (part.match(/Итог:|Outcome:/i)) return <span key={i} className="text-green-500 font-bold">{part}</span>;
-        return <span key={i}>{part}</span>;
-    });
+                const parts = line.split(/(Начало:|Развитие:|Итог:|Beginning:|Development:|Outcome:)/i);
+                if (parts.length > 2) {
+                    return (
+                        <div key={i} className="flex gap-3 items-start">
+                            <div className={`mt-[8.5px] w-[6px] h-[6px] rounded-full shrink-0 ${bulletColor} shadow-[0_2px_4px_rgba(0,0,0,0.15)]`}></div>
+                            <div style={{ color: color, fontSize: '14px', lineHeight: '1.6' }}>
+                                <strong>{parts[1]}</strong> {parts.slice(2).join('')}
+                            </div>
+                        </div>
+                    );
+                }
+                return (
+                    <div key={i} className="flex gap-3 items-start">
+                        <div className={`mt-[8.5px] w-[6px] h-[6px] rounded-full shrink-0 ${bulletColor} shadow-[0_2px_4px_rgba(0,0,0,0.15)]`}></div>
+                        <div style={{ color: color, fontSize: '14px', lineHeight: '1.6' }}>{line}</div>
+                    </div>
+                );
+            })}
+        </div>
+    );
 };
 
 // Modified PremiumGate: mostly passes through since this mode is premium-only,
@@ -157,10 +188,10 @@ export default function RelationshipResultScreen({ result, onReset }) {
                     <div className="mt-4 w-full px-4">
                         <button
                             onClick={handleShare}
-                            className="bg-black/5 hover:bg-black/10 text-[var(--text)] text-sm font-bold py-3 px-6 rounded-full w-full transition-colors flex items-center justify-center gap-2"
+                            className="bg-[#1C1C1E] text-white hover:bg-black/80 text-sm font-bold py-3.5 px-6 rounded-2xl w-full transition-colors flex items-center justify-center gap-2 shadow-xl"
                         >
-                            <span className="material-symbols-outlined text-lg">share</span>
-                            "{renderValue(result.share_hook)}"
+                            <span className="material-symbols-outlined text-lg" style={{ color: '#AF52DE' }}>share</span>
+                            <span className="italic font-medium">{renderValue(result.share_hook)}</span>
                         </button>
                     </div>
                 )}
@@ -179,18 +210,21 @@ export default function RelationshipResultScreen({ result, onReset }) {
 
             {/* ===== IDEAL SELF vs REALITY ===== */}
             <motion.div variants={item} className="card-glass">
-                <div className="plan-section mb-6">
-                    <span className="plan-label success mb-2 flex items-center gap-1 w-fit">
-                        <span className="material-symbols-outlined text-[16px]">hotel_class</span>
-                        {t('rel_ideal_self')}
-                    </span>
-                    <p className="card-text-compact text-[14px]" style={{ whiteSpace: 'pre-wrap', lineHeight: '1.6' }}>{renderValue(result.ideal_self)}</p>
+                <div className="card-header pb-2">
+                    <span className="material-symbols-outlined icon-primary" style={{ color: '#AF52DE' }}>compare_arrows</span>
+                    <h3 style={{ textTransform: 'uppercase', fontSize: '13px', letterSpacing: '1px' }}>{t('rel_ideal_vs_real', 'Идеальное и реальное')}</h3>
                 </div>
 
-                <div className="w-full h-[1px] bg-black/5 mb-5"></div>
+                <div className="plan-success-bubble mt-2 mb-6">
+                    <div className="flex items-center gap-1 mb-1.5 opacity-70">
+                        <span className="material-symbols-outlined text-[15px]">hotel_class</span>
+                        <span className="text-[11px] uppercase tracking-wider font-bold">{t('rel_ideal_self')}</span>
+                    </div>
+                    <div style={{ fontSize: '14px', lineHeight: '1.6' }}>{renderValue(result.ideal_self)}</div>
+                </div>
 
                 <div className="plan-section">
-                    <span className="plan-label danger mb-2 flex items-center gap-1 w-fit">
+                    <span className="plan-label danger mb-3 flex items-center gap-1 w-fit">
                         <span className="material-symbols-outlined text-[16px]">movie_info</span>
                         {t('rel_real_behavior')}
                     </span>
@@ -224,38 +258,39 @@ export default function RelationshipResultScreen({ result, onReset }) {
 
             {/* ===== MASK VS REALITY ===== */}
             <PremiumGate isPaid={result.isPaid} title={t('rel_mask_vs_reality')}>
-                <motion.div variants={item} className="card-glass my-4 border-[rgba(175,82,222,0.2)] shadow-md">
-                    <div className="card-header justify-center border-b border-black/5 pb-4 mb-4">
+                <motion.div variants={item} className="card-glass my-4">
+                    <div className="card-header pb-4 mb-4">
                         <span className="material-symbols-outlined" style={{ color: '#AF52DE' }}>masks</span>
-                        <h3 className="text-center">{t('rel_mask_vs_reality')}</h3>
+                        <h3 style={{ textTransform: 'uppercase', fontSize: '13px', letterSpacing: '1px' }}>{t('rel_mask_vs_reality')}</h3>
                     </div>
 
                     {result.mask_vs_reality && (
-                        <div className="flex flex-col items-center text-center space-y-3">
-                            <div className="flex flex-col items-center">
-                                <span className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider font-bold mb-1">{t('rel_mask')}</span>
-                                <div className="px-4 py-2 bg-black/10 rounded-xl font-medium text-[14px] leading-snug">{formatCamelCase(result.mask_vs_reality.mask)}</div>
+                        <div className="space-y-4">
+                            <div className="flex flex-col gap-2">
+                                <div className="text-[11px] font-semibold tracking-wider text-[var(--text-muted)] uppercase px-2">{t('rel_mask')}</div>
+                                <div className="bg-white/60 dark:bg-black/20 rounded-2xl p-4 shadow-sm border border-black/5 dark:border-white/5">
+                                    <div className="font-medium text-[15px]">{formatCamelCase(result.mask_vs_reality.mask)}</div>
+                                </div>
                             </div>
 
-                            <div className="w-[2px] h-[15px] bg-[var(--primary)] opacity-30"></div>
-
-                            <div className="flex flex-col items-center">
-                                <span className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider font-bold mb-1">{t('rel_reality')}</span>
-                                <div className="px-4 py-2 bg-black/10 rounded-xl font-medium text-[14px] leading-snug">{formatCamelCase(result.mask_vs_reality.reality)}</div>
+                            <div className="flex justify-center -my-1">
+                                <span className="material-symbols-outlined text-[var(--text-muted)] opacity-50">arrow_downward</span>
                             </div>
 
-                            <div className="w-[2px] h-[15px] bg-[var(--danger)] opacity-30"></div>
-
-                            <div className="flex flex-col items-center">
-                                <span className="text-[10px] text-[var(--danger)] uppercase tracking-wider font-bold mb-1">{t('rel_gap')}</span>
-                                <div className="px-4 py-2 bg-[rgba(255,45,85,0.1)] rounded-xl font-medium text-[14px] leading-snug">{formatCamelCase(result.mask_vs_reality.gap)}</div>
+                            <div className="flex flex-col gap-2">
+                                <div className="text-[11px] font-semibold tracking-wider text-[var(--text-muted)] uppercase px-2">{t('rel_reality')}</div>
+                                <div className="bg-white/60 dark:bg-black/20 rounded-2xl p-4 shadow-sm border border-black/5 dark:border-white/5">
+                                    <div className="font-medium text-[15px]">{formatCamelCase(result.mask_vs_reality.reality)}</div>
+                                </div>
                             </div>
 
-                            <div className="w-[2px] h-[15px] bg-[var(--text-muted)] opacity-30"></div>
+                            <div className="bg-[#FF2D55]/10 rounded-2xl p-4 border border-[#FF2D55]/20 mt-6 relative overflow-hidden">
+                                <div className="absolute top-0 left-0 w-1 h-full bg-[#FF2D55]"></div>
+                                <div className="text-[11px] font-bold tracking-wider text-[#FF2D55] uppercase mb-1">{t('rel_gap')}</div>
+                                <div className="font-medium text-[15px] text-[var(--text)] mb-3">{formatCamelCase(result.mask_vs_reality.gap)}</div>
 
-                            <div className="flex flex-col items-center">
-                                <span className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider font-bold mb-1">{t('rel_cost')}</span>
-                                <div className="px-4 py-2 bg-black/5 rounded-xl font-medium text-[14px] leading-snug">{formatCamelCase(result.mask_vs_reality.cost)}</div>
+                                <div className="text-[11px] font-bold tracking-wider text-[var(--text-muted)] uppercase mb-1">{t('rel_cost')}</div>
+                                <div className="text-[14px] text-[var(--text-muted)] leading-relaxed">{formatCamelCase(result.mask_vs_reality.cost)}</div>
                             </div>
                         </div>
                     )}
@@ -265,30 +300,34 @@ export default function RelationshipResultScreen({ result, onReset }) {
             {/* ===== AWARENESS ===== */}
             {result.awareness && (
                 <motion.div variants={item} className="card-glass">
-                    <div className="card-header border-b border-black/5 pb-3">
+                    <div className="card-header pb-4">
                         <span className="material-symbols-outlined icon-primary">visibility</span>
-                        <h3>{t('rel_awareness')} — <span style={{ color: '#AF52DE' }}>{renderValue(result.awareness.level_text || result.awareness.level).toUpperCase()}</span></h3>
+                        <h3 style={{ textTransform: 'uppercase', fontSize: '13px', letterSpacing: '1px' }}>{t('rel_awareness')}</h3>
                     </div>
 
-                    <div className="mt-4 mb-3">
-                        <div className="flex items-center justify-between mb-2">
-                            <div className="font-mono text-[16px] tracking-wider text-[var(--text)] text-opacity-80">
-                                <span className="mr-1 opacity-50">[</span>
-                                <span style={{ color: '#AF52DE' }}>
-                                    {'█'.repeat(Math.round((parseInt(result.awareness.level_percent || result.awareness.level) || 50) / 10))}
+                    <div className="strength-chart-box mb-4" style={{ background: 'transparent', padding: 0, boxShadow: 'none' }}>
+                        <div className="strength-bar-row">
+                            <div className="strength-bar-info">
+                                <span className="strength-bar-label" style={{ fontSize: '13px', textTransform: 'uppercase', color: '#AF52DE', fontWeight: 'bold' }}>
+                                    {renderValue(result.awareness.level_text || result.awareness.level)}
                                 </span>
-                                <span style={{ color: 'rgba(175, 82, 222, 0.2)' }}>
-                                    {'░'.repeat(10 - Math.round((parseInt(result.awareness.level_percent || result.awareness.level) || 50) / 10))}
+                                <span className="strength-bar-value" style={{ color: '#AF52DE', fontWeight: '800' }}>
+                                    {parseInt(result.awareness.level_percent || result.awareness.level) || 50}%
                                 </span>
-                                <span className="ml-1 opacity-50">]</span>
                             </div>
-                            <span className="font-bold text-[18px]" style={{ color: '#AF52DE' }}>
-                                {parseInt(result.awareness.level_percent || result.awareness.level) || 50}%
-                            </span>
+                            <div className="strength-bar-bg">
+                                <motion.div
+                                    className="strength-bar-fill"
+                                    style={{ background: 'linear-gradient(90deg, #AF52DE, #D08DF0)' }}
+                                    initial={{ width: 0 }}
+                                    animate={{ width: `${parseInt(result.awareness.level_percent || result.awareness.level) || 50}%` }}
+                                    transition={{ duration: 1, delay: 0.5 }}
+                                />
+                            </div>
                         </div>
                     </div>
 
-                    <p className="card-text mt-3 italic text-[var(--text-muted)] text-[14px]">
+                    <p className="card-text italic text-[var(--text-muted)] text-[14px] leading-relaxed">
                         {renderValue(result.awareness.description)}
                     </p>
                 </motion.div>
@@ -297,11 +336,11 @@ export default function RelationshipResultScreen({ result, onReset }) {
             {/* ===== CONFIDENCE ===== */}
             {result.confidence && (
                 <motion.div variants={item} className="card-glass my-4">
-                    <div className="card-header border-b border-black/5 pb-3">
+                    <div className="card-header pb-2">
                         <span className="material-symbols-outlined icon-primary">analytics</span>
-                        <h3>{t('analysis_confidence')}</h3>
+                        <h3 style={{ textTransform: 'uppercase', fontSize: '13px', letterSpacing: '1px' }}>{t('analysis_confidence')}</h3>
                     </div>
-                    <p className="card-text mt-3 text-[14px] font-medium" style={{ whiteSpace: 'pre-wrap' }}>
+                    <p className="card-text text-[14px] font-medium leading-relaxed" style={{ whiteSpace: 'pre-wrap' }}>
                         {result.confidence}
                     </p>
                 </motion.div>
