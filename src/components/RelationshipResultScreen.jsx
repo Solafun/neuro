@@ -300,10 +300,8 @@ export default function RelationshipResultScreen({ result, onReset }) {
                                 <span className="text-[13px] font-black uppercase text-[#FF2D55] tracking-wider mb-2 flex items-center gap-1.5 w-fit">
                                     {t('rel_cost')}
                                 </span>
-                                <div className="w-full p-4 rounded-[18px]" style={{ background: 'rgba(255, 45, 85, 0.08)', borderLeft: '4px solid #FF2D55' }}>
-                                    <div className="text-[15px] font-semibold text-[var(--text)] leading-relaxed italic">
-                                        {formatCamelCase(result.mask_vs_reality.cost)}
-                                    </div>
+                                <div className="plan-success-bubble" style={{ background: 'rgba(255, 45, 85, 0.08)', color: 'var(--text)', border: '1px solid rgba(255, 45, 85, 0.2)', fontSize: '15px', borderRadius: '18px' }}>
+                                    {formatCamelCase(result.mask_vs_reality.cost)}
                                 </div>
                             </div>
                         </div>
