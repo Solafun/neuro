@@ -264,38 +264,44 @@ export default function RelationshipResultScreen({ result, onReset }) {
                     </div>
 
                     {result.mask_vs_reality && (
-                        <div className="flex flex-col gap-2">
+                        <div className="flex flex-col">
                             {/* Step 1: Mask */}
-                            <div className="flex flex-col mb-8">
-                                <span className="text-[13px] font-black uppercase text-[#AF52DE] tracking-wider mb-2">{t('rel_mask')}</span>
-                                <div className="text-[16px] font-medium text-[var(--text)] leading-snug opacity-90 pl-1">
+                            <div className="plan-section mb-10">
+                                <span className="text-[13px] font-black uppercase text-[#AF52DE] tracking-wider mb-2 flex items-center gap-1.5 w-fit">
+                                    {t('rel_mask')}
+                                </span>
+                                <div className="plan-success-bubble" style={{ background: 'rgba(175, 82, 222, 0.08)', color: 'var(--text)', border: '1px solid rgba(175, 82, 222, 0.15)', fontSize: '15px', borderRadius: '18px' }}>
                                     {formatCamelCase(result.mask_vs_reality.mask)}
                                 </div>
                             </div>
 
                             {/* Step 2: Reality */}
-                            <div className="flex flex-col mb-8">
-                                <span className="text-[13px] font-black uppercase text-[#AF52DE] tracking-wider mb-2">{t('rel_reality')}</span>
-                                <div className="text-[16px] font-medium text-[var(--text)] leading-snug opacity-90 pl-1">
+                            <div className="plan-section mb-10">
+                                <span className="text-[13px] font-black uppercase text-[#AF52DE] tracking-wider mb-2 flex items-center gap-1.5 w-fit">
+                                    {t('rel_reality')}
+                                </span>
+                                <div className="plan-quote" style={{ fontSize: '15px' }}>
                                     {formatCamelCase(result.mask_vs_reality.reality)}
                                 </div>
                             </div>
 
                             {/* Step 3: Gap */}
-                            <div className="flex flex-col mb-8">
-                                <span className="text-[13px] font-black uppercase text-[#FF2D55] tracking-wider mb-2">{t('rel_gap')}</span>
-                                <div className="text-[16px] font-bold text-[#FF2D55] leading-snug pl-1">
+                            <div className="plan-section mb-10">
+                                <span className="text-[13px] font-black uppercase text-[#FF2D55] tracking-wider mb-2 flex items-center gap-1.5 w-fit">
+                                    {t('rel_gap')}
+                                </span>
+                                <div className="plan-quote" style={{ borderLeftColor: '#FF2D55', fontSize: '15px' }}>
                                     {formatCamelCase(result.mask_vs_reality.gap)}
                                 </div>
                             </div>
 
                             {/* Step 4: Cost */}
-                            <div className="flex flex-col">
-                                <span className="text-[13px] font-black uppercase text-[#FF2D55] tracking-wider mb-2">{t('rel_cost')}</span>
-                                <div className="w-full p-4 rounded-[20px]" style={{ background: 'rgba(255, 45, 85, 0.08)', borderLeft: '4px solid #FF2D55' }}>
-                                    <div className="text-[16px] font-semibold text-[var(--text)] leading-relaxed italic">
-                                        {formatCamelCase(result.mask_vs_reality.cost)}
-                                    </div>
+                            <div className="plan-section">
+                                <span className="text-[13px] font-black uppercase text-[#FF2D55] tracking-wider mb-2 flex items-center gap-1.5 w-fit">
+                                    {t('rel_cost')}
+                                </span>
+                                <div className="plan-success-bubble" style={{ background: 'rgba(255, 45, 85, 0.08)', color: '#FF2D55', border: '1px solid rgba(255, 45, 85, 0.15)', fontSize: '15px', borderRadius: '18px', fontWeight: '600' }}>
+                                    {formatCamelCase(result.mask_vs_reality.cost)}
                                 </div>
                             </div>
                         </div>
