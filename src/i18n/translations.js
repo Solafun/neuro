@@ -173,7 +173,7 @@ export const translations = {
         // Main Screen
         'hero_title': 'Neuro-profiling',
         'hero_subtitle_classic': 'Personality analysis by 13 analytical blocks.',
-        'hero_subtitle_relationship': 'Analysis of behavior and archetype in relationships.',
+        'hero_subtitle_relationship': 'Behavior and archetype in relationships.',
         'input_placeholder': 'Enter nickname...',
         'checks_ended': 'Checks ended',
         'status_premium': 'Premium Status',

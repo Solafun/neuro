@@ -280,7 +280,7 @@ export default function RelationshipResultScreen({ result, onReset }) {
                                 <span className="text-[13px] font-black uppercase text-[#AF52DE] tracking-wider mb-2 flex items-center gap-1.5 w-fit">
                                     {t('rel_reality')}
                                 </span>
-                                <div className="plan-quote" style={{ fontSize: '15px' }}>
+                                <div className="plan-success-bubble" style={{ background: 'rgba(142, 142, 147, 0.08)', color: 'var(--text)', border: '1px solid rgba(142, 142, 147, 0.15)', fontSize: '15px', borderRadius: '18px' }}>
                                     {formatCamelCase(result.mask_vs_reality.reality)}
                                 </div>
                             </div>
@@ -290,7 +290,7 @@ export default function RelationshipResultScreen({ result, onReset }) {
                                 <span className="text-[13px] font-black uppercase text-[#FF2D55] tracking-wider mb-2 flex items-center gap-1.5 w-fit">
                                     {t('rel_gap')}
                                 </span>
-                                <div className="plan-quote" style={{ borderLeftColor: '#FF2D55', fontSize: '15px' }}>
+                                <div className="plan-success-bubble" style={{ background: 'rgba(255, 45, 85, 0.04)', color: '#FF2D55', border: '1px solid rgba(255, 45, 85, 0.1)', fontSize: '15px', borderRadius: '18px' }}>
                                     {formatCamelCase(result.mask_vs_reality.gap)}
                                 </div>
                             </div>
