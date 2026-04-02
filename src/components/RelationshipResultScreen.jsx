@@ -185,25 +185,22 @@ export default function RelationshipResultScreen({ result, onReset }) {
                 <p className="result-subtitle">{t('analysis_mode_new')} • {t('psychological_profile')}</p>
 
                 {result.share_hook && (
-                    <div className="mt-4 w-full px-4 mb-2">
-                        <button
-                            onClick={handleShare}
-                            className="bg-[#1C1C1E] text-white hover:bg-black/80 text-[14px] font-bold py-3.5 px-6 rounded-[20px] w-full transition-colors flex items-center justify-center gap-2 shadow-xl"
-                        >
-                            <span className="material-symbols-outlined text-lg" style={{ color: '#AF52DE' }}>share</span>
-                            <span className="italic font-medium text-white">{renderValue(result.share_hook)}</span>
-                        </button>
+                    <div className="result-psychotype-wrapper cursor-pointer mt-4 mb-2" onClick={handleShare}>
+                        <div className="result-psychotype flex items-center justify-center gap-2 px-5 py-3" style={{ background: '#1C1C1E', color: 'white', textTransform: 'none' }}>
+                            <span className="material-symbols-outlined text-[16px]" style={{ color: '#AF52DE' }}>share</span>
+                            <span className="font-medium italic text-white text-[14px]">{renderValue(result.share_hook)}</span>
+                        </div>
                     </div>
                 )}
             </motion.header>
 
             {/* ===== TRUTH BOMB ===== */}
-            <motion.section variants={item} className="card-dark" style={{ background: 'linear-gradient(135deg, #1C1C1E 0%, #2A1B38 100%)' }}>
+            <motion.section variants={item} className="card-dark" style={{ marginBottom: '24px' }}>
                 <div className="card-header-dark">
                     <span className="material-symbols-outlined icon-primary" style={{ color: '#AF52DE' }}>terminal</span>
                     <h3 style={{ textTransform: 'uppercase', letterSpacing: '1px' }}>{t('rel_truth_bomb')}</h3>
                 </div>
-                <p className="card-text text-[15px] font-medium leading-[1.6]" style={{ whiteSpace: 'pre-wrap', color: 'rgba(255,255,255,0.9)' }}>
+                <p style={{ whiteSpace: 'pre-wrap', color: 'white', fontSize: '15px', lineHeight: '1.6', margin: 0 }}>
                     {renderValue(result.truth_bomb)}
                 </p>
             </motion.section>
@@ -215,23 +212,23 @@ export default function RelationshipResultScreen({ result, onReset }) {
                     <h3 style={{ textTransform: 'uppercase', fontSize: '13px', letterSpacing: '1px' }}>{t('rel_ideal_vs_real')}</h3>
                 </div>
 
-                <div className="mt-2 mb-6">
-                    <div className="flex items-center gap-1.5 mb-2 px-1">
-                        <span className="material-symbols-outlined text-[16px] text-emerald-500">hotel_class</span>
-                        <span className="text-[11px] uppercase tracking-wider font-bold text-emerald-500">{t('rel_ideal_self')}</span>
-                    </div>
-                    <div className="plan-success-bubble" style={{ background: 'rgba(52, 199, 89, 0.08)', color: 'var(--text)', border: 'none', margin: 0 }}>
-                        <div style={{ fontSize: '14px', lineHeight: '1.6' }}>{renderValue(result.ideal_self)}</div>
+                <div className="plan-section mt-4 mb-6">
+                    <span className="plan-label success mb-3 flex items-center gap-1.5 w-fit" style={{ fontSize: '11px' }}>
+                        <span className="material-symbols-outlined text-[16px]">hotel_class</span>
+                        {t('rel_ideal_self')}
+                    </span>
+                    <div className="plan-success-bubble">
+                        {renderValue(result.ideal_self)}
                     </div>
                 </div>
 
-                <div className="mb-2">
-                    <div className="flex items-center gap-1.5 mb-2 px-1 opacity-60">
+                <div className="plan-section mt-2 mb-2">
+                    <span className="plan-label mb-3 flex items-center gap-1.5 w-fit" style={{ color: 'var(--text-muted)', fontSize: '11px' }}>
                         <span className="material-symbols-outlined text-[16px]">movie_info</span>
-                        <span className="text-[11px] uppercase tracking-wider font-bold">{t('rel_real_behavior')}</span>
-                    </div>
-                    <div className="border border-black/10 dark:border-white/10 rounded-2xl p-4 bg-black/[0.02] dark:bg-white/[0.02]">
-                        <div style={{ fontSize: '14px', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>{renderValue(result.real_behavior)}</div>
+                        {t('rel_real_behavior')}
+                    </span>
+                    <div className="plan-quote">
+                        {renderValue(result.real_behavior)}
                     </div>
                 </div>
             </motion.div>
