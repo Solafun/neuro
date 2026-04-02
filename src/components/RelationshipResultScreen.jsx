@@ -85,8 +85,8 @@ const renderRelationshipPattern = (text) => {
                 if (parts.length > 2) {
                     return (
                         <div key={i} className="flex gap-3 items-start mb-3">
-                            <div className={`mt-[6px] w-[8px] h-[8px] rounded-full shrink-0 ${bulletColor} shadow-[0_2px_4px_rgba(0,0,0,0.15)]`}></div>
-                            <div style={{ color: color, fontSize: '15px', lineHeight: '1.6', flex: 1, paddingLeft: '4px' }}>
+                            <div className={`mt-[6px] w-[7px] h-[7px] rounded-full shrink-0 ${bulletColor} shadow-[0_2px_4px_rgba(0,0,0,0.15)]`}></div>
+                            <div style={{ color: color, fontSize: '13.5px', lineHeight: '1.6', flex: 1, paddingLeft: '4px' }}>
                                 <strong style={{ letterSpacing: '0.2px' }}>{parts[1]}</strong><span className="ml-1">{parts.slice(2).join('')}</span>
                             </div>
                         </div>
@@ -94,8 +94,8 @@ const renderRelationshipPattern = (text) => {
                 }
                 return (
                     <div key={i} className="flex gap-3 items-start mb-3">
-                        <div className={`mt-[6px] w-[8px] h-[8px] rounded-full shrink-0 ${bulletColor} shadow-[0_2px_4px_rgba(0,0,0,0.15)]`}></div>
-                        <div style={{ color: color, fontSize: '15px', lineHeight: '1.6', flex: 1, paddingLeft: '4px' }}>{line}</div>
+                        <div className={`mt-[6px] w-[7px] h-[7px] rounded-full shrink-0 ${bulletColor} shadow-[0_2px_4px_rgba(0,0,0,0.15)]`}></div>
+                        <div style={{ color: color, fontSize: '13.5px', lineHeight: '1.6', flex: 1, paddingLeft: '4px' }}>{line}</div>
                     </div>
                 );
             })}
@@ -257,75 +257,63 @@ export default function RelationshipResultScreen({ result, onReset }) {
 
             {/* ===== MASK VS REALITY INFOGRAPHIC ===== */}
             <PremiumGate isPaid={result.isPaid} title={t('rel_mask_vs_reality')}>
-                <motion.div variants={item} className="card-glass my-4 overflow-visible">
-                    <div className="card-header pb-4 mb-8">
+                <motion.div variants={item} className="card-glass my-4">
+                    <div className="card-header pb-4 mb-4">
                         <span className="material-symbols-outlined" style={{ color: '#AF52DE' }}>webhook</span>
                         <h3 style={{ textTransform: 'uppercase', fontSize: '13px', letterSpacing: '1px' }}>{t('rel_mask_vs_reality')}</h3>
                     </div>
 
                     {result.mask_vs_reality && (
-                        <div className="relative px-4 pb-4">
-                            {/* SVG Connection Path */}
-                            <svg className="absolute left-[31px] top-4 w-4 h-[calc(100%-40px)] z-0 pointer-events-none opacity-20" viewBox="0 0 20 400" preserveAspectRatio="none">
-                                <path
-                                    d="M 10 0 L 10 400"
-                                    stroke="url(#gradient-line)"
-                                    strokeWidth="4"
-                                    strokeLinecap="round"
-                                    strokeDasharray="8 12"
-                                />
-                                <defs>
-                                    <linearGradient id="gradient-line" x1="0%" y1="0%" x2="0%" y2="100%">
-                                        <stop offset="0%" stopColor="#AF52DE" />
-                                        <stop offset="50%" stopColor="#FF2D55" />
-                                        <stop offset="100%" stopColor="#AF52DE" />
-                                    </linearGradient>
-                                </defs>
-                            </svg>
-
-                            <div className="flex flex-col gap-10 relative z-10">
-                                {/* Step 1: Mask */}
-                                <div className="flex gap-6 items-start">
-                                    <div className="w-10 h-10 rounded-full bg-white dark:bg-[#1C1C1E] shadow-lg flex items-center justify-center shrink-0 border-2 border-[#AF52DE]">
-                                        <span className="text-[14px] font-bold text-[#AF52DE]">01</span>
-                                    </div>
-                                    <div className="pt-1">
-                                        <div className="text-[10px] font-black uppercase tracking-widest text-[#AF52DE] mb-1">{t('rel_mask')}</div>
-                                        <div className="text-[17px] font-bold text-[var(--text)] leading-tight">{formatCamelCase(result.mask_vs_reality.mask)}</div>
-                                    </div>
+                        <div className="flex flex-col gap-8 px-2 py-2">
+                            {/* Step 1: Mask */}
+                            <div className="flex gap-4 items-start">
+                                <div className="w-8 h-8 rounded-full bg-[#AF52DE] flex items-center justify-center shrink-0 shadow-lg">
+                                    <span className="text-[14px] font-bold text-white">01</span>
                                 </div>
-
-                                {/* Step 2: Reality */}
-                                <div className="flex gap-6 items-start">
-                                    <div className="w-10 h-10 rounded-full bg-white dark:bg-[#1C1C1E] shadow-lg flex items-center justify-center shrink-0 border-2 border-[#AF52DE]">
-                                        <span className="text-[14px] font-bold text-[#AF52DE]">02</span>
+                                <div className="flex-1 pt-0">
+                                    <div className="flex items-center gap-1 mb-1">
+                                        <span className="text-[11px] font-bold uppercase tracking-wider text-[#AF52DE] opacity-70">{t('rel_mask')}</span>
                                     </div>
-                                    <div className="pt-1">
-                                        <div className="text-[10px] font-black uppercase tracking-widest text-[#AF52DE] mb-1">{t('rel_reality')}</div>
-                                        <div className="text-[17px] font-bold text-[var(--text)] leading-tight">{formatCamelCase(result.mask_vs_reality.reality)}</div>
-                                    </div>
+                                    <div className="text-[18px] font-bold text-[var(--text)] leading-tight">{formatCamelCase(result.mask_vs_reality.mask)}</div>
                                 </div>
+                            </div>
 
-                                {/* Step 3: Gap */}
-                                <div className="flex gap-6 items-start">
-                                    <div className="w-10 h-10 rounded-full bg-white dark:bg-[#1C1C1E] shadow-lg flex items-center justify-center shrink-0 border-2 border-[#FF2D55]">
-                                        <span className="text-[14px] font-bold text-[#FF2D55]">03</span>
-                                    </div>
-                                    <div className="pt-1">
-                                        <div className="text-[10px] font-black uppercase tracking-widest text-[#FF2D55] mb-1">{t('rel_gap')}</div>
-                                        <div className="text-[17px] font-extrabold text-[#FF2D55] leading-tight">{formatCamelCase(result.mask_vs_reality.gap)}</div>
-                                    </div>
+                            {/* Step 2: Reality */}
+                            <div className="flex gap-4 items-start">
+                                <div className="w-8 h-8 rounded-full bg-[#AF52DE] flex items-center justify-center shrink-0 shadow-lg">
+                                    <span className="text-[14px] font-bold text-white">02</span>
                                 </div>
+                                <div className="flex-1 pt-0">
+                                    <div className="flex items-center gap-1 mb-1">
+                                        <span className="text-[11px] font-bold uppercase tracking-wider text-[#AF52DE] opacity-70">{t('rel_reality')}</span>
+                                    </div>
+                                    <div className="text-[18px] font-bold text-[var(--text)] leading-tight">{formatCamelCase(result.mask_vs_reality.reality)}</div>
+                                </div>
+                            </div>
 
-                                {/* Step 4: Cost */}
-                                <div className="flex gap-6 items-start">
-                                    <div className="w-10 h-10 rounded-full bg-[#FF2D55] shadow-lg flex items-center justify-center shrink-0 border-2 border-[#FF2D55]">
-                                        <span className="material-symbols-outlined text-[18px] text-white">warning</span>
+                            {/* Step 3: Gap */}
+                            <div className="flex gap-4 items-start">
+                                <div className="w-8 h-8 rounded-full bg-[#FF2D55] flex items-center justify-center shrink-0 shadow-lg">
+                                    <span className="text-[14px] font-bold text-white">03</span>
+                                </div>
+                                <div className="flex-1 pt-0">
+                                    <div className="flex items-center gap-1 mb-1">
+                                        <span className="text-[11px] font-bold uppercase tracking-wider text-[#FF2D55] opacity-70">{t('rel_gap')}</span>
                                     </div>
-                                    <div className="pt-1">
-                                        <div className="text-[10px] font-black uppercase tracking-widest text-[#FF2D55] mb-1 opacity-70">{t('rel_cost')}</div>
-                                        <div className="text-[15px] font-medium text-[var(--text)] leading-relaxed italic">{formatCamelCase(result.mask_vs_reality.cost)}</div>
+                                    <div className="text-[18px] font-bold text-[#FF2D55] leading-snug">{formatCamelCase(result.mask_vs_reality.gap)}</div>
+                                </div>
+                            </div>
+
+                            {/* Step 4: Cost */}
+                            <div className="flex gap-4 items-start">
+                                <div className="w-8 h-8 rounded-full bg-[#FF2D55] flex items-center justify-center shrink-0 shadow-lg">
+                                    <span className="material-symbols-outlined text-[18px] text-white">warning</span>
+                                </div>
+                                <div className="flex-1 pt-0">
+                                    <div className="flex items-center gap-1 mb-1">
+                                        <span className="text-[11px] font-bold uppercase tracking-wider text-[#FF2D55] opacity-70">{t('rel_cost')}</span>
                                     </div>
+                                    <div className="text-[17px] font-medium text-[var(--text)] leading-relaxed italic opacity-90">{formatCamelCase(result.mask_vs_reality.cost)}</div>
                                 </div>
                             </div>
                         </div>
