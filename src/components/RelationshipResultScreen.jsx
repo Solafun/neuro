@@ -55,7 +55,7 @@ const renderPartnerAttraction = (text) => {
         <div className="flex flex-col gap-4">
             {beforeInsight && <div style={{ fontSize: '14px', lineHeight: '1.6' }}>{beforeInsight}</div>}
             <div className="plan-warning" style={{ background: 'rgba(255, 45, 85, 0.05)', color: '#FF2D55', borderLeft: '3px solid #FF2D55', margin: 0, padding: '12px 16px' }}>
-                <strong style={{ textTransform: 'uppercase', letterSpacing: '0.5px' }}>{insightKeyword}</strong> {insightText}
+                {insightText}
             </div>
         </div>
     );
@@ -84,16 +84,16 @@ const renderRelationshipPattern = (text) => {
                 const parts = line.split(/(Начало:|Развитие:|Итог:|Beginning:|Development:|Outcome:)/i);
                 if (parts.length > 2) {
                     return (
-                        <div key={i} className="flex gap-3 items-start">
+                        <div key={i} className="flex gap-3 items-start mb-2">
                             <div className={`mt-[8.5px] w-[6px] h-[6px] rounded-full shrink-0 ${bulletColor} shadow-[0_2px_4px_rgba(0,0,0,0.15)]`}></div>
                             <div style={{ color: color, fontSize: '14px', lineHeight: '1.6' }}>
-                                <strong>{parts[1]}</strong> {parts.slice(2).join('')}
+                                <strong>{parts[1]}</strong><span className="ml-1">{parts.slice(2).join('')}</span>
                             </div>
                         </div>
                     );
                 }
                 return (
-                    <div key={i} className="flex gap-3 items-start">
+                    <div key={i} className="flex gap-3 items-start mb-2">
                         <div className={`mt-[8.5px] w-[6px] h-[6px] rounded-full shrink-0 ${bulletColor} shadow-[0_2px_4px_rgba(0,0,0,0.15)]`}></div>
                         <div style={{ color: color, fontSize: '14px', lineHeight: '1.6' }}>{line}</div>
                     </div>
@@ -185,13 +185,13 @@ export default function RelationshipResultScreen({ result, onReset }) {
                 <p className="result-subtitle">{t('analysis_mode_new')} • {t('psychological_profile')}</p>
 
                 {result.share_hook && (
-                    <div className="mt-4 w-full px-4">
+                    <div className="mt-4 w-full px-4 mb-2">
                         <button
                             onClick={handleShare}
-                            className="bg-[#1C1C1E] text-white hover:bg-black/80 text-sm font-bold py-3.5 px-6 rounded-2xl w-full transition-colors flex items-center justify-center gap-2 shadow-xl"
+                            className="bg-[#1C1C1E] text-white hover:bg-black/80 text-[14px] font-bold py-3.5 px-6 rounded-[20px] w-full transition-colors flex items-center justify-center gap-2 shadow-xl"
                         >
                             <span className="material-symbols-outlined text-lg" style={{ color: '#AF52DE' }}>share</span>
-                            <span className="italic font-medium">{renderValue(result.share_hook)}</span>
+                            <span className="italic font-medium text-white">{renderValue(result.share_hook)}</span>
                         </button>
                     </div>
                 )}
@@ -212,23 +212,27 @@ export default function RelationshipResultScreen({ result, onReset }) {
             <motion.div variants={item} className="card-glass">
                 <div className="card-header pb-2">
                     <span className="material-symbols-outlined icon-primary" style={{ color: '#AF52DE' }}>compare_arrows</span>
-                    <h3 style={{ textTransform: 'uppercase', fontSize: '13px', letterSpacing: '1px' }}>{t('rel_ideal_vs_real', 'Идеальное и реальное')}</h3>
+                    <h3 style={{ textTransform: 'uppercase', fontSize: '13px', letterSpacing: '1px' }}>{t('rel_ideal_vs_real')}</h3>
                 </div>
 
-                <div className="plan-success-bubble mt-2 mb-6">
-                    <div className="flex items-center gap-1 mb-1.5 opacity-70">
-                        <span className="material-symbols-outlined text-[15px]">hotel_class</span>
-                        <span className="text-[11px] uppercase tracking-wider font-bold">{t('rel_ideal_self')}</span>
+                <div className="mt-2 mb-6">
+                    <div className="flex items-center gap-1.5 mb-2 px-1">
+                        <span className="material-symbols-outlined text-[16px] text-emerald-500">hotel_class</span>
+                        <span className="text-[11px] uppercase tracking-wider font-bold text-emerald-500">{t('rel_ideal_self')}</span>
                     </div>
-                    <div style={{ fontSize: '14px', lineHeight: '1.6' }}>{renderValue(result.ideal_self)}</div>
+                    <div className="plan-success-bubble" style={{ background: 'rgba(52, 199, 89, 0.08)', color: 'var(--text)', border: 'none', margin: 0 }}>
+                        <div style={{ fontSize: '14px', lineHeight: '1.6' }}>{renderValue(result.ideal_self)}</div>
+                    </div>
                 </div>
 
-                <div className="plan-section">
-                    <span className="plan-label danger mb-3 flex items-center gap-1 w-fit">
+                <div className="mb-2">
+                    <div className="flex items-center gap-1.5 mb-2 px-1 opacity-60">
                         <span className="material-symbols-outlined text-[16px]">movie_info</span>
-                        {t('rel_real_behavior')}
-                    </span>
-                    <p className="card-text-compact text-[14px]" style={{ whiteSpace: 'pre-wrap', lineHeight: '1.6' }}>{renderValue(result.real_behavior)}</p>
+                        <span className="text-[11px] uppercase tracking-wider font-bold">{t('rel_real_behavior')}</span>
+                    </div>
+                    <div className="border border-black/10 dark:border-white/10 rounded-2xl p-4 bg-black/[0.02] dark:bg-white/[0.02]">
+                        <div style={{ fontSize: '14px', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>{renderValue(result.real_behavior)}</div>
+                    </div>
                 </div>
             </motion.div>
 
@@ -265,32 +269,35 @@ export default function RelationshipResultScreen({ result, onReset }) {
                     </div>
 
                     {result.mask_vs_reality && (
-                        <div className="space-y-4">
-                            <div className="flex flex-col gap-2">
-                                <div className="text-[11px] font-semibold tracking-wider text-[var(--text-muted)] uppercase px-2">{t('rel_mask')}</div>
-                                <div className="bg-white/60 dark:bg-black/20 rounded-2xl p-4 shadow-sm border border-black/5 dark:border-white/5">
-                                    <div className="font-medium text-[15px]">{formatCamelCase(result.mask_vs_reality.mask)}</div>
+                        <div className="px-1 py-2">
+                            <div className="flex flex-col items-center mb-6 relative">
+                                <div className="text-[10px] font-bold tracking-widest text-[#AF52DE] uppercase mb-3 opacity-80">{t('rel_mask')}</div>
+                                <div className="bg-white/80 dark:bg-[#2C2C2E]/80 backdrop-blur-xl rounded-[24px] px-6 py-4 shadow-[0_8px_30px_rgb(0,0,0,0.06)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] w-full text-center border border-black/5 dark:border-white/5">
+                                    <div className="font-medium text-[16px] text-[var(--text)]">{formatCamelCase(result.mask_vs_reality.mask)}</div>
                                 </div>
                             </div>
 
-                            <div className="flex justify-center -my-1">
-                                <span className="material-symbols-outlined text-[var(--text-muted)] opacity-50">arrow_downward</span>
-                            </div>
-
-                            <div className="flex flex-col gap-2">
-                                <div className="text-[11px] font-semibold tracking-wider text-[var(--text-muted)] uppercase px-2">{t('rel_reality')}</div>
-                                <div className="bg-white/60 dark:bg-black/20 rounded-2xl p-4 shadow-sm border border-black/5 dark:border-white/5">
-                                    <div className="font-medium text-[15px]">{formatCamelCase(result.mask_vs_reality.reality)}</div>
+                            <div className="flex justify-center -my-2 relative z-10">
+                                <div className="bg-[#F2F2F7] dark:bg-[#1C1C1E] w-8 h-8 rounded-full flex items-center justify-center shadow-sm">
+                                    <span className="material-symbols-outlined text-[16px] text-[var(--text-muted)] opacity-60">arrow_downward</span>
                                 </div>
                             </div>
 
-                            <div className="bg-[#FF2D55]/10 rounded-2xl p-4 border border-[#FF2D55]/20 mt-6 relative overflow-hidden">
-                                <div className="absolute top-0 left-0 w-1 h-full bg-[#FF2D55]"></div>
-                                <div className="text-[11px] font-bold tracking-wider text-[#FF2D55] uppercase mb-1">{t('rel_gap')}</div>
-                                <div className="font-medium text-[15px] text-[var(--text)] mb-3">{formatCamelCase(result.mask_vs_reality.gap)}</div>
+                            <div className="flex flex-col items-center mt-6 relative">
+                                <div className="text-[10px] font-bold tracking-widest text-[#AF52DE] uppercase mb-3 opacity-80">{t('rel_reality')}</div>
+                                <div className="bg-white/80 dark:bg-[#2C2C2E]/80 backdrop-blur-xl rounded-[24px] px-6 py-4 shadow-[0_8px_30px_rgb(0,0,0,0.06)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] w-full text-center border border-black/5 dark:border-white/5">
+                                    <div className="font-medium text-[16px] text-[var(--text)]">{formatCamelCase(result.mask_vs_reality.reality)}</div>
+                                </div>
+                            </div>
 
-                                <div className="text-[11px] font-bold tracking-wider text-[var(--text-muted)] uppercase mb-1">{t('rel_cost')}</div>
-                                <div className="text-[14px] text-[var(--text-muted)] leading-relaxed">{formatCamelCase(result.mask_vs_reality.cost)}</div>
+                            <div className="mt-8 bg-gradient-to-br from-[#FF2D55]/10 to-[#FF2D55]/5 rounded-[24px] p-5 shadow-sm text-center">
+                                <div className="text-[10px] font-bold tracking-widest text-[#FF2D55] uppercase mb-1 opacity-80">{t('rel_gap')}</div>
+                                <div className="font-semibold text-[15px] text-[#FF2D55] mb-4">{formatCamelCase(result.mask_vs_reality.gap)}</div>
+
+                                <div className="w-8 h-[1px] bg-[#FF2D55]/20 mx-auto mb-3"></div>
+
+                                <div className="text-[10px] font-bold tracking-widest text-[#FF2D55] uppercase mb-1 opacity-60">{t('rel_cost')}</div>
+                                <div className="text-[14px] text-[var(--text)] opacity-80 leading-relaxed">{formatCamelCase(result.mask_vs_reality.cost)}</div>
                             </div>
                         </div>
                     )}
@@ -315,7 +322,7 @@ export default function RelationshipResultScreen({ result, onReset }) {
                                     {parseInt(result.awareness.level_percent || result.awareness.level) || 50}%
                                 </span>
                             </div>
-                            <div className="strength-bar-bg">
+                            <div className="strength-bar-bg" style={{ background: 'rgba(175, 82, 222, 0.1)', overflow: 'hidden', borderRadius: '99px' }}>
                                 <motion.div
                                     className="strength-bar-fill"
                                     style={{ background: 'linear-gradient(90deg, #AF52DE, #D08DF0)' }}
