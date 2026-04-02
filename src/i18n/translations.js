@@ -117,6 +117,7 @@ export const translations = {
         'rel_gap': 'Разрыв:',
         'rel_cost': 'Цена:',
         'rel_share_hook': 'Поделиться',
+        'rel_truth_bomb': 'ЖЕСТКАЯ ПРАВДА',
 
         // Settings
         'settings_title': 'Настройки',
@@ -263,6 +264,7 @@ export const translations = {
         'rel_gap': 'Gap:',
         'rel_cost': 'Cost:',
         'rel_share_hook': 'Share Insight',
+        'rel_truth_bomb': 'TRUTH BOMB',
 
         // Settings
         'settings_title': 'Settings',

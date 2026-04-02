@@ -136,7 +136,7 @@ export default function RelationshipResultScreen({ result, onReset }) {
             <motion.section variants={item} className="card-dark" style={{ background: 'linear-gradient(135deg, #1C1C1E 0%, #2A1B38 100%)' }}>
                 <div className="card-header-dark">
                     <span className="material-symbols-outlined icon-primary" style={{ color: '#AF52DE' }}>terminal</span>
-                    <h3>{t('truth_bomb_placeholder')}</h3>
+                    <h3 style={{ textTransform: 'uppercase', letterSpacing: '1px' }}>{t('rel_truth_bomb')}</h3>
                 </div>
                 <div className="verdict-quote" style={{ borderLeftColor: '#AF52DE' }}>
                     <p>"{renderValue(result.truth_bomb)}"</p>
@@ -150,14 +150,14 @@ export default function RelationshipResultScreen({ result, onReset }) {
                         <span className="material-symbols-outlined icon-primary">hotel_class</span>
                         <span className="card-label-inline">{t('rel_ideal_self')}</span>
                     </div>
-                    <p className="card-text-compact">{renderValue(result.ideal_self)}</p>
+                    <p className="card-text-compact" style={{ whiteSpace: 'pre-wrap', lineHeight: '1.6' }}>{renderValue(result.ideal_self)}</p>
                 </div>
                 <div className="card-glass">
                     <div className="card-header-mini">
                         <span className="material-symbols-outlined icon-danger">movie_info</span>
                         <span className="card-label-inline">{t('rel_real_behavior')}</span>
                     </div>
-                    <p className="card-text-compact">{renderValue(result.real_behavior)}</p>
+                    <p className="card-text-compact" style={{ whiteSpace: 'pre-wrap', lineHeight: '1.6' }}>{renderValue(result.real_behavior)}</p>
                 </div>
             </motion.div>
 
@@ -165,20 +165,20 @@ export default function RelationshipResultScreen({ result, onReset }) {
             <motion.div variants={item} className="card-glass">
                 <div className="card-header">
                     <span className="material-symbols-outlined icon-primary">cycle</span>
-                    <h3>{t('rel_relationship_pattern')}</h3>
+                    <h3 style={{ textTransform: 'uppercase', fontSize: '13px', letterSpacing: '1px' }}>{t('rel_relationship_pattern')}</h3>
                 </div>
-                <div className="card-highlight" style={{ background: 'rgba(175, 82, 222, 0.08)' }}>
-                    <p style={{ margin: 0, fontWeight: '500', lineHeight: '1.6' }}>{renderValue(result.relationship_pattern)}</p>
+                <div className="card-highlight" style={{ background: 'rgba(175, 82, 222, 0.05)', border: '1px solid rgba(175, 82, 222, 0.1)' }}>
+                    <p style={{ margin: 0, fontWeight: '500', lineHeight: '1.7', whiteSpace: 'pre-wrap', fontSize: '14px' }}>{renderValue(result.relationship_pattern)}</p>
                 </div>
             </motion.div>
 
             {/* ===== ATTRACTION ===== */}
             <motion.div variants={item} className="card-glass">
-                <h3 className="card-title-primary" style={{ color: '#FF2D55' }}>
+                <h3 className="card-title-primary" style={{ color: '#FF2D55', textTransform: 'uppercase', fontSize: '13px', letterSpacing: '1px' }}>
                     <span className="material-symbols-outlined" style={{ fontSize: '20px', marginRight: '6px', verticalAlign: 'middle' }}>favorite</span>
                     {t('rel_partner_attraction')}
                 </h3>
-                <p className="card-text">
+                <p className="card-text" style={{ whiteSpace: 'pre-wrap', lineHeight: '1.6' }}>
                     {renderValue(result.partner_attraction)}
                 </p>
             </motion.div>
@@ -229,8 +229,9 @@ export default function RelationshipResultScreen({ result, onReset }) {
 
             {/* ===== CONFIDENCE ===== */}
             {result.confidence && (
-                <motion.div variants={item} className="mt-4 text-center">
-                    <p className="text-[12px] text-[var(--text-muted)] font-medium opacity-60">
+                <motion.div variants={item} className="mt-6 mb-2 text-center flex flex-col items-center justify-center opacity-80">
+                    <span className="material-symbols-outlined text-[var(--text-muted)] text-[18px] mb-1">analytics</span>
+                    <p className="text-[12px] text-[var(--text-muted)] max-w-[80%] mx-auto" style={{ whiteSpace: 'pre-wrap' }}>
                         {t('analysis_confidence')}: {result.confidence}
                     </p>
                 </motion.div>

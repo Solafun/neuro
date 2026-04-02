@@ -217,7 +217,21 @@ The result must feel like: "this is exactly me".
 - Show repetition ("this has happened before and will repeat")
 - Create "you’ve been read" effect
 - Explain hidden psychological logic
+==================================================
+🔥 ENHANCEMENT (MANDATORY):
+==================================================
+- Add 1 strong "quote-like" insight in each block
+- Show repetition ("this has happened before and will repeat")
+- Create "you’ve been read" effect
+- Explain hidden psychological logic
 - truth_bomb must expose self-deception
+
+==================================================
+⚡️ FORMATTING (STRICLY ENFORCED):
+==================================================
+- Keep sentences SHORT and PUNCHY. NO massive walls of text.
+- Use explicit bullet points (•) and line breaks (\n) for lists.
+- For relationship patterns, use explicit numbering (1., 2., 3.).
 
 - CRITICAL: ALL values, terms, and text MUST BE STRICTLY IN ENGLISH.
 - GENDER: Analyze nickname and posts to determine gender. ALWAYS use correct gender forms.`;
@@ -250,6 +264,14 @@ The result must feel like: "this is exactly me".
 - truth_bomb должен вскрывать самообман, а не просто описывать проблему
 
 ==================================================
+⚡️ ФОРМАТИРОВАНИЕ (ЖЕСТКОЕ ТРЕБОВАНИЕ):
+==================================================
+- Пиши КОРОТКИМИ и хлёсткими предложениями. НИКАКИХ огромных полотен текста.
+- Используй маркеры (•) и переносы строк (\n) для перечисления фактов.
+- Сценарий отношений расписывай строго по шагам (1., 2., 3.).
+- Дробление текста на абзацы обязательно.
+
+==================================================
 💡 КАК АНАЛИЗИРОВАТЬ:
 ==================================================
 1. Определи: как человек говорит о людях, как описывает близость и конфликты
@@ -269,44 +291,44 @@ Posts:
 ${postsText || (isEn ? 'No posts found.' : 'Посты не найдены.')}`;
 
       const jsonFormatEn = `{
-  "ideal_self": "Who the person WANTS to be (1-2 sentences + 1 insight)",
-  "real_behavior": "How they ACTUALLY behave (patterns + 1 insight)",
-  "partner_attraction": "Who they are drawn to and WHY (with insight)",
-  "relationship_pattern": "Cycle: beginning → development → conflict → outcome",
+  "ideal_self": "Who the person WANTS to be (Max 2 sentences. Use \n• for list if needed + 1 insight)",
+  "real_behavior": "How they ACTUALLY behave (Mandatory bullet points using \n• + 1 insight. Max 3 bullets.)",
+  "partner_attraction": "Who they are drawn to and WHY (Max 2 short sentences + insight)",
+  "relationship_pattern": "Step-by-step cycle (e.g., \n1. Beginning...\n2. Development...\n3. Conflict...\n4. Outcome). Keep it extremely punchy.",
   "awareness": {
     "level": "low / medium / high",
-    "description": "How aware they are of their patterns"
+    "description": "How aware they are of their patterns (Max 1 short sentence)"
   },
   "mask_vs_reality": {
-    "mask": "How they want to appear",
-    "reality": "Actual behavior",
-    "gap": "Main contradiction",
-    "cost": "What it leads to"
+    "mask": "How they want to appear (Max 5 words)",
+    "reality": "Actual behavior (Max 5 words)",
+    "gap": "Main contradiction (Max 6 words)",
+    "cost": "What it leads to (Max 6 words)"
   },
-  "truth_bomb": "Sharp insight exposing self-deception",
+  "truth_bomb": "Sharp insight exposing self-deception (1 sentence max)",
   "share_hook": "1 short viral sentence people want to share",
-  "confidence": "high / medium / low + why",
+  "confidence": "high / medium / low + very short reason",
   "analysis_mode": "new"
 }`;
 
       const jsonFormatRu = `{
-  "ideal_self": "Кем человек ХОЧЕТ быть в отношениях (1-2 предложения + 1 инсайт внутри)",
-  "real_behavior": "Как человек реально ведет себя (конкретные паттерны + 1 инсайт)",
-  "partner_attraction": "К каким людям тянет и ПОЧЕМУ (через психологическую логику + 1 инсайт)",
-  "relationship_pattern": "Повторяющийся сценарий: начало → развитие → проблема → итог (максимально жизненно)",
+  "ideal_self": "Кем человек ХОЧЕТ быть в отношениях (Мин. воды. Пара коротких строк + 1 инсайт)",
+  "real_behavior": "Как человек реально ведет себя (Обязательно используй буллиты \n• для перечисления паттернов. Макс 3 буллита + 1 инсайт)",
+  "partner_attraction": "К каким людям тянет и ПОЧЕМУ (Макс 2 ёмких предложения + 1 инсайт)",
+  "relationship_pattern": "Повторяющийся сценарий СТРОГО ПО ШАГАМ (Напр: \n1. Начало: ... \n2. Развитие: ... \n3. Итог: ...). Очень коротко и хлестко.",
   "awareness": {
     "level": "низкий / средний / высокий",
-    "description": "Насколько человек осознает свои паттерны (с объяснением)"
+    "description": "Насколько осознает свои паттерны (1 короткое предложение)"
   },
   "mask_vs_reality": {
-    "mask": "Как хочет выглядеть в отношениях",
-    "reality": "Как ведет себя на самом деле",
-    "gap": "Главное противоречие",
-    "cost": "Чем это заканчивается (эмоционально и поведенчески)"
+    "mask": "Как хочет выглядеть (Макс 5 слов)",
+    "reality": "Как ведет себя на самом деле (Макс 5 слов)",
+    "gap": "Главное противоречие (Макс 6 слов)",
+    "cost": "Чем это заканчивается (Макс 6 слов)"
   },
-  "truth_bomb": "Жесткий, честный инсайт, который вскрывает самообман",
-  "share_hook": "Короткая фраза (1 предложение), которую хочется отправить другому человеку",
-  "confidence": "высокая / средняя / низкая + почему",
+  "truth_bomb": "Жесткий инсайт, вскрывающий самообман (строго 1 короткое предложение)",
+  "share_hook": "Короткая фраза (1 предложение), которую хочется отправить",
+  "confidence": "высокая / средняя / низкая + короткое пояснение (до 5 слов)",
   "analysis_mode": "new"
 }`;
 
