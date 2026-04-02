@@ -45,7 +45,7 @@ const renderPartnerAttraction = (text) => {
 
     const parts = cleanText.split(/(Инсайт:|Insight:)/i);
 
-    if (parts.length === 1) return <div style={{ fontSize: '15px', lineHeight: '1.6' }}>{cleanText}</div>;
+    if (parts.length === 1) return <div style={{ fontSize: '14.5px', lineHeight: '1.6' }}>{cleanText}</div>;
 
     const beforeInsight = parts[0].trim();
     const insightKeyword = parts[1];
@@ -53,7 +53,7 @@ const renderPartnerAttraction = (text) => {
 
     return (
         <div className="flex flex-col gap-4">
-            {beforeInsight && <div style={{ fontSize: '15px', lineHeight: '1.6' }}>{beforeInsight}</div>}
+            {beforeInsight && <div style={{ fontSize: '14.5px', lineHeight: '1.6' }}>{beforeInsight}</div>}
             <div className="plan-warning" style={{ background: 'rgba(255, 45, 85, 0.05)', color: '#FF2D55', borderLeft: '3px solid #FF2D55', margin: 0, padding: '12px 16px' }}>
                 {insightText}
             </div>
@@ -86,7 +86,7 @@ const renderRelationshipPattern = (text) => {
                     return (
                         <div key={i} className="flex gap-3 items-start mb-3">
                             <div className={`mt-[6px] w-[7px] h-[7px] rounded-full shrink-0 ${bulletColor} shadow-[0_2px_4px_rgba(0,0,0,0.15)]`}></div>
-                            <div style={{ color: color, fontSize: '15px', lineHeight: '1.6', flex: 1, paddingLeft: '4px' }}>
+                            <div style={{ color: color, fontSize: '14.5px', lineHeight: '1.6', flex: 1, paddingLeft: '4px' }}>
                                 <strong style={{ letterSpacing: '0.2px' }}>{parts[1]}</strong><span className="ml-1">{parts.slice(2).join('')}</span>
                             </div>
                         </div>
@@ -95,7 +95,7 @@ const renderRelationshipPattern = (text) => {
                 return (
                     <div key={i} className="flex gap-3 items-start mb-3">
                         <div className={`mt-[6px] w-[7px] h-[7px] rounded-full shrink-0 ${bulletColor} shadow-[0_2px_4px_rgba(0,0,0,0.15)]`}></div>
-                        <div style={{ color: color, fontSize: '15px', lineHeight: '1.6', flex: 1, paddingLeft: '4px' }}>{line}</div>
+                        <div style={{ color: color, fontSize: '14.5px', lineHeight: '1.6', flex: 1, paddingLeft: '4px' }}>{line}</div>
                     </div>
                 );
             })}
@@ -200,7 +200,7 @@ export default function RelationshipResultScreen({ result, onReset }) {
                     <span className="material-symbols-outlined icon-primary" style={{ color: '#AF52DE' }}>terminal</span>
                     <h3 style={{ textTransform: 'uppercase', letterSpacing: '1px' }}>{t('rel_truth_bomb')}</h3>
                 </div>
-                <p style={{ whiteSpace: 'pre-wrap', color: 'white', fontSize: '15px', lineHeight: '1.6', margin: 0 }}>
+                <p style={{ whiteSpace: 'pre-wrap', color: 'white', fontSize: '14.5px', lineHeight: '1.6', margin: 0 }}>
                     {renderValue(result.truth_bomb)}
                 </p>
             </motion.section>
@@ -216,7 +216,7 @@ export default function RelationshipResultScreen({ result, onReset }) {
                     <span className="text-[13px] font-black uppercase text-[#16A34A] tracking-wider mb-2 flex items-center gap-1.5 w-fit">
                         {t('rel_ideal_self')}
                     </span>
-                    <div className="plan-success-bubble text-[15px] leading-relaxed">
+                    <div className="plan-success-bubble text-[14.5px] leading-relaxed">
                         {renderValue(result.ideal_self)}
                     </div>
                 </div>
@@ -225,7 +225,7 @@ export default function RelationshipResultScreen({ result, onReset }) {
                     <span className="text-[13px] font-black uppercase text-[var(--text-muted)] tracking-wider mb-2 flex items-center gap-1.5 w-fit">
                         {t('rel_real_behavior')}
                     </span>
-                    <div className="plan-quote text-[15px] leading-relaxed">
+                    <div className="plan-quote text-[14.5px] leading-relaxed">
                         <div style={{ whiteSpace: 'pre-wrap' }}>{renderValue(result.real_behavior)}</div>
                     </div>
                 </div>
@@ -250,7 +250,7 @@ export default function RelationshipResultScreen({ result, onReset }) {
                     <span className="material-symbols-outlined" style={{ fontSize: '18px', marginRight: '6px', verticalAlign: 'middle' }}>favorite</span>
                     {t('rel_partner_attraction')}
                 </h3>
-                <div style={{ fontSize: '15px', lineHeight: '1.6', opacity: 0.9 }}>
+                <div style={{ fontSize: '14.5px', lineHeight: '1.6', opacity: 0.9 }}>
                     {renderPartnerAttraction(result.partner_attraction)}
                 </div>
             </motion.div>
@@ -270,7 +270,7 @@ export default function RelationshipResultScreen({ result, onReset }) {
                                 <span className="text-[13px] font-black uppercase text-[#AF52DE] tracking-wider mb-2 flex items-center gap-1.5 w-fit">
                                     {t('rel_mask')}
                                 </span>
-                                <div className="plan-success-bubble" style={{ background: 'rgba(175, 82, 222, 0.08)', color: 'var(--text)', border: '1px solid rgba(175, 82, 222, 0.15)', fontSize: '15px', borderRadius: '18px' }}>
+                                <div className="plan-success-bubble" style={{ background: 'rgba(175, 82, 222, 0.08)', color: 'var(--text)', border: '1px solid rgba(175, 82, 222, 0.15)', fontSize: '14.5px', borderRadius: '18px' }}>
                                     {formatCamelCase(result.mask_vs_reality.mask)}
                                 </div>
                             </div>
@@ -280,7 +280,7 @@ export default function RelationshipResultScreen({ result, onReset }) {
                                 <span className="text-[13px] font-black uppercase text-[#AF52DE] tracking-wider mb-2 flex items-center gap-1.5 w-fit">
                                     {t('rel_reality')}
                                 </span>
-                                <div className="plan-success-bubble" style={{ background: 'rgba(142, 142, 147, 0.08)', color: 'var(--text)', border: '1px solid rgba(142, 142, 147, 0.15)', fontSize: '15px', borderRadius: '18px' }}>
+                                <div className="plan-success-bubble" style={{ background: 'rgba(142, 142, 147, 0.08)', color: 'var(--text)', border: '1px solid rgba(142, 142, 147, 0.15)', fontSize: '14.5px', borderRadius: '18px' }}>
                                     {formatCamelCase(result.mask_vs_reality.reality)}
                                 </div>
                             </div>
@@ -290,7 +290,7 @@ export default function RelationshipResultScreen({ result, onReset }) {
                                 <span className="text-[13px] font-black uppercase text-[#FF2D55] tracking-wider mb-2 flex items-center gap-1.5 w-fit">
                                     {t('rel_gap')}
                                 </span>
-                                <div className="plan-quote" style={{ borderLeftColor: '#FF2D55', fontSize: '15px' }}>
+                                <div className="plan-quote" style={{ borderLeftColor: '#FF2D55', fontSize: '14.5px' }}>
                                     {formatCamelCase(result.mask_vs_reality.gap)}
                                 </div>
                             </div>
@@ -300,7 +300,7 @@ export default function RelationshipResultScreen({ result, onReset }) {
                                 <span className="text-[13px] font-black uppercase text-[#FF2D55] tracking-wider mb-2 flex items-center gap-1.5 w-fit">
                                     {t('rel_cost')}
                                 </span>
-                                <div className="plan-success-bubble" style={{ background: 'rgba(255, 45, 85, 0.08)', color: 'var(--text)', border: '1px solid rgba(255, 45, 85, 0.2)', fontSize: '15px', borderRadius: '18px' }}>
+                                <div className="plan-success-bubble" style={{ background: 'rgba(255, 45, 85, 0.08)', color: 'var(--text)', border: '1px solid rgba(255, 45, 85, 0.2)', fontSize: '14.5px', borderRadius: '18px' }}>
                                     {formatCamelCase(result.mask_vs_reality.cost)}
                                 </div>
                             </div>
@@ -339,7 +339,7 @@ export default function RelationshipResultScreen({ result, onReset }) {
                         </div>
                     </div>
 
-                    <p className="card-text italic text-[var(--text-muted)] text-[14.5px] leading-relaxed">
+                    <p className="card-text italic text-[var(--text-muted)] text-[14px] leading-relaxed">
                         {renderValue(result.awareness.description)}
                     </p>
                 </motion.div>
@@ -357,10 +357,10 @@ export default function RelationshipResultScreen({ result, onReset }) {
                             {renderValue(result.relationship_archetype.type)}
                         </h2>
                         <div className="w-10 h-[1.5px] bg-[#AF52DE]/30 mx-auto mb-4"></div>
-                        <p className="text-[14.5px] font-medium leading-relaxed px-2 text-[var(--text)] opacity-90">
+                        <p className="text-[14px] font-medium leading-relaxed px-2 text-[var(--text)] opacity-90">
                             {renderValue(result.relationship_archetype.description)}
                         </p>
-                        <div className="mt-4 p-4 rounded-[18px] bg-[#AF52DE]/05 border border-[#AF52DE]/10 italic text-[13.5px] text-[var(--text-muted)]">
+                        <div className="mt-4 p-4 rounded-[18px] bg-[#AF52DE]/05 border border-[#AF52DE]/10 italic text-[13px] text-[var(--text-muted)]">
                             {renderValue(result.relationship_archetype.core_mechanism)}
                         </div>
                     </div>
