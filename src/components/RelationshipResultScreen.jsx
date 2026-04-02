@@ -45,7 +45,7 @@ const renderPartnerAttraction = (text) => {
 
     const parts = cleanText.split(/(Инсайт:|Insight:)/i);
 
-    if (parts.length === 1) return <div style={{ fontSize: '14px', lineHeight: '1.6' }}>{cleanText}</div>;
+    if (parts.length === 1) return <div style={{ fontSize: '15px', lineHeight: '1.6' }}>{cleanText}</div>;
 
     const beforeInsight = parts[0].trim();
     const insightKeyword = parts[1];
@@ -53,7 +53,7 @@ const renderPartnerAttraction = (text) => {
 
     return (
         <div className="flex flex-col gap-4">
-            {beforeInsight && <div style={{ fontSize: '14px', lineHeight: '1.6' }}>{beforeInsight}</div>}
+            {beforeInsight && <div style={{ fontSize: '15px', lineHeight: '1.6' }}>{beforeInsight}</div>}
             <div className="plan-warning" style={{ background: 'rgba(255, 45, 85, 0.05)', color: '#FF2D55', borderLeft: '3px solid #FF2D55', margin: 0, padding: '12px 16px' }}>
                 {insightText}
             </div>
@@ -86,7 +86,7 @@ const renderRelationshipPattern = (text) => {
                     return (
                         <div key={i} className="flex gap-3 items-start mb-3">
                             <div className={`mt-[6px] w-[7px] h-[7px] rounded-full shrink-0 ${bulletColor} shadow-[0_2px_4px_rgba(0,0,0,0.15)]`}></div>
-                            <div style={{ color: color, fontSize: '13.5px', lineHeight: '1.6', flex: 1, paddingLeft: '4px' }}>
+                            <div style={{ color: color, fontSize: '15px', lineHeight: '1.6', flex: 1, paddingLeft: '4px' }}>
                                 <strong style={{ letterSpacing: '0.2px' }}>{parts[1]}</strong><span className="ml-1">{parts.slice(2).join('')}</span>
                             </div>
                         </div>
@@ -95,7 +95,7 @@ const renderRelationshipPattern = (text) => {
                 return (
                     <div key={i} className="flex gap-3 items-start mb-3">
                         <div className={`mt-[6px] w-[7px] h-[7px] rounded-full shrink-0 ${bulletColor} shadow-[0_2px_4px_rgba(0,0,0,0.15)]`}></div>
-                        <div style={{ color: color, fontSize: '13.5px', lineHeight: '1.6', flex: 1, paddingLeft: '4px' }}>{line}</div>
+                        <div style={{ color: color, fontSize: '15px', lineHeight: '1.6', flex: 1, paddingLeft: '4px' }}>{line}</div>
                     </div>
                 );
             })}
@@ -213,19 +213,19 @@ export default function RelationshipResultScreen({ result, onReset }) {
                 </div>
 
                 <div className="plan-section mt-4 mb-6">
-                    <span className="plan-label success mb-3 flex items-center gap-1.5 w-fit" style={{ fontSize: '11px' }}>
+                    <span className="text-[13px] font-black uppercase text-[#16A34A] tracking-wider mb-2 flex items-center gap-1.5 w-fit">
                         {t('rel_ideal_self')}
                     </span>
-                    <div className="plan-success-bubble">
+                    <div className="plan-success-bubble text-[15px] leading-relaxed">
                         {renderValue(result.ideal_self)}
                     </div>
                 </div>
 
                 <div className="plan-section mt-2 mb-2">
-                    <span className="plan-label mb-3 flex items-center gap-1.5 w-fit" style={{ color: 'var(--text-muted)', fontSize: '11px' }}>
+                    <span className="text-[13px] font-black uppercase text-[var(--text-muted)] tracking-wider mb-2 flex items-center gap-1.5 w-fit">
                         {t('rel_real_behavior')}
                     </span>
-                    <div className="plan-quote">
+                    <div className="plan-quote text-[15px] leading-relaxed">
                         <div style={{ whiteSpace: 'pre-wrap' }}>{renderValue(result.real_behavior)}</div>
                     </div>
                 </div>
@@ -238,21 +238,21 @@ export default function RelationshipResultScreen({ result, onReset }) {
                     <h3 style={{ textTransform: 'uppercase', fontSize: '13px', letterSpacing: '1px' }}>{t('rel_relationship_pattern')}</h3>
                 </div>
                 <div className="card-highlight" style={{ background: 'rgba(175, 82, 222, 0.05)', border: '1px solid rgba(175, 82, 222, 0.1)' }}>
-                    <p style={{ margin: 0, fontWeight: '500', lineHeight: '1.7', whiteSpace: 'pre-wrap', fontSize: '14px' }}>
+                    <div style={{ margin: 0, fontWeight: '500', lineHeight: '1.7', whiteSpace: 'pre-wrap', fontSize: '15px' }}>
                         {renderRelationshipPattern(result.relationship_pattern)}
-                    </p>
+                    </div>
                 </div>
             </motion.div>
 
             {/* ===== ATTRACTION ===== */}
             <motion.div variants={item} className="card-glass">
-                <h3 className="card-title-primary" style={{ color: '#FF2D55', textTransform: 'uppercase', fontSize: '13px', letterSpacing: '1px' }}>
-                    <span className="material-symbols-outlined" style={{ fontSize: '20px', marginRight: '6px', verticalAlign: 'middle' }}>favorite</span>
+                <h3 className="card-mini-title" style={{ color: '#FF2D55' }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: '18px', marginRight: '6px', verticalAlign: 'middle' }}>favorite</span>
                     {t('rel_partner_attraction')}
                 </h3>
-                <p className="card-text" style={{ whiteSpace: 'pre-wrap', lineHeight: '1.6' }}>
+                <div style={{ fontSize: '15px', lineHeight: '1.6', opacity: 0.9 }}>
                     {renderPartnerAttraction(result.partner_attraction)}
-                </p>
+                </div>
             </motion.div>
 
             {/* ===== MASK VS REALITY OVERHAUL ===== */}
@@ -264,44 +264,36 @@ export default function RelationshipResultScreen({ result, onReset }) {
                     </div>
 
                     {result.mask_vs_reality && (
-                        <div className="flex flex-col">
+                        <div className="flex flex-col gap-2">
                             {/* Step 1: Mask */}
-                            <div className="flex flex-col mb-14">
-                                <div className="flex items-center mb-3">
-                                    <span className="text-[22px] font-black uppercase text-[#AF52DE] tracking-tight">{t('rel_mask')}</span>
-                                </div>
-                                <div className="text-[17px] font-medium text-[var(--test)] leading-snug opacity-90">
+                            <div className="flex flex-col mb-8">
+                                <span className="text-[13px] font-black uppercase text-[#AF52DE] tracking-wider mb-2">{t('rel_mask')}</span>
+                                <div className="text-[16px] font-medium text-[var(--text)] leading-snug opacity-90 pl-1">
                                     {formatCamelCase(result.mask_vs_reality.mask)}
                                 </div>
                             </div>
 
                             {/* Step 2: Reality */}
-                            <div className="flex flex-col mb-14">
-                                <div className="flex items-center mb-3">
-                                    <span className="text-[22px] font-black uppercase text-[#AF52DE] tracking-tight">{t('rel_reality')}</span>
-                                </div>
-                                <div className="text-[17px] font-medium text-[var(--text)] leading-snug opacity-90">
+                            <div className="flex flex-col mb-8">
+                                <span className="text-[13px] font-black uppercase text-[#AF52DE] tracking-wider mb-2">{t('rel_reality')}</span>
+                                <div className="text-[16px] font-medium text-[var(--text)] leading-snug opacity-90 pl-1">
                                     {formatCamelCase(result.mask_vs_reality.reality)}
                                 </div>
                             </div>
 
                             {/* Step 3: Gap */}
-                            <div className="flex flex-col mb-14">
-                                <div className="flex items-center mb-3">
-                                    <span className="text-[22px] font-black uppercase text-[#FF2D55] tracking-tight">{t('rel_gap')}</span>
-                                </div>
-                                <div className="text-[17px] font-bold text-[#FF2D55] leading-snug">
+                            <div className="flex flex-col mb-8">
+                                <span className="text-[13px] font-black uppercase text-[#FF2D55] tracking-wider mb-2">{t('rel_gap')}</span>
+                                <div className="text-[16px] font-bold text-[#FF2D55] leading-snug pl-1">
                                     {formatCamelCase(result.mask_vs_reality.gap)}
                                 </div>
                             </div>
 
                             {/* Step 4: Cost */}
-                            <div className="flex flex-col mb-6">
-                                <div className="flex items-center mb-4">
-                                    <span className="text-[22px] font-black uppercase text-[#FF2D55] tracking-tight">{t('rel_cost')}</span>
-                                </div>
-                                <div className="w-full p-5 rounded-[22px]" style={{ background: 'rgba(255, 45, 85, 0.09)', borderLeft: '5px solid #FF2D55' }}>
-                                    <div className="text-[17px] font-semibold text-[var(--text)] leading-relaxed italic">
+                            <div className="flex flex-col">
+                                <span className="text-[13px] font-black uppercase text-[#FF2D55] tracking-wider mb-2">{t('rel_cost')}</span>
+                                <div className="w-full p-4 rounded-[20px]" style={{ background: 'rgba(255, 45, 85, 0.08)', borderLeft: '4px solid #FF2D55' }}>
+                                    <div className="text-[16px] font-semibold text-[var(--text)] leading-relaxed italic">
                                         {formatCamelCase(result.mask_vs_reality.cost)}
                                     </div>
                                 </div>
@@ -341,7 +333,7 @@ export default function RelationshipResultScreen({ result, onReset }) {
                         </div>
                     </div>
 
-                    <p className="card-text italic text-[var(--text-muted)] text-[14px] leading-relaxed">
+                    <p className="card-text italic text-[var(--text-muted)] text-[15px] leading-relaxed">
                         {renderValue(result.awareness.description)}
                     </p>
                 </motion.div>

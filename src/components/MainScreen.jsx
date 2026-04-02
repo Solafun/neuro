@@ -23,7 +23,7 @@ export default function MainScreen({ nickname, setNickname, onAnalyze, userCheck
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95 }}
             transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-            className="hero-container flex-1 flex flex-col items-center justify-start pt-16 w-full relative"
+            className="hero-container flex-1 flex flex-col items-center justify-start pt-[50px] w-full relative"
         >
             <motion.div className="mb-8 animate-slide-up">
                 <Brain className="w-16 h-16 text-[var(--primary)] drop-shadow-md" />
@@ -56,7 +56,7 @@ export default function MainScreen({ nickname, setNickname, onAnalyze, userCheck
                         className={`pill ${analysisMode === 'new' ? 'active' : ''}`}
                         onClick={() => setAnalysisMode('new')}
                     >
-                     {t('analysis_mode_new')}
+                        {t('analysis_mode_new')}
                     </button>
                 </motion.div>
             )}
