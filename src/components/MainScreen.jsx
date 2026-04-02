@@ -68,7 +68,7 @@ export default function MainScreen({ nickname, setNickname, onAnalyze, userCheck
                         className={`pill ${analysisMode === 'new' ? 'active' : ''}`}
                         onClick={() => setAnalysisMode('new')}
                     >
-                        {t('analysis_mode_new')}
+                       💖{t('analysis_mode_new')}
                     </button>
                 </motion.div>
             )}

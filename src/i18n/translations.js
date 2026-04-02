@@ -33,7 +33,7 @@ export const translations = {
         'checks_many': 'Осталось {count} проверок',
         'subscribe': 'Подписка',
         'analysis_mode_classic': 'Классический',
-        'analysis_mode_new': 'Любовный',
+        'analysis_mode_new': 'Любовь',
         'creator': 'Создатель',
 
         // Loading Screen
