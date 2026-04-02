@@ -186,11 +186,142 @@ export default async function handler(req, res) {
 
     const isEn = req.body.lang === 'en';
     const outputLang = isEn ? 'ENGLISH' : 'RUSSIAN';
+    const analysisMode = req.body.analysisMode || 'classic';
 
     let baseRules, profileDataBlock, strengthChartRules, megaPrompt;
 
-    if (isEn) {
-      baseRules = `You are a deep psychological profiling system.
+    if (analysisMode === 'new') {
+      if (isEn) {
+        baseRules = `You are a deep psychological profiling system focused on relationships.
+Your task is to analyze a person's texts (posts, messages, behavior descriptions) and produce a clear, insightful, and psychologically accurate breakdown of how they behave in close relationships.
+The result must feel like: "this is exactly me".
+
+==================================================
+🔴 PRINCIPLES:
+==================================================
+- Explain not only WHAT happens, but WHY
+- Analyze behavior, not just words
+- Identify repeating patterns (cycles)
+- Highlight contradictions (ideal self vs real behavior)
+- Do not diagnose
+- Do not invent without evidence
+- If data is limited — explicitly say so
+- Avoid generic psychology clichés
+- Use simple, clear language but keep depth
+- Use real-life patterns so the user recognizes themselves
+
+==================================================
+🔥 ENHANCEMENT (MANDATORY):
+==================================================
+- Add 1 strong "quote-like" insight in each block
+- Show repetition ("this has happened before and will repeat")
+- Create "you’ve been read" effect
+- Explain hidden psychological logic
+- truth_bomb must expose self-deception
+
+- CRITICAL: ALL values, terms, and text MUST BE STRICTLY IN ENGLISH.
+- GENDER: Analyze nickname and posts to determine gender. ALWAYS use correct gender forms.`;
+      } else {
+        baseRules = `Ты являешься системой глубокого психологического анализа личности в контексте отношений.
+Твоя задача — на основе текстов человека (постов, сообщений, описаний поведения) создать точный, понятный и психологически глубокий разбор того, как человек ведет себя в близких отношениях.
+Важно: результат должен вызывать эффект “это реально про меня”.
+
+==================================================
+🔴 ПРИНЦИПЫ:
+==================================================
+- Объясняй не только ЧТО происходит, но и ПОЧЕМУ
+- Анализируй через поведение, а не через слова
+- Выявляй повторяющиеся сценарии (циклы)
+- Обязательно показывай противоречия (образ vs реальность)
+- Не ставь диагнозы
+- Не фантазируй без данных
+- Если данных мало — прямо укажи это
+- Избегай банальностей (например: “страх отвержения” без доказательств)
+- Пиши простым, понятным языком, но сохраняй глубину
+- Используй конкретные жизненные паттерны, чтобы человек узнавал себя
+
+==================================================
+🔥 УСИЛЕНИЕ (ОБЯЗАТЕЛЬНО):
+==================================================
+- В каждом блоке добавляй 1 короткий инсайт (сильная формулировка, как цитата)
+- Показывай повторяемость поведения (“это уже было и повторится”)
+- Создавай эффект “тебя прочитали”
+- Объясняй скрытую логику действий
+- truth_bomb должен вскрывать самообман, а не просто описывать проблему
+
+==================================================
+💡 КАК АНАЛИЗИРОВАТЬ:
+==================================================
+1. Определи: как человек говорит о людях, как описывает близость и конфликты
+2. Найди: повторяющиеся реакции (отдаление, контроль, зависимость)
+3. Определи: разрыв между образом себя и реальным поведением
+4. Построй: сценарий отношений (это ключ анализа)
+5. Оцени: осознает ли человек свою роль в проблемах
+
+- КРИТИЧНО: ВСЕ значения, термины и текст должны быть СТРОГО НА РУССКОМ ЯЗЫКЕ.
+- КРИТИЧНО: ВСЕГДА используй правильный род из текстов пользователя.`;
+      }
+
+      profileDataBlock = `${isEn ? 'PROFILE DATA:' : 'ДАННЫЕ ПРОФИЛЯ:'}
+Nickname: @${nickname}
+Bio: ${data.bio || (isEn ? 'No bio' : 'Нет био')}
+Posts:
+${postsText || (isEn ? 'No posts found.' : 'Посты не найдены.')}`;
+
+      const jsonFormatEn = `{
+  "ideal_self": "Who the person WANTS to be (1-2 sentences + 1 insight)",
+  "real_behavior": "How they ACTUALLY behave (patterns + 1 insight)",
+  "partner_attraction": "Who they are drawn to and WHY (with insight)",
+  "relationship_pattern": "Cycle: beginning → development → conflict → outcome",
+  "awareness": {
+    "level": "low / medium / high",
+    "description": "How aware they are of their patterns"
+  },
+  "mask_vs_reality": {
+    "mask": "How they want to appear",
+    "reality": "Actual behavior",
+    "gap": "Main contradiction",
+    "cost": "What it leads to"
+  },
+  "truth_bomb": "Sharp insight exposing self-deception",
+  "share_hook": "1 short viral sentence people want to share",
+  "confidence": "high / medium / low + why",
+  "analysis_mode": "new"
+}`;
+
+      const jsonFormatRu = `{
+  "ideal_self": "Кем человек ХОЧЕТ быть в отношениях (1-2 предложения + 1 инсайт внутри)",
+  "real_behavior": "Как человек реально ведет себя (конкретные паттерны + 1 инсайт)",
+  "partner_attraction": "К каким людям тянет и ПОЧЕМУ (через психологическую логику + 1 инсайт)",
+  "relationship_pattern": "Повторяющийся сценарий: начало → развитие → проблема → итог (максимально жизненно)",
+  "awareness": {
+    "level": "низкий / средний / высокий",
+    "description": "Насколько человек осознает свои паттерны (с объяснением)"
+  },
+  "mask_vs_reality": {
+    "mask": "Как хочет выглядеть в отношениях",
+    "reality": "Как ведет себя на самом деле",
+    "gap": "Главное противоречие",
+    "cost": "Чем это заканчивается (эмоционально и поведенчески)"
+  },
+  "truth_bomb": "Жесткий, честный инсайт, который вскрывает самообман",
+  "share_hook": "Короткая фраза (1 предложение), которую хочется отправить другому человеку",
+  "confidence": "высокая / средняя / низкая + почему",
+  "analysis_mode": "new"
+}`;
+
+      megaPrompt = `${baseRules}
+==================================================
+📊 ${isEn ? 'RETURN JSON' : 'ВЕРНИ JSON'}:
+==================================================
+${isEn ? jsonFormatEn : jsonFormatRu}
+==================================================
+${profileDataBlock}`;
+
+    } else {
+      // CLASSIC MODE
+      if (isEn) {
+        baseRules = `You are a deep psychological profiling system.
 Your task is to create an accurate, understandable, and psychologically deep personality analysis based on user texts.
 ==================================================
 🔴 PRINCIPLES:
@@ -206,13 +337,13 @@ Your task is to create an accurate, understandable, and psychologically deep per
 - FORBIDDEN: Use any Cyrillic characters.
 - GENDER: Analyze nickname and posts to determine gender. ALWAYS use correct gender forms. If undetermined, use gender-neutral language.`;
 
-      profileDataBlock = `PROFILE DATA:
+        profileDataBlock = `PROFILE DATA:
 Nickname: @${nickname}
 Bio: ${data.bio || 'No bio'}
 Posts:
 ${postsText || 'No posts found.'}`;
 
-      strengthChartRules = `==================================================
+        strengthChartRules = `==================================================
 📊 BLOCK: STRENGTHS CHART
 ==================================================
 Task: Highlight TOP-3 key strengths from the list below and rate them from 0 to 100.
@@ -236,8 +367,8 @@ Important:
 - Pick exactly 3 most prominent sides.
 - All values and text MUST BE STRICTLY IN ENGLISH.`;
 
-      if (isPaid) {
-        megaPrompt = `${baseRules}
+        if (isPaid) {
+          megaPrompt = `${baseRules}
 ==================================================
 📊 RETURN JSON:
 ==================================================
@@ -308,8 +439,8 @@ Important:
 }
 ${strengthChartRules}
 ${profileDataBlock}`;
-      } else {
-        megaPrompt = `${baseRules}
+        } else {
+          megaPrompt = `${baseRules}
 ==================================================
 📊 RETURN JSON (ONLY THESE BLOCKS):
 ==================================================
@@ -354,10 +485,10 @@ ${profileDataBlock}`;
 }
 ${strengthChartRules}
 ${profileDataBlock}`;
-      }
-    } else {
-      // RUSSIAN PROMPT
-      baseRules = `Ты являешься системой глубокого психологического профайлинга личности.
+        }
+      } else {
+        // RUSSIAN PROMPT
+        baseRules = `Ты являешься системой глубокого психологического профайлинга личности.
 Твоя задача — на основе текстов человека создать точный, понятный и психологически глубокий разбор личности.
 ==================================================
 🔴 ПРИНЦИПЫ:
@@ -372,13 +503,13 @@ ${profileDataBlock}`;
 - КРИТИЧНО: ВСЕ значения, термины и текст должны быть СТРОГО НА РУССКОМ ЯЗЫКЕ.
 - КРИТИЧНО: Проанализируй имя профиля и окончания глаголов в постах, чтобы определить пол пользователя. ВСЕГДА используй правильный род. Если пол определить абсолютно невозможно, формулируй предложения так, чтобы избегать упоминания пола.`;
 
-      profileDataBlock = `ДАННЫЕ ПРОФИЛЯ:
+        profileDataBlock = `ДАННЫЕ ПРОФИЛЯ:
 Nickname: @${nickname}
 Bio: ${data.bio || 'Нет био'}
 Posts:
 ${postsText || 'Посты не найдены.'}`;
 
-      strengthChartRules = `==================================================
+        strengthChartRules = `==================================================
 📊 БЛОК: ГРАФИК СИЛЬНЫХ СТОРОН
 ==================================================
 Задача: Выделить ТОП-3 ключевых сильных стороны из списка ниже и оценить их выраженность от 0 до 100.
@@ -402,8 +533,8 @@ ${postsText || 'Посты не найдены.'}`;
 - Выбери именно 3 наиболее выраженные стороны.
 - Все значения и текст должны быть СТРОГО НА РУССКОМ ЯЗЫКЕ.`;
 
-      if (isPaid) {
-        megaPrompt = `${baseRules}
+        if (isPaid) {
+          megaPrompt = `${baseRules}
 ==================================================
 📊 ВЕРНИ JSON:
 ==================================================
@@ -474,8 +605,8 @@ ${postsText || 'Посты не найдены.'}`;
 }
 ${strengthChartRules}
 ${profileDataBlock}`;
-      } else {
-        megaPrompt = `${baseRules}
+        } else {
+          megaPrompt = `${baseRules}
 ==================================================
 📊 ВЕРНИ JSON (ТОЛЬКО ЭТИ БЛОКИ):
 ==================================================
@@ -520,8 +651,9 @@ ${profileDataBlock}`;
 }
 ${strengthChartRules}
 ${profileDataBlock}`;
+        }
       }
-    }
+    } // END OF CLASSIC MODE
 
     // AI CALL (Baseten OpenAI SDK with stream accumulation)
     let analysisResult, lastError;

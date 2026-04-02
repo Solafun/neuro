@@ -2,12 +2,13 @@ import axios from 'axios';
 
 const API_BASE_URL = '/api';
 
-export const analyzeProfile = async (nickname, telegramId = null, lang = 'ru') => {
+export const analyzeProfile = async (nickname, telegramId = null, lang = 'ru', analysisMode = 'classic') => {
     try {
         const response = await axios.post(`${API_BASE_URL}/analyze`, {
             nickname,
             telegramId,
-            lang
+            lang,
+            analysisMode
         });
         return response.data;
     } catch (error) {

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { analyzeProfile } from './services/api';
 import ResultScreen from './components/ResultScreen';
+import RelationshipResultScreen from './components/RelationshipResultScreen';
 import MainScreen from './components/MainScreen';
 import LoadingScreen from './components/LoadingScreen';
 import ErrorScreen from './components/ErrorScreen';
@@ -156,7 +157,7 @@ function AppContent() {
       const tg = window.Telegram?.WebApp;
       const telegramId = tg?.initDataUnsafe?.user?.id;
 
-      const data = await analyzeProfile(cleanNick, telegramId, language);
+      const data = await analyzeProfile(cleanNick, telegramId, language, analysisMode);
 
       if (data.error) {
         if (data.error === 'no_checks') {
@@ -229,11 +230,19 @@ function AppContent() {
           )}
 
           {appState === 'result' && result && (
-            <ResultScreen
-              key="result"
-              result={result}
-              onReset={handleReset}
-            />
+            result.analysis_mode === 'new' ? (
+              <RelationshipResultScreen
+                key="relationship-result"
+                result={result}
+                onReset={handleReset}
+              />
+            ) : (
+              <ResultScreen
+                key="result"
+                result={result}
+                onReset={handleReset}
+              />
+            )
           )}
 
           {appState === 'error' && (

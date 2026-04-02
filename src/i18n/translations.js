@@ -105,6 +105,19 @@ export const translations = {
         'open_access': 'ОТКРЫТЬ ДОСТУП',
         'payment_link': 'https://t.me/tribute/app?startapp=sR0c',
 
+        // Relationship Mode Result Screen
+        'rel_ideal_self': 'Идеальное Я',
+        'rel_real_behavior': 'Реальное Поведение',
+        'rel_partner_attraction': 'Кого вы притягиваете',
+        'rel_relationship_pattern': 'Сценарий Отношений',
+        'rel_awareness': 'Уровень Осознанности',
+        'rel_mask_vs_reality': 'Маска vs Реальность',
+        'rel_mask': 'Маска:',
+        'rel_reality': 'Реальность:',
+        'rel_gap': 'Разрыв:',
+        'rel_cost': 'Цена:',
+        'rel_share_hook': 'Поделиться',
+
         // Settings
         'settings_title': 'Настройки',
         'language': 'Язык',
@@ -237,6 +250,19 @@ export const translations = {
         'subscription_unlock_full': 'Subscribe to unlock this section and get deep personality analysis.',
         'open_access': 'OPEN ACCESS',
         'payment_link': 'https://t.me/tribute/app?startapp=sRH5',
+
+        // Relationship Mode Result Screen
+        'rel_ideal_self': 'Ideal Self',
+        'rel_real_behavior': 'Actual Behavior',
+        'rel_partner_attraction': 'Who You Attract',
+        'rel_relationship_pattern': 'Relationship Scenario',
+        'rel_awareness': 'Awareness Level',
+        'rel_mask_vs_reality': 'Mask vs Reality',
+        'rel_mask': 'Mask:',
+        'rel_reality': 'Reality:',
+        'rel_gap': 'Gap:',
+        'rel_cost': 'Cost:',
+        'rel_share_hook': 'Share Insight',
 
         // Settings
         'settings_title': 'Settings',
