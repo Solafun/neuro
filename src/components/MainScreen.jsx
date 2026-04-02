@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { useI18n } from '../i18n/I18nContext';
 
 export default function MainScreen({ nickname, setNickname, onAnalyze, userChecks, analysisMode, setAnalysisMode }) {
-    const { t, language, setLanguage } = useI18n();
+    const { t } = useI18n();
 
     const { freeChecks = 1, paidChecks = 0, isPaid = false } = userChecks || {};
     const remainingChecks = isPaid ? paidChecks : freeChecks;
@@ -33,13 +33,13 @@ export default function MainScreen({ nickname, setNickname, onAnalyze, userCheck
                 <h1 className="hero-title tracking-tight-custom text-balance mb-4">
                     {t('hero_title')} <br /><span className="text-shimmer">Threads</span>
                 </h1>
-                <p className="hero-subtitle opacity-80 mb-6 text-center text-balance max-w-[320px] mx-auto text-[15px] font-medium leading-relaxed">
+                <p className="hero-subtitle opacity-80 mb-6 text-center whitespace-nowrap max-w-[90vw] mx-auto text-[15px] font-medium leading-relaxed">
                     {analysisMode === 'new' ? t('hero_subtitle_relationship') : t('hero_subtitle_classic')}
                 </p>
             </div>
 
             {/* Mode Switcher */}
-            <div className="analysis-mode-pills mb-8">
+            <div className="analysis-mode-pills mb-10">
                 <button
                     onClick={() => setAnalysisMode('classic')}
                     className={`pill ${analysisMode === 'classic' ? 'active' : ''}`}
@@ -103,7 +103,7 @@ export default function MainScreen({ nickname, setNickname, onAnalyze, userCheck
                 </div>
             </div>
 
-            <div className="mt-auto pt-12 pb-8 text-[11px] text-[var(--text-muted)] font-black uppercase tracking-[0.2em] opacity-80 flex items-center justify-center w-full gap-2 text-center pointer-events-none">
+            <div className="mt-auto pt-16 pb-8 text-[11px] text-[var(--text-muted)] font-black uppercase tracking-[0.2em] opacity-80 flex items-center justify-center w-full gap-2 text-center pointer-events-none">
                 <span className="pointer-events-auto flex items-center gap-2">
                     {t('creator')}{" "}
                     <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="#FF2D55" viewBox="0 0 16 16">
