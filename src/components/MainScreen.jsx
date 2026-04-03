@@ -21,6 +21,7 @@ export default function MainScreen({ nickname, setNickname, onAnalyze, userCheck
     const { freeChecks = 1, paidChecks = 0, isPaid = false } = userChecks || {};
     const remainingChecks = isPaid ? paidChecks : freeChecks;
     const hasChecks = remainingChecks > 0;
+    const isModeLocked = analysisMode === 'new' && !isPaid;
 
     const getChecksText = (count) => {
         if (count === 0) return t('checks_none');
@@ -49,47 +50,45 @@ export default function MainScreen({ nickname, setNickname, onAnalyze, userCheck
                 {t(analysisMode === 'new' ? 'hero_subtitle_relationship' : 'hero_subtitle_classic')}
             </p>
 
-            {/* Analysis mode switcher — premium only */}
-            {isPaid && (
-                <motion.div
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.2, duration: 0.4 }}
-                    className="analysis-mode-pills"
-                    style={{ marginBottom: '28px' }}
+            {/* Analysis mode switcher — now visible to everyone */}
+            <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.2, duration: 0.4 }}
+                className="analysis-mode-pills"
+                style={{ marginBottom: '28px' }}
+            >
+                <button
+                    className={`pill ${analysisMode === 'classic' ? 'active' : ''}`}
+                    onClick={() => setAnalysisMode('classic')}
                 >
-                    <button
-                        className={`pill ${analysisMode === 'classic' ? 'active' : ''}`}
-                        onClick={() => setAnalysisMode('classic')}
-                    >
-                        {t('analysis_mode_classic')}
-                    </button>
-                    <button
-                        className={`pill ${analysisMode === 'new' ? 'active' : ''}`}
-                        onClick={() => setAnalysisMode('new')}
-                    >
-                       💖{t('analysis_mode_new')}
-                    </button>
-                </motion.div>
-            )}
+                    {t('analysis_mode_classic')}
+                </button>
+                <button
+                    className={`pill ${analysisMode === 'new' ? 'active' : ''}`}
+                    onClick={() => setAnalysisMode('new')}
+                >
+                    💖{t('analysis_mode_new')}
+                </button>
+            </motion.div>
 
-            <div className={`input-block ring-1 ring-black/5 ${!hasChecks ? 'opacity-50 pointer-events-none grayscale-[0.5]' : ''}`} style={{ marginBottom: '10px' }}>
+            <div className={`input-block ring-1 ring-black/5 ${(!hasChecks || isModeLocked) ? 'opacity-50 pointer-events-none grayscale-[0.5]' : ''}`} style={{ marginBottom: '10px' }}>
                 <User className="w-5 h-5 text-[var(--text-muted)] shrink-0" strokeWidth={2} />
                 <input
                     type="text"
                     value={nickname}
                     onChange={(e) => setNickname(e.target.value)}
-                    placeholder={hasChecks ? t('input_placeholder') : t('checks_ended')}
+                    placeholder={isModeLocked ? t('premium_mode_locked') : (hasChecks ? t('input_placeholder') : t('checks_ended'))}
                     className="dashboard-input"
                     onFocus={() => setIsKeyboardVisible(true)}
                     onBlur={() => setTimeout(() => setIsKeyboardVisible(false), 200)}
-                    onKeyPress={(e) => e.key === 'Enter' && hasChecks && onAnalyze()}
-                    disabled={!hasChecks}
+                    onKeyPress={(e) => e.key === 'Enter' && hasChecks && !isModeLocked && onAnalyze()}
+                    disabled={!hasChecks || isModeLocked}
                 />
                 <motion.button
-                    whileTap={{ scale: hasChecks ? 0.95 : 1 }}
-                    onClick={() => hasChecks && onAnalyze()}
-                    disabled={!hasChecks || !nickname.trim()}
+                    whileTap={{ scale: (hasChecks && !isModeLocked) ? 0.95 : 1 }}
+                    onClick={() => hasChecks && !isModeLocked && onAnalyze()}
+                    disabled={!hasChecks || isModeLocked || !nickname.trim()}
                     className="input-action-btn ml-2"
                     aria-label={t('new_analysis')}
                 >
@@ -102,11 +101,11 @@ export default function MainScreen({ nickname, setNickname, onAnalyze, userCheck
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3, duration: 0.4 }}
-                className={`checks-status-block ${hasChecks ? 'compact' : ''}`}
+                className={`checks-status-block ${(hasChecks && !isModeLocked) ? 'compact' : ''}`}
             >
                 <div className="checks-status-row">
                     <div className="checks-status-left">
-                        <span className={`checks-status-icon material-symbols-outlined ${isPaid ? 'text-premium' : ''}`}>
+                        <span className={`checks-status-icon material-symbols-outlined ${(isPaid && !isModeLocked) ? 'text-premium' : ''}`}>
                             {isPaid ? 'diamond' : 'token'}
                         </span>
                         <div className="checks-status-info">
@@ -114,11 +113,11 @@ export default function MainScreen({ nickname, setNickname, onAnalyze, userCheck
                                 {isPaid ? t('status_premium') : t('status_free')}
                             </span>
                             <span className="checks-status-count">
-                                {getChecksText(remainingChecks)}
+                                {isModeLocked ? t('premium_mode_locked') : getChecksText(remainingChecks)}
                             </span>
                         </div>
                     </div>
-                    {!hasChecks && (
+                    {(!hasChecks || isModeLocked) && (
                         <button
                             className="checks-subscribe-btn"
                             onClick={() => window.Telegram?.WebApp?.openTelegramLink(t('payment_link'))}
