@@ -13,30 +13,15 @@ export default function SpatialBackground({ auraColor }) {
             <div
                 className="blob"
                 style={{
-                    width: '120vmin',
-                    height: '120vmin',
-                    background: auraColor
-                        ? `linear-gradient(135deg, ${auraColor} 0%, #ffffffdd 100%)`
-                        : 'linear-gradient(135deg, #007AFF 0%, #AF52DE 100%)',
-                    top: '-10vh',
-                    right: '-20vw',
-                    animationDelay: '0s',
-                    opacity: auraColor ? 0.4 : 0.45,
-                    transform: 'translate3d(0, 0, 0)'
-                }}
-            />
-            <div
-                className="blob"
-                style={{
                     width: '100vmin',
                     height: '100vmin',
                     background: auraColor
-                        ? `linear-gradient(135deg, ${auraColor} 0%, #22222244 100%)`
-                        : 'linear-gradient(135deg, #FF2D55) 0%, #FF9500 100%)',
-                    top: '40vh',
-                    left: '-15vw',
-                    animationDelay: '-5s',
-                    opacity: auraColor ? 0.3 : 0.3,
+                        ? `linear-gradient(135deg, ${auraColor} 0%, #ffffffdd 100%)`
+                        : 'linear-gradient(135deg, #007AFF 0%, #AF52DE 100%)',
+                    top: '-20vh',
+                    right: '-15vw',
+                    animationDelay: '0s',
+                    opacity: auraColor ? 0.4 : 0.45,
                     transform: 'translate3d(0, 0, 0)'
                 }}
             />
@@ -46,10 +31,25 @@ export default function SpatialBackground({ auraColor }) {
                     width: '90vmin',
                     height: '90vmin',
                     background: auraColor
+                        ? `linear-gradient(135deg, ${auraColor} 0%, #22222244 100%)`
+                        : 'linear-gradient(135deg, #FF2D55 0%, #FF9500 100%)',
+                    top: '65vh',
+                    left: '-10vw',
+                    animationDelay: '-5s',
+                    opacity: auraColor ? 0.3 : 0.3,
+                    transform: 'translate3d(0, 0, 0)'
+                }}
+            />
+            <div
+                className="blob"
+                style={{
+                    width: '85vmin',
+                    height: '85vmin',
+                    background: auraColor
                         ? `linear-gradient(135deg, #ffffffbb 0%, ${auraColor} 100%)`
                         : 'linear-gradient(135deg, #5856D6 0%, #007AFF 100%)',
-                    top: '15vh',
-                    right: '0vw',
+                    bottom: '10vh',
+                    right: '2vw',
                     animationDelay: '-10s',
                     opacity: auraColor ? 0.25 : 0.25,
                     transform: 'translate3d(0, 0, 0)'
