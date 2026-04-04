@@ -352,15 +352,15 @@ export default function RelationshipResultScreen({ result, onReset }) {
                         <span className="material-symbols-outlined icon-primary" style={{ color: '#AF52DE' }}>stars</span>
                         <h3 style={{ textTransform: 'uppercase', fontSize: '13px', letterSpacing: '1px' }}>{t('rel_archetype_title')}</h3>
                     </div>
-                    <div className="text-center py-4">
-                        <h2 className="text-[17px] font-extrabold text-[var(--text)] mb-3 leading-tight uppercase tracking-tight">
+                    <div className="text-center py-4 flex flex-col items-center">
+                        <h2 className="text-[18px] font-extrabold text-[var(--text)] mb-4 leading-normal uppercase tracking-tight">
                             {renderValue(result.relationship_archetype.type)}
                         </h2>
-                        <div className="w-10 h-[1.5px] bg-[#AF52DE]/30 mx-auto mb-4"></div>
-                        <p className="text-[14px] font-medium leading-relaxed px-2 text-[var(--text)] opacity-90">
+                        <div className="w-12 h-[2px] bg-[#AF52DE]/30 mb-5"></div>
+                        <p className="text-[14.5px] font-medium leading-[1.6] px-2 text-[var(--text)] opacity-95">
                             {renderValue(result.relationship_archetype.description)}
                         </p>
-                        <div className="mt-4 p-4 rounded-[18px] bg-[#AF52DE]/05 border border-[#AF52DE]/10 italic text-[13px] text-[var(--text-muted)]">
+                        <div className="mt-6 p-4 rounded-[20px] bg-[#AF52DE]/05 border border-[#AF52DE]/10 italic text-[13.5px] leading-relaxed text-[var(--text-muted)] w-full">
                             {renderValue(result.relationship_archetype.core_mechanism)}
                         </div>
                     </div>
